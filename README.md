@@ -4,7 +4,9 @@ Un dragonnier traverse un monde éteint sur son dragon noir : des terres déchar
 
 ## Jouer
 
-Le jeu est une application web installable (PWA) : on l'ouvre une fois en ligne, on l'installe, et il se joue ensuite sans réseau, dans sa propre fenêtre.
+En ligne : **https://florianzilliox.github.io/dragon-rider-2/** (cette adresse s'envoie telle quelle : on clique, on joue dans le navigateur).
+
+Le jeu est aussi une application installable (PWA) : installé, il se joue sans réseau, dans sa propre fenêtre.
 
 - **Téléphone** (en paysage) : Safari → bouton Partager → « Sur l'écran d'accueil » ; Chrome → menu ⋮ → « Installer l'application ».
 - **Ordinateur** : Chrome ou Edge → icône « Installer » à droite de la barre d'adresse ; Safari (Mac) → Fichier → « Ajouter au Dock ».
@@ -51,6 +53,8 @@ npm run build      # produit dist/ : la PWA, à publier telle quelle
 npm run dev        # serveur local sur http://localhost:8000, reconstruit à chaque modification
 npm test           # robots : téléphone simulé et écran titre (après npm run build)
 ```
+
+Chaque envoi sur la branche `main` de GitHub reconstruit et republie le jeu en ligne (`.github/workflows/publier.yml`).
 
 ### Organisation
 
