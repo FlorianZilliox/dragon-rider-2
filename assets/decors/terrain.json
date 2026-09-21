@@ -121,6 +121,45 @@
    ],
    "hauteurAvantRognage": 36,
    "raccord": true
+  },
+  "roc-tours": {
+   "image": "terrain/roc-tours.png",
+   "taille": [
+    128,
+    128
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 128,
+   "raccord": true
+  },
+  "crete-tours": {
+   "image": "terrain/crete-tours.png",
+   "taille": [
+    144,
+    44
+   ],
+   "decalage": [
+    0,
+    46
+   ],
+   "hauteurAvantRognage": 90,
+   "raccord": true
+  },
+  "dessous-tours": {
+   "image": "terrain/dessous-tours.png",
+   "taille": [
+    128,
+    53
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 54,
+   "raccord": true
   }
  }
 }

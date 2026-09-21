@@ -1,4 +1,6 @@
-// Joueur automatique « qui lit la carte » : vole vers la droite au-dessus des obstacles, se pose pour reprendre son souffle.
+// Joueur automatique « qui lit la carte » : vole vers la droite au-dessus des obstacles, se pose pour reprendre son souffle
+// (à bout de souffle, il descend sur le sol qui est sous lui), et, arrêté par un mur en plein vol, cherche un passage
+// plus bas puis plus haut (l'entrée d'un donjon, une fenêtre).
 // options : poser:tx:ty (départ), reliques (la porte de chaque acte est ouverte d'office : le robot ne cherche pas les reliques)
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
@@ -23,15 +25,16 @@ await key('keyDown', 'x'); await sleep(60); await key('keyUp', 'x'); await sleep
 if (options.startsWith('poser:')) { const [, tx, ty] = options.split(':'); await ev(`window.__essai.poser(${tx}, ${ty})`); await sleep(300); }
 // lecture de la carte côté page : sol et plafond devant le dragon
 const lire = `(() => { const e = window.__dragonRider(), c = window.__essai.caseA, TP = 16, tx = Math.floor(e.x / TP), ty = Math.floor(e.y / TP);
-  let sol = 1e9, plafond = -1e9;
+  let sol = 1e9, plafond = -1e9, ici = 1e9;
   for (let x = tx - 1; x <= tx + 7; x++) {
     for (let y = Math.max(0, ty - 1); y < 24; y++) { const t = c(x, y); if (t === 1 || t === 4 || t === 3 || t === 2) { sol = Math.min(sol, y * TP); break; } }
     for (let y = ty; y >= 0; y--) { const t = c(x, y); if (t === 1 || t === 4) { plafond = Math.max(plafond, (y + 1) * TP); break; } }
   }
-  return JSON.stringify(Object.assign(e, { solDevant: sol, plafondDevant: plafond })); })()`;
+  for (let x = tx - 1; x <= tx + 1; x++) for (let y = ty; y < 24; y++) { const t = c(x, y); if (t === 1 || t === 4 || t === 2) { ici = Math.min(ici, y * TP); break; } if (t === 3) break; }
+  return JSON.stringify(Object.assign(e, { solDevant: sol, plafondDevant: plafond, solIci: ici })); })()`;
 let tenu = new Set();
 const tenir = async (voulu) => { for (const k of tenu) if (!voulu.has(k)) await key('keyUp', k); for (const k of voulu) if (!tenu.has(k)) await key('keyDown', k); tenu = voulu; };
-const t0 = Date.now(); const journal = []; const push0 = journal.push.bind(journal); journal.push = (l) => { console.log(l); return push0(l); }; let pv = 5, pertes = 0, morts = 0, repos = false, dernierX = 0, bloqueDepuis = 0, acte = 0, debutActe = 0;
+const t0 = Date.now(); const journal = []; const push0 = journal.push.bind(journal); journal.push = (l) => { console.log(l); return push0(l); }; let pv = 5, pertes = 0, morts = 0, repos = false, dernierX = 0, bloqueDepuis = 0, acte = 0, debutActe = 0, detour = 0, sensDetour = -1, murX = -1e9;
 while ((Date.now() - t0) / 1000 < +duree) {
   const s = (Date.now() - t0) / 1000;
   const brut = await ev(lire); if (!brut) { console.log('lecture vide'); await sleep(200); continue; }
@@ -45,13 +48,22 @@ while ((Date.now() - t0) / 1000 < +duree) {
   const cible = e.plafondDevant > -1e9 && e.solDevant - e.plafondDevant < 110 ? (e.solDevant + e.plafondDevant) / 2 - 6 : e.solDevant - 58;
   const auSol = e.mode === 'ground' || e.mode === 'land';
   if (auSol && e.souffle < 0.35) repos = true;
-  if (repos && e.souffle > 0.95) repos = false;
+  if (repos && (e.souffle > 0.95 || !auSol)) repos = false;          // repris l'air (atterrissage au bord d'un vide) : il repart
   const v = new Set(auSol ? [] : ['x']);
   if (!repos) {
-    v.add('ArrowRight');
-    if (e.y > cible + 6) v.add('ArrowUp'); else if (e.y < cible - 24 && !auSol) v.add('ArrowDown');
+    if (s < detour) { v.add('ArrowRight'); v.add(sensDetour > 0 ? 'ArrowDown' : 'ArrowUp'); }
+    else if (!auSol && e.souffle < 0.25 && e.solIci < 1e9) v.add('ArrowDown');     // à bout de souffle : il se pose
+    else {
+      v.add('ArrowRight');
+      if (e.y > cible + 6) v.add('ArrowUp'); else if (e.y < cible - 24 && !auSol) v.add('ArrowDown');
+    }
   }
-  if (Math.abs(e.x - dernierX) < 2 && !repos) { if (!bloqueDepuis) bloqueDepuis = s; if (s - bloqueDepuis > 2.5) { journal.push(`${s.toFixed(0)}s BLOQUÉ à x=${e.x} y=${e.y} mode=${e.mode} souffle=${e.souffle}`); bloqueDepuis = s + 5; } } else bloqueDepuis = 0;
+  if (Math.abs(e.x - dernierX) < 2 && !repos && v.has('ArrowRight')) {
+    if (!bloqueDepuis) bloqueDepuis = s;
+    if (!auSol && s - bloqueDepuis > 1.2 && s >= detour) {            // un nouveau mur : d'abord plus bas ; le même : l'autre sens
+      sensDetour = Math.abs(e.x - murX) > 32 ? 1 : -sensDetour; murX = e.x; detour = s + 1.8; journal.push(`${s.toFixed(0)}s mur à x=${e.x} y=${e.y} : cherche un passage plus ${sensDetour > 0 ? 'bas' : 'haut'}`); }
+    if (s - bloqueDepuis > 2.5) { journal.push(`${s.toFixed(0)}s BLOQUÉ à x=${e.x} y=${e.y} mode=${e.mode} souffle=${e.souffle}`); bloqueDepuis = s + 5; }
+  } else bloqueDepuis = 0;
   dernierX = e.x;
   await tenir(v);
   if (Math.floor(s) % 15 === 0 && !journal.find((j) => j.startsWith(Math.floor(s) + 's ·'))) journal.push(`${Math.floor(s)}s · acte ${e.acte} x=${e.x}/${e.largeur} y=${e.y} pv=${e.pv} souffle=${e.souffle} reliques=${e.reliques} ${e.mode}`);

@@ -24,8 +24,10 @@ for (const a of actions) {
   const [nom, ...arg] = a.split(':');
   if (nom === 'nav') {
     await cmd('Page.navigate', { url: 'about:blank' }); await sleep(300);
-    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + '#acte=' + arg[0] + (arg[0] === '4' ? '#veilleur' : '') }); await sleep(1400);
-    await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(4200);
+    // nav:N : acte N sans ennemis (nav:N:1 avec) ; nav:v : juste avant l'arène du Veilleur, au bout du dernier acte ;
+    // un 3e argument règle l'attente après le lancement (nav:3::1500 : la carte de titre de l'acte est encore là)
+    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + (arg[0] === 'v' ? '#veilleur' : '#acte=' + arg[0]) }); await sleep(1400);
+    await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(+(arg[2] || 4200));
   } else if (nom === 'poser' || nom === 'voler') await ev(`window.__essai.${nom}(${arg[0]}, ${arg[1]})`);
   else if (nom === 'souffle') await ev(`window.__essai.souffle(${arg[0]})`);
   else if (nom === 'tenir') { const ks = arg[0].split('+'); for (const k of ks) await key('keyDown', k); await sleep(+arg[1]); for (const k of ks) await key('keyUp', k); }

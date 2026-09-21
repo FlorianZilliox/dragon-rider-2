@@ -204,6 +204,32 @@
     0,
     0
    ]
+  },
+  "gargouille": {
+   "image": "objets/gargouille.png",
+   "taille": [
+    31,
+    32
+   ],
+   "decalage": [
+    7,
+    9
+   ],
+   "hauteurAvantRognage": 46,
+   "raccord": false
+  },
+  "etendard": {
+   "image": "objets/etendard.png",
+   "taille": [
+    22,
+    53
+   ],
+   "decalage": [
+    11,
+    6
+   ],
+   "hauteurAvantRognage": 66,
+   "raccord": false
   }
  }
 }

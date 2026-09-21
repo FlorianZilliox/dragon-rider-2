@@ -99,6 +99,7 @@ Chaque acte est un fichier texte, `niveaux/<cle>.txt`, dont la clé est déclar�
 | `^` | pics | `h` / `r` | cœur / relique |
 | `x` | mur fissuré (feu ou ruée ; tout le mur cède d'un coup) | `V` | le Veilleur (son arène) |
 | `~` | colonne de cendre (porte vers le haut, rend le souffle) | `T` `t` `+` | arbre mort, tombe, croix (décor) |
+| | | `G` `g` `B` | gargouille tournée vers la droite, vers la gauche ; étendard en lambeaux (décor) |
 
 Ennemis : `c` charognard, `a` âme errante, `b` chauve-souris (seulement sous un vrai plafond), `s` spectre, `k` crâne ardent. Chacun a son propre schéma de comportement ; ils se réveillent quand ils entrent dans le champ, et un ennemi vaincu le reste.
 
@@ -109,6 +110,7 @@ Mesures utiles pour dessiner une carte (le dragon est grand) :
 - Son feu part à hauteur de gueule : un mur fissuré doit être atteignable de face.
 - Le souffle plein permet environ 7 s de vol à plat (≈ 1 200 px, 75 cases) ou 3,5 s de montée : au-delà, prévoir un sol ou une colonne de cendre.
 - Hors de la carte : roc sur les côtés et en haut, gouffre en bas.
+- La roche qui pend (`dessous`) garnit toute cavité de 3 rangées ou plus sous du roc, et la crête se pose sur tout sol découvert. Dans les tours (`sousLeCiel` dans `TERRAIN`), les créneaux ne se posent qu'à l'air libre et, au plafond d'une salle, les mâchicoulis se réduisent à une corniche : un sol ou un plafond à moins de 10 rangées fait une salle.
 
 ## Les images
 

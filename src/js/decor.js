@@ -20,6 +20,11 @@ export const PLANS = {
                           { el: 'terres/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'terres/proche', f: 0.55, v: 0.55, bas: 34 }] },
   cimetiere: { dehors: true, orage: true, plans: [...CIEL, { el: 'cimetiere/lointain', f: 0.1, v: 0.12, bas: -10 }, { el: 'commun/nuages', f: 0.16, v: 0.3, bas: 150 },
                           { el: 'cimetiere/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'cimetiere/proche', f: 0.55, v: 0.55, bas: 34 }] },
+  // les tours du château plongent dans la brume : quand on pique vers le fond, la mer de nuages monte devant leurs pieds.
+  // Le plan proche descend assez bas (bas ≥ 108) pour que son bord inférieur ne se voie jamais, même caméra au fond.
+  tours: { dehors: true, orage: true, plans: [...CIEL, { el: 'tours/lointain', f: 0.1, v: 0.12, bas: -10 }, { el: 'commun/nuages', f: 0.16, v: 0.3, bas: 150 },
+                          { el: 'tours/milieu', f: 0.3, v: 0.3, bas: 20 }, { el: 'tours/proche', f: 0.55, v: 0.55, bas: 112 },
+                          { el: 'commun/nuages', f: 0.7, v: 0.7, bas: 240 }] },
   cryptes: { dehors: false, plans: [{ el: 'cryptes/fond', f: 0.15, v: 0.2, haut: -40 }, { el: 'cryptes/arcades', f: 0.45, v: 0.45, haut: -30 }] },
 };
 export const decorActe = () => PLANS[ACTES[J.acteVisuel].cle];

@@ -83,6 +83,31 @@
    "rogner": true,
    "contour": true
   },
+  "gargouille": {
+   "source": "gargouille",
+   "largeur": 46,
+   "alpha": true,
+   "tons": [
+    0,
+    9
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "etendard": {
+   "source": "etendard",
+   "largeur": 44,
+   "alpha": true,
+   "seuil_alpha": 0.3,
+   "tons": [
+    0,
+    8
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
   "ile": {
    "source": "terres-dessous",
    "largeur": 180,

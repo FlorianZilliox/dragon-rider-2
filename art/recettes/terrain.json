@@ -62,6 +62,23 @@
    ],
    "tramage": 0.5
   },
+  "roc-tours": {
+   "source": "tours-roc",
+   "largeur": 128,
+   "recadrer": [
+    0.1,
+    0,
+    0.7667,
+    1
+   ],
+   "raccord": 0.12,
+   "raccord_v": 0.12,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.5
+  },
   "crete-terres": {
    "source": "terres-crete",
    "largeur": 256,
@@ -86,6 +103,26 @@
    "tramage": 0.4,
    "rogner": true
   },
+  "crete-tours": {
+   "_doc": "créneaux en ruine : merlons ébréchés, pinacles penchés",
+   "source": "tours-crete",
+   "largeur": 144,
+   "alpha": true,
+   "recadrer": [
+    0,
+    0,
+    1,
+    0.845
+   ],
+   "raccord": 0.1,
+   "ilot_min": 10,
+   "tons": [
+    2,
+    10
+   ],
+   "tramage": 0.4,
+   "rogner": true
+  },
   "dessous": {
    "source": "terres-dessous",
    "largeur": 256,
@@ -103,6 +140,26 @@
     1,
     1
    ]
+  },
+  "dessous-tours": {
+   "_doc": "mâchicoulis et culs-de-lampe sous les encorbellements des tours",
+   "source": "tours-dessous",
+   "largeur": 128,
+   "alpha": true,
+   "recadrer": [
+    0.036,
+    0.328,
+    0.965,
+    0.86
+   ],
+   "raccord": 0.1,
+   "ilot_min": 10,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.4,
+   "rogner": true
   },
   "passerelle": {
    "source": "passerelle",
