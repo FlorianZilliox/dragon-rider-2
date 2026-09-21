@@ -20,14 +20,13 @@ export function barre(x, y, w, f, c) {
   ctx.fillStyle = c; ctx.fillRect(x, y, Math.round(w * clamp(f, 0, 1)), 3);
 }
 export function hud() {
+  // à gauche : cœurs, souffle, acte ; à droite : score et son. Chaque côté s'écarte de l'encoche du téléphone.
+  ctx.save(); ctx.translate(J.bordG, 0);
   for (let i = 0; i < PV_MAX; i++) coeur(6 + i * 9, 6, i < J.P.pv);
   // le souffle, sous les cœurs : il pâlit quand il s'épuise, clignote quand il est vide
   const s = J.P.souffle, vide = s <= 0.02;
   if ((!vide && J.P.refus <= 0) || Math.floor(J.temps * 12) % 2) barre(6, 15, 43, s, s < RUEE_COUT ? SANG_VIF : '#9a9a96');
   ctx.fillStyle = J.P.rueeDispo ? OS : '#2a2a29'; ctx.fillRect(52, 15, 3, 3);   // le témoin de la ruée
-  texte('SCORE ' + pad(J.score, 6), J.W - 6, 6, OS, 1, 'ombre', 'droite');
-  texte('RECORD ' + pad(J.record, 6), J.W - 6, 16, BRUME, 1, 'ombre', 'droite');
-  hautParleur(J.W - 16, 26);
   if (!J.arene) {
     texte('ACTE ' + ACTES[J.acte].num + (J.cycle > 1 ? ' · CYCLE ' + romain(J.cycle) : ''), 6, 22, BRUME);
     barre(6, 32, 52, J.P.x / J.NIV.largeur, CENDRE);
@@ -37,6 +36,11 @@ export function hud() {
       texte(J.NIV.prises + '/' + J.NIV.reliques, 72, 29, J.NIV.prises === J.NIV.reliques ? '#e0c080' : OS2);
     }
   }
+  ctx.restore();
+  const d = J.W - 6 - J.bordD;
+  texte('SCORE ' + pad(J.score, 6), d, 6, OS, 1, 'ombre', 'droite');
+  texte('RECORD ' + pad(J.record, 6), d, 16, BRUME, 1, 'ombre', 'droite');
+  hautParleur(d - 10, 26);
   if (J.veilleur && J.veilleur.entree > 0.6 && J.veilleur.mort < 0) {
     texte('LE VEILLEUR', J.W / 2, 6, OS, 1, 'ombre', 'centre');
     barre(Math.round(J.W / 2) - 60, 16, 120, J.veilleur.pv / J.veilleur.pvMax, SANG_VIF);

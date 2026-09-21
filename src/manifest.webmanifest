@@ -1,0 +1,20 @@
+{
+  "name": "Dragon Rider",
+  "short_name": "Dragon Rider",
+  "description": "Un dragonnier traverse un monde éteint, des terres décharnées jusqu'aux cryptes. Jeu d'action 16 bits, gothique.",
+  "lang": "fr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "landscape",
+  "background_color": "#070707",
+  "theme_color": "#070707",
+  "categories": ["games"],
+  "icons": [
+    { "src": "icones/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icones/icone-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icones/icone-masquable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

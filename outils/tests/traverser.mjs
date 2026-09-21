@@ -1,4 +1,5 @@
 // Joueur automatique « qui lit la carte » : vole vers la droite au-dessus des obstacles, se pose pour reprendre son souffle.
+// options : poser:tx:ty (départ), reliques (la porte de chaque acte est ouverte d'office : le robot ne cherche pas les reliques)
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -34,6 +35,7 @@ while ((Date.now() - t0) / 1000 < +duree) {
   const brut = await ev(lire); if (!brut) { console.log('lecture vide'); await sleep(200); continue; }
   const e = JSON.parse(brut);
   if (e.acte !== acte) { if (acte) journal.push(`${s.toFixed(0)}s acte ${acte} fini en ${(s - debutActe).toFixed(0)} s`); acte = e.acte; debutActe = s; }
+  if (options.includes('reliques') && e.reliques.split('/')[0] !== e.reliques.split('/')[1]) await ev('window.__essai.reliques()');
   if (e.pv < pv) { pertes += pv - e.pv; journal.push(`${s.toFixed(0)}s -${pv - e.pv} cœur(s) à x=${e.x} y=${e.y} (${e.mode})`); }
   pv = e.pv;
   if (e.etat === 'fin') { morts++; journal.push(`${s.toFixed(0)}s MORT à x=${e.x}`); await tenir(new Set()); await sleep(1300); await key('keyDown', 'x'); await sleep(60); await key('keyUp', 'x'); await sleep(1500); pv = 5; continue; }

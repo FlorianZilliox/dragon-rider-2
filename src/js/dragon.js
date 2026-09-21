@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { AN, BOUCHE, BRUME, DESCENTE, FPS, G, OS, RUEE_COUT, SOUFFLE, S_BAS, V } from './config.js';
 import { DECOLLAGE, GESTES, SOL_Y, foulee, posture } from './dragon-rendu.js';
 import { explosionSol } from './monde.js';
-import { BAS, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, toucheCase } from './niveau.js';
+import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, toucheCase } from './niveau.js';
 import { approche, clamp, frac, mix, rand } from './outils.js';
 import { particule, popup, poussiere } from './partie.js';
 import { sfx } from './son.js';
@@ -69,6 +69,19 @@ export function blesser(depuisX) {
     if (J.P.mode !== 'air') { J.P.mode = 'air'; J.P.at = 0; J.P.ph = 0; J.P.pitch = 0; J.P.y = Math.min(J.P.y, J.P.sol - BAS - 2); }
     J.P.vy = -80; J.P.pitchV += Math.random() < 0.5 ? 9 : -9;
   }
+}
+// Le corps touche un sol en vol, mais ce sol ne porte pas le centre de gravité (le dragon n'y tiendrait pas) :
+// renvoie le côté du vide (-1 ou 1) pour qu'il glisse du rebord, au lieu de s'y poser puis d'en retomber sans fin.
+function bordSeul(sol) {
+  const avant = J.P.sol;
+  J.P.sol = sol;
+  const porte = appuiSous();
+  J.P.sol = avant;
+  if (porte) return 0;
+  const ty = Math.floor(sol / TP), x0 = Math.floor((J.P.x - LARG + 1) / TP), x1 = Math.floor((J.P.x + LARG - 1) / TP);
+  let somme = 0, n = 0;
+  for (let tx = x0; tx <= x1; tx++) { const t = caseA(tx, ty); if (bloque(t) || t === CORNICHE) { somme += tx * TP + TP / 2; n++; } }
+  return n && somme / n > J.P.x + J.P.face * 4 ? -1 : 1;
 }
 export function atterrir(sol) {
   J.P.impact = J.P.vy; J.P.mode = 'land'; J.P.at = 0; J.P.vy = 0; J.P.pitch = 0; J.P.pitchV = 0; J.P.sol = sol;
@@ -286,7 +299,9 @@ export function majVol(dt, E, dir, libre) {
   ressortQueue(dt, J.P.amp * 0.09 * Math.sin(2 * Math.PI * J.P.ph - 1.3) + clamp(J.P.vy / V.VERT, -1.5, 1.8) * 0.1
     + (J.P.ruee >= 0 ? 0.14 : 0) - J.P.pitchV * 0.03);
   if (choc.sol !== null) {
-    if (J.P.mal < 0 && J.P.pv > 0) atterrir(choc.sol);
+    const glisse = bordSeul(choc.sol);
+    if (glisse) J.P.vx = glisse * Math.max(Math.abs(J.P.vx), 60);   // seul le bord du corps touche : il glisse du rebord
+    else if (J.P.mal < 0 && J.P.pv > 0) atterrir(choc.sol);
     else J.P.vy = Math.min(J.P.vy, 0);
   }
   J.P.ombreT -= dt;

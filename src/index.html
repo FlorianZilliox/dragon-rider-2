@@ -3,22 +3,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Dragon Rider</title>
+<meta name="description" content="Un dragonnier traverse un monde éteint, des terres décharnées jusqu'aux cryptes. Jeu d'action 16 bits, gothique.">
+<meta name="theme-color" content="#070707">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dragon Rider">
+<!-- pwa -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icones/icone-180.png">
+<!-- /pwa -->
 <link rel="stylesheet" href="styles.css">
 
-<div id="jeu" class="paysage">
+<div id="jeu">
   <canvas id="ecran" aria-label="Dragon Rider : un dragonnier traverse un monde éteint, des terres décharnées jusqu'aux cryptes"></canvas>
   <div class="manette">
-    <div class="croix" aria-label="Croix directionnelle">
-      <button type="button" id="btn-haut" data-k="up" aria-label="Monter"><svg viewBox="0 0 10 10"><path d="M5 1 9.5 8h-9z"/></svg></button>
-      <button type="button" id="btn-gauche" data-k="left" aria-label="Gauche"><svg viewBox="0 0 10 10"><path d="M1 5 8 .5v9z"/></svg></button>
-      <div class="moyeu"></div>
-      <button type="button" id="btn-droite" data-k="right" aria-label="Droite"><svg viewBox="0 0 10 10"><path d="M9 5 2 .5v9z"/></svg></button>
-      <button type="button" id="btn-bas" data-k="down" aria-label="Descendre"><svg viewBox="0 0 10 10"><path d="M5 9 9.5 2h-9z"/></svg></button>
+    <div class="croix" id="croix" aria-label="Croix directionnelle">
+      <div class="croix-dessin">
+        <span data-dir="up" class="bras haut"></span>
+        <span data-dir="left" class="bras gauche"></span>
+        <span class="moyeu"></span>
+        <span data-dir="right" class="bras droite"></span>
+        <span data-dir="down" class="bras bas"></span>
+      </div>
     </div>
-    <div class="actions">
-      <div class="action"><button type="button" class="rond" id="btn-ruee" data-k="ruee" aria-label="Ruée (touche C)">C</button><span>RUÉE</span></div>
-      <div class="action"><button type="button" class="rond" id="btn-feu" data-k="fire" aria-label="Feu (touche X ou Espace)">X</button><span>FEU</span></div>
+    <div class="actions" id="actions">
+      <div class="action"><span class="rond" data-k="ruee" aria-label="Ruée (touche C)">C</span><span class="nom">RUÉE</span></div>
+      <div class="action"><span class="rond" data-k="fire" aria-label="Feu (touche X ou Espace)">X</span><span class="nom">FEU</span></div>
     </div>
+  </div>
+  <div class="tourner" role="alert">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="15" y="6" width="18" height="30" rx="3"/><path d="M8 40a18 18 0 0 0 30 4M38 44l1-6-6 1"/></svg>
+    <p>Tournez l'appareil</p>
   </div>
 </div>
 

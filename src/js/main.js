@@ -19,7 +19,8 @@ import { dessinerEffets, dessinerEnnemis } from './rendu-monde.js';
 import { sfx } from './son.js';
 import { TERRAIN, construireAccessoires, construireTuiles, dessinerCourants, dessinerObjets, dessinerTuiles } from './terrain.js';
 import { texte } from './texte.js';
-import { MENU, ecranEpilogue, ecranFin, ecranTitre } from './titre.js';
+import { MENU, ecranEpilogue, ecranFin, ecranPause, ecranTitre } from './titre.js';
+import { enPause } from './appareil.js';
 
 // ================= Boucle =================
 J.avant = 0;
@@ -30,7 +31,7 @@ export function boucle(tms) {
   if (J.etat === 'epilogue') {
     J.epiT += dt;
     if (J.epiT > 7 && J.appuis.has('fire')) nouveauCycle();
-    J.appuis = new Set(); J.gestes = new Set();
+    J.appuis.clear(); J.gestes.clear();
     if (J.etat === 'epilogue') { ecranEpilogue(); requestAnimationFrame(boucle); return; }
   }
   const E = J.etat === 'titre' ? entreesDemo()
@@ -40,6 +41,7 @@ export function boucle(tms) {
   else if (J.etat === 'titre' && (J.appuis.has('up') || J.appuis.has('down'))) { J.choix = (J.choix + (J.appuis.has('up') ? MENU.length - 1 : 1)) % MENU.length; sfx('touche'); }
   else if (J.etat === 'titre' && (J.appuis.has('fire') || J.appuis.has('ruee'))) { if (J.choix === 0) nouvellePartie(); else { J.pageTitre = 'commandes'; sfx('touche'); } }
   else if (J.etat === 'fin' && J.finT > 0.8 && J.appuis.has('fire')) reprendre();
+  else if (J.etat === 'jeu' && enPause()) J.appuis.clear();          // pause : l'image reste figée
   else if (J.gel > 0) J.gel -= dt;                                   // micro-pause à l'impact
   else {
     if (J.etat === 'titre') { J.P.pv = PV_MAX; J.P.souffle = 1; }
@@ -50,7 +52,7 @@ export function boucle(tms) {
     majMeteo(dt);
     suivreCamera(dt);
   }
-  J.appuis = new Set(); J.gestes = new Set();
+  J.appuis.clear(); J.gestes.clear();
   J.secousse = Math.max(0, J.secousse - dt);
 
   ctx.save();
@@ -69,6 +71,7 @@ export function boucle(tms) {
   ctx.restore();
   if (J.etat === 'titre') ecranTitre();
   else { hud(); dessinerCarte(); if (J.etat === 'fin') ecranFin(dt); }
+  if (J.etat === 'jeu' && enPause()) ecranPause();
   if (J.etat === 'epilogue') ecranEpilogue();
   requestAnimationFrame(boucle);
 }
@@ -88,6 +91,7 @@ if (ESSAI) window.__essai = {
   voler(tx, ty) { J.P.x = tx * TP + TP / 2; J.P.y = ty * TP + TP / 2; J.P.mode = 'air'; J.P.vx = J.P.vy = 0; cadrer(); },
   niveau: () => ({ l: J.NIV.l, h: J.NIV.h, objets: J.NIV.objets.length, reliques: J.NIV.reliques }),
   souffle(v) { J.P.souffle = v; },
+  reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte de l'acte
   pv(n) { J.P.pv = n; },
   caseA: (tx, ty) => caseA(tx, ty),
   objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),

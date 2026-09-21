@@ -18,6 +18,9 @@ Un dragonnier traverse un monde éteint sur son dragon noir : des terres déchar
 | Briser un mur fissuré | feu ou ruée | |
 | Repères (ancre, collisions) | I | |
 | Couper le son | M | icône haut-parleur |
+| Pause | P ou Échap | automatique quand on quitte l'application ou qu'on tourne l'écran |
+
+La manette à l'écran n'apparaît que sur un écran tactile. La croix se joue au glissé, comme une vraie : le pouce passe d'une direction à l'autre (huit en tout) sans se lever ; les boutons aussi, et plusieurs doigts à la fois fonctionnent. Sur Android, les boutons vibrent légèrement.
 
 ## L'histoire
 
@@ -57,6 +60,7 @@ src/
     main.js           démarrage et boucle de jeu
     etat.js           l'état partagé de la partie (J)
     config.js         constantes, liste des actes, difficulté
+    appareil.js       PWA, écran allumé, pause automatique, plein écran
     ecran.js · entrees.js · son.js · texte.js · pinceau.js · outils.js
     niveau.js         lecture des cartes, cases, collisions
     terrain.js        roche, passerelles, objets (peints une fois par niveau, en bandes)
@@ -105,7 +109,7 @@ Mesures utiles pour dessiner une carte (le dragon est grand) :
 - **Pixel art** : `pixel_artist/pixeliser.py` les réduit à la palette du jeu selon les recettes de `art/recettes/*.json` (décors, terrain, ennemis, objets, inscriptions) et écrit `assets/decors/`.
 - **Le dragon** : `pixel_artist/pixel_artist.py` le redessine et le découpe en pièces (`pixel_artist/dragon.json`) ; le jeu l'anime en marionnette (ailes, queue en trois segments, pattes en cinématique inverse, demi-tour en volume).
 
-Voir `pixel_artist/README.md` pour le détail du pipeline.
+Voir `pixel_artist/README.md` pour le détail du pipeline. Les icônes de l'application (`src/icones/`) sont composées à partir des sprites du jeu par `python3 outils/icones.py`.
 
 ## Vérifier
 
@@ -113,7 +117,8 @@ Les robots de `outils/tests/` pilotent Chrome sans fenêtre (Chrome est trouvé 
 
 ```sh
 node outils/tests/titre.mjs "file://$PWD/Dragon-Rider.html" /tmp/titre            # écran titre et menu
-node outils/tests/traverser.mjs "file://$PWD/Dragon-Rider.html#essai" /tmp/trav 90   # un robot joue les actes
+node outils/tests/traverser.mjs "file://$PWD/Dragon-Rider.html#essai" /tmp/trav 90 reliques   # un robot joue les actes (portes ouvertes d'office)
 node outils/tests/inspection.mjs "file://$PWD/Dragon-Rider.html#essai" /tmp/insp    # sauts d'image, tressautements
 node outils/tests/perf.mjs "file://$PWD/Dragon-Rider.html" /tmp/perf 60 4          # téléphone simulé (processeur ÷ 4)
+node outils/tests/mobile.mjs /tmp/mobile        # la PWA (dist/) sur téléphone simulé : croix, portrait, hors ligne
 ```

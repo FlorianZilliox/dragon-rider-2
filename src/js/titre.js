@@ -100,6 +100,11 @@ export function ecranCommandes() {
 }
 
 
+export function ecranPause() {
+  voile(0.55);
+  texte('P A U S E', J.W / 2, Math.round(J.H * 0.42), OS, 1, 'ombre', 'centre');
+  texte('FEU : REPRENDRE', J.W / 2, Math.round(J.H * 0.42) + 16, BRUME, 1, 'ombre', 'centre');
+}
 export function ecranFin(dt) {
   J.finT += dt;
   ctx.fillStyle = 'rgba(7,6,11,0.55)'; ctx.fillRect(0, 0, J.W, J.H);

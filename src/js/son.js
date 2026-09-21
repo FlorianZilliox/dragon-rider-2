@@ -1,7 +1,7 @@
 import { J } from './etat.js';
 
 // ================= Son : bruitages synthétisés (M : couper) =================
-J.actx = null; J.muet = false; J.bruitBuf = null;
+J.actx = null; J.muet = false; J.bruitBuf = null; J.maitre = null;
 try { J.muet = localStorage.getItem('dragon-rider-muet') === '1'; } catch {}
 export function reveillerSon() {
   if (!J.actx) { try { J.actx = new (window.AudioContext || window.webkitAudioContext)(); } catch { return; } }
@@ -20,16 +20,18 @@ export function osc(type, f0, f1, t, d, v, sortie) {
   const o = J.actx.createOscillator(), g = J.actx.createGain();
   o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + d);
   env(g, t, 0.005, d, v); o.connect(g).connect(sortie); o.start(t); o.stop(t + d + 0.05);
+  o.onended = () => { o.disconnect(); g.disconnect(); };      // chaque son libère ses nœuds (Safari les garderait)
 }
 export function souffle(filtre, f0, f1, t, d, v, sortie, q = 1, attaque = 0.008) {
   const s = bruit(), f = J.actx.createBiquadFilter(), g = J.actx.createGain();
   f.type = filtre; f.Q.value = q; f.frequency.setValueAtTime(f0, t); f.frequency.exponentialRampToValueAtTime(f1, t + d);
   env(g, t, attaque, d, v); s.connect(f).connect(g).connect(sortie); s.start(t); s.stop(t + d + 0.1);
+  s.onended = () => { s.disconnect(); f.disconnect(); g.disconnect(); };
 }
 export function sfx(nom, delai = 0) {
   if (J.muet || !J.actx || J.actx.state !== 'running') return;
-  const t = J.actx.currentTime + delai, out = J.actx.createGain();
-  out.gain.value = 0.32; out.connect(J.actx.destination);
+  if (!J.maitre) { J.maitre = J.actx.createGain(); J.maitre.gain.value = 0.32; J.maitre.connect(J.actx.destination); }   // une seule sortie
+  const t = J.actx.currentTime + delai, out = J.maitre;
   switch (nom) {
     case 'feu': souffle('bandpass', 2000, 360, t, 0.26, 0.9, out, 1.4); osc('square', 300, 85, t, 0.14, 0.1, out); break;
     case 'boum': souffle('lowpass', 1200, 110, t, 0.38, 1, out); osc('triangle', 160, 38, t, 0.3, 0.4, out); break;
