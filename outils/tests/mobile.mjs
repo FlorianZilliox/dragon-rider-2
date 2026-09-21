@@ -3,26 +3,13 @@
 // boutons, portrait (demande de tourner + pause), marges d'encoche. Captures dans <dossier>.
 // node outils/tests/mobile.mjs <dossier>      (après npm run build)
 import { spawn } from 'node:child_process';
-import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
-import { join, extname, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 
 const [,, out = 'essais-mobile'] = process.argv;
 mkdirSync(out, { recursive: true });
-const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
-if (!existsSync(join(DIST, 'index.html'))) { console.error('\n✗ dist/ absent : lancer d\'abord  npm run build\n'); process.exit(1); }
-
-// un petit serveur statique pour dist/
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webmanifest': 'application/manifest+json' };
-const serveur = createServer(async (req, res) => {
-  const chemin = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  try { const f = join(DIST, chemin.endsWith('/') ? chemin + 'index.html' : chemin); res.writeHead(200, { 'content-type': TYPES[extname(f)] || 'application/octet-stream' }); res.end(await readFile(f)); }
-  catch { res.writeHead(404); res.end(); }
-}).listen(0);
-const url = `http://127.0.0.1:${serveur.address().port}/`;
+const url = await adresseDuJeu('-');
 
 const port = 9600 + Math.floor(Math.random() * 300);
 const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=844,390', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });
@@ -98,5 +85,5 @@ await shot('5-hors-ligne');
 
 console.log(bilan.join('\n'));
 console.log(logs.join('\n') || '(aucune erreur)');
-ws.close(); chrome.kill(); serveur.close();
+ws.close(); chrome.kill();
 process.exit(bilan.some((l) => l.startsWith('✗')) || logs.length ? 1 : 0);

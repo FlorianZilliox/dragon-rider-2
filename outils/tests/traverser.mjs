@@ -2,8 +2,10 @@
 // options : poser:tx:ty (départ), reliques (la porte de chaque acte est ouverte d'office : le robot ne cherche pas les reliques)
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
-const [,, url, out, duree = '120', options = ''] = process.argv;
+const [,, adresse, out, duree = '120', options = ''] = process.argv;
+const url = await adresseDuJeu(adresse);
 mkdirSync(out, { recursive: true });
 const port = 9700 + Math.floor(Math.random() * 200);
 const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=1280,760', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });

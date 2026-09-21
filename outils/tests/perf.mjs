@@ -2,8 +2,10 @@
 // node outils/tests/perf.mjs <url du jeu> <dossier> [secondes=90] [ralentissement=4]
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 import { mkdirSync } from 'node:fs';
-const [,, url, out, duree = '90', lent = '4'] = process.argv;
+const [,, adresse, out, duree = '90', lent = '4'] = process.argv;
+const url = await adresseDuJeu(adresse);
 mkdirSync(out, { recursive: true });
 const port = 9300 + Math.floor(Math.random() * 300);
 const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=844,390', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });

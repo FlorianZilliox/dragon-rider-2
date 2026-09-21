@@ -14,3 +14,4 @@ art/generes/*.png
 # dépendances de construction (npm install) et sortie de la PWA (npm run build)
 node_modules/
 dist/
+essais/

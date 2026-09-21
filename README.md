@@ -4,8 +4,10 @@ Un dragonnier traverse un monde éteint sur son dragon noir : des terres déchar
 
 ## Jouer
 
-- **Sur téléphone** : ouvrir la version en ligne, puis « Ajouter à l'écran d'accueil ». Le jeu s'installe comme une application (PWA), plein écran, en paysage, et se joue ensuite sans réseau.
-- **Sur ordinateur** : ouvrir `Dragon-Rider.html` (double-clic). Le fichier est autonome : il fonctionne hors ligne et n'a rien à installer.
+Le jeu est une application web installable (PWA) : on l'ouvre une fois en ligne, on l'installe, et il se joue ensuite sans réseau, dans sa propre fenêtre.
+
+- **Téléphone** (en paysage) : Safari → bouton Partager → « Sur l'écran d'accueil » ; Chrome → menu ⋮ → « Installer l'application ».
+- **Ordinateur** : Chrome ou Edge → icône « Installer » à droite de la barre d'adresse ; Safari (Mac) → Fichier → « Ajouter au Dock ».
 
 | Action | Clavier | Manette à l'écran |
 |---|---|---|
@@ -45,8 +47,9 @@ npm install        # installe l'outil d'assemblage (esbuild)
 Puis :
 
 ```sh
-npm run build      # produit dist/ (la PWA, à publier) et Dragon-Rider.html (le fichier unique)
+npm run build      # produit dist/ : la PWA, à publier telle quelle
 npm run dev        # serveur local sur http://localhost:8000, reconstruit à chaque modification
+npm test           # robots : téléphone simulé et écran titre (après npm run build)
 ```
 
 ### Organisation
@@ -78,7 +81,7 @@ outils/construire.mjs   l'assemblage
 outils/tests/       robots de vérification (Chrome sans fenêtre)
 ```
 
-Les données (dragon, décors, cartes) sont injectées à l'assemblage dans un module `donnees.js` qui n'existe pas dans `src/`. La PWA garde les images en fichiers séparés, mis en cache par le service worker ; le fichier unique les embarque.
+Les données (dragon, décors, cartes) sont injectées à l'assemblage dans un module `donnees.js` qui n'existe pas dans `src/`. Les images restent des fichiers séparés, mis en cache par le service worker.
 
 ## Level design
 
@@ -113,12 +116,12 @@ Voir `pixel_artist/README.md` pour le détail du pipeline. Les icônes de l'appl
 
 ## Vérifier
 
-Les robots de `outils/tests/` pilotent Chrome sans fenêtre (Chrome est trouvé automatiquement ; sinon `CHROME=/chemin/vers/chrome`) :
+Les robots de `outils/tests/` pilotent Chrome sans fenêtre (Chrome est trouvé automatiquement ; sinon `CHROME=/chemin/vers/chrome`). Ils servent eux-mêmes `dist/` (lancer `npm run build` avant) ; le premier argument est `-`, des raccourcis (`#essai`…) ou une adresse http :
 
 ```sh
-node outils/tests/titre.mjs "file://$PWD/Dragon-Rider.html" /tmp/titre            # écran titre et menu
-node outils/tests/traverser.mjs "file://$PWD/Dragon-Rider.html#essai" /tmp/trav 90 reliques   # un robot joue les actes (portes ouvertes d'office)
-node outils/tests/inspection.mjs "file://$PWD/Dragon-Rider.html#essai" /tmp/insp    # sauts d'image, tressautements
-node outils/tests/perf.mjs "file://$PWD/Dragon-Rider.html" /tmp/perf 60 4          # téléphone simulé (processeur ÷ 4)
+node outils/tests/titre.mjs - /tmp/titre                       # écran titre et menu
+node outils/tests/traverser.mjs "#essai" /tmp/trav 90 reliques   # un robot joue les actes (portes ouvertes d'office)
+node outils/tests/inspection.mjs - /tmp/insp                   # sauts d'image, tressautements
+node outils/tests/perf.mjs - /tmp/perf 60 4                   # téléphone simulé (processeur ÷ 4)
 node outils/tests/mobile.mjs /tmp/mobile        # la PWA (dist/) sur téléphone simulé : croix, portrait, hors ligne
 ```

@@ -11,8 +11,8 @@ J.pause = false;
 const installee = matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
 const portrait = matchMedia('(orientation: portrait) and (pointer: coarse)');
 
-// le cache hors ligne : seulement pour la version en ligne (le fichier unique n'a pas de manifeste)
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')) {
+// le cache hors ligne (le serveur de développement n'en fournit pas : l'inscription échoue alors sans bruit)
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
 

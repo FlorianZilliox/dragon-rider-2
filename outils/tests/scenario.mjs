@@ -1,8 +1,10 @@
 // Scénarios de test : suite d'actions « nom:arg:arg » (nav, poser, voler, souffle, tenir, tap, attendre, etat, shot, eval).
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
-const [,, url, out, ...actions] = process.argv;
+const [,, adresse, out, ...actions] = process.argv;
+const url = await adresseDuJeu(adresse);
 mkdirSync(out, { recursive: true });
 const port = 9000 + Math.floor(Math.random() * 300);
 const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=1280,760', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });

@@ -333,7 +333,7 @@ const [cw, ch] = corbeau.cellule, k = Math.floor(temps * 9) % corbeau.images;
 ctx.drawImage(imgCorbeau, k * cw, 0, cw, ch, xEcran, yEcran, cw, ch);
 ```
 
-Pour un jeu en un seul fichier HTML jouable hors ligne, les PNG peuvent être embarqués en base64 : c'est ce que fait `outils/construire.mjs` pour le fichier unique de Dragon Rider (la version PWA garde des PNG séparés, mis en cache).
+Pour un jeu en un seul fichier HTML jouable hors ligne, les PNG peuvent être embarqués en base64 : Dragon Rider, lui, est une PWA : ses PNG restent des fichiers séparés, mis en cache hors ligne par le service worker (`outils/construire.mjs`).
 
 ## Conseils qui ont marché sur Dragon Rider
 

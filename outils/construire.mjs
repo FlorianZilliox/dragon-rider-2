@@ -1,6 +1,5 @@
-// Assemble Dragon Rider depuis src/ en deux sorties, à partir des mêmes sources :
-//   dist/              la PWA, à publier telle quelle (index.html, jeu.js, styles.css, images/, manifeste, sw.js) ;
-//   Dragon-Rider.html  le fichier unique : double-clic pour jouer, hors ligne, rien à installer.
+// Assemble Dragon Rider depuis src/ : dist/, la PWA à publier telle quelle (index.html, jeu.js, styles.css,
+// images/, icônes, manifeste, sw.js). Installée depuis un téléphone ou un ordinateur, elle se joue hors ligne.
 // Les données du jeu forment le module « donnees.js », fabriqué ici (il n'existe pas dans src/) :
 //   - le dragon de Pixel Artist (assets/pixel-artist/dragon*.png|json) ;
 //   - les décors peints (assets/decors/*.json et leurs images) ;
@@ -27,8 +26,7 @@ try { esbuild = await import('esbuild'); }
 catch { arreter("l'outil d'assemblage (esbuild) n'est pas installé.\n  Dans le dossier du jeu, lancer une fois :  npm install\n  puis recommencer :  npm run build"); }
 
 // ---------- les données : dragon, décors, niveaux ----------
-// images : 'fichier' (chemin relatif, pour la PWA) ou 'integre' (data: URL, pour le fichier unique)
-function donnees(images) {
+function donnees() {
   const PIXEL = join(RACINE, 'assets', 'pixel-artist');
   for (const f of ['dragon.png', 'dragon.json', 'dragon_propre.png', 'dragon_propre.json'])
     if (!existsSync(join(PIXEL, f))) arreter(`${f} absent : lancer d'abord  python3 pixel_artist/pixel_artist.py`);
@@ -41,11 +39,7 @@ function donnees(images) {
   if (!descripteurs.length) arreter('décors absents : lancer  python3 pixel_artist/pixeliser.py art/recettes/<acte>.json  pour chaque recette');
 
   const copies = new Map();   // chemin publié → fichier source
-  const image = (source, publie) => {
-    if (images === 'integre') return 'data:image/png;base64,' + readFileSync(source).toString('base64');
-    copies.set(publie, source);
-    return publie;
-  };
+  const image = (source, publie) => { copies.set(publie, source); return publie; };
   const art = {};
   for (const desc of descripteurs) {
     const d = JSON.parse(readFileSync(join(DECORS, desc), 'utf8'));
@@ -78,9 +72,9 @@ const pluginDonnees = (code) => ({
   },
 });
 
-const optionsJs = (code, format) => ({
+const optionsJs = (code) => ({
   entryPoints: [join(SRC, 'js', 'main.js')],
-  bundle: true, format, target: NAVIGATEURS, charset: 'utf8', legalComments: 'none',
+  bundle: true, format: 'esm', target: NAVIGATEURS, charset: 'utf8', legalComments: 'none',
   minify: !DEV, sourcemap: DEV ? 'linked' : false, logLevel: 'silent',
   plugins: [pluginDonnees(code)],
 });
@@ -100,10 +94,10 @@ const html = () => readFileSync(join(SRC, 'index.html'), 'utf8');
 
 // ---------- la PWA : dist/ ----------
 async function construirePwa() {
-  const { code, copies } = donnees('fichier');
+  const { code, copies } = donnees();
   rmSync(DIST, { recursive: true, force: true });
   await Promise.all([
-    assembler({ ...optionsJs(code, 'esm'), outfile: join(DIST, 'jeu.js') }),
+    assembler({ ...optionsJs(code), outfile: join(DIST, 'jeu.js') }),
     assembler({ ...optionsCss, outfile: join(DIST, 'styles.css') }),
   ]);
   for (const [publie, source] of copies) { mkdirSync(dirname(join(DIST, publie)), { recursive: true }); copyFileSync(source, join(DIST, publie)); }
@@ -133,39 +127,21 @@ function copierStatiques() {
   return publies;
 }
 
-// ---------- le fichier unique : Dragon-Rider.html ----------
-async function construireFichierUnique() {
-  const { code } = donnees('integre');
-  const [js, css] = await Promise.all([
-    assembler({ ...optionsJs(code, 'iife'), minify: true, sourcemap: false, write: false, outfile: 'jeu.js' }),
-    assembler({ ...optionsCss, minify: true, write: false, outfile: 'styles.css' }),
-  ]);
-  const texte = (r) => r.outputFiles[0].text;
-  const page = html()
-    .replace(/[ \t]*<!-- pwa -->[\s\S]*?<!-- \/pwa -->\n?/g, '')   // manifeste, icônes : inutiles hors d'un site
-    .replace(/<link rel="stylesheet" href="styles\.css">/, () => `<style>${texte(css).trim()}</style>`)
-    .replace(/<script type="module" src="jeu\.js"><\/script>/, () => `<script>${texte(js).replace(/<\/script/gi, '<\\/script').trim()}</script>`);
-  if (/src="jeu\.js"|href="styles\.css"/.test(page)) arreter("src/index.html doit contenir <link rel=\"stylesheet\" href=\"styles.css\"> et <script type=\"module\" src=\"jeu.js\"></script>");
-  writeFileSync(join(RACINE, 'Dragon-Rider.html'), page);
-  return page.length;
-}
-
 // ---------- lancement ----------
 if (!DEV) {
-  const [{ version, fichiers }, taille] = await Promise.all([construirePwa(), construireFichierUnique()]);
+  const { version, fichiers } = await construirePwa();
   console.log(`dist/ : PWA prête (${fichiers.length} fichiers en cache, version ${version})`);
-  console.log(`Dragon-Rider.html : ${(taille / 1e3).toFixed(0)} Ko`);
 } else {
   // développement : dist/ reconstruit à chaque modification de src/, servi en local
   mkdirSync(DIST, { recursive: true });
   rmSync(join(DIST, 'sw.js'), { force: true });
-  const { code, copies } = donnees('fichier');
+  const { code, copies } = donnees();
   for (const [publie, source] of copies) { mkdirSync(dirname(join(DIST, publie)), { recursive: true }); copyFileSync(source, join(DIST, publie)); }
   const recopier = () => { copierStatiques(); writeFileSync(join(DIST, 'index.html'), html()); };
   recopier();
   watch(SRC, { recursive: true }, (_, f) => { if (f && !f.startsWith('js')) recopier(); });
   const [ctxJs, ctxCss] = await Promise.all([
-    esbuild.context({ ...optionsJs(code, 'esm'), outfile: join(DIST, 'jeu.js'), logLevel: 'info' }),
+    esbuild.context({ ...optionsJs(code), outfile: join(DIST, 'jeu.js'), logLevel: 'info' }),
     esbuild.context({ ...optionsCss, outfile: join(DIST, 'styles.css'), logLevel: 'info' }),
   ]);
   await Promise.all([ctxJs.watch(), ctxCss.watch()]);

@@ -2,9 +2,11 @@
 // node outils/tests/bande.mjs <url> <sortie.png> <acte> <sol|vol> <tx> <ty> <touches|-> <n> <intervalle_ms> [attente_ms] [avant:touches:ms]
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-const [,, url, sortie, acte, mode, tx, ty, touches, n = '8', pas = '60', attente = '600', avant = ''] = process.argv;
+const [,, adresse, sortie, acte, mode, tx, ty, touches, n = '8', pas = '60', attente = '600', avant = ''] = process.argv;
+const url = await adresseDuJeu(adresse);
 const dossier = path.dirname(sortie); mkdirSync(dossier, { recursive: true });
 const chrome = trouverChrome();
 const port = 9200 + Math.floor(Math.random() * 300);

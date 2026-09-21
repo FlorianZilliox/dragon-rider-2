@@ -1,8 +1,10 @@
 // Écran titre : capture du menu, descente sur COMMANDES, écran des commandes, retour.
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
+import { adresseDuJeu } from './serveur.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
-const [,, url, out, w = '1280', h = '760'] = process.argv;
+const [,, adresse, out, w = '1280', h = '760'] = process.argv;
+const url = await adresseDuJeu(adresse);
 mkdirSync(out, { recursive: true });
 const port = 9500 + Math.floor(Math.random() * 300);
 const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, `--window-size=${w},${h}`, `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });
