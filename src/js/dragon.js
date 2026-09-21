@@ -32,7 +32,7 @@ export function cracher() {
   const mx = BOUCHE.x, my = BOUCHE.y + (vole ? J.P.bob : 0);
   const bx = J.P.x + J.P.face * (mx * c - my * s), by = J.P.y + (mx * s + my * c);
   J.P.recul = 1; sfx('feu');
-  J.P.ondeV += 7; J.P.dosV -= 5;                         // le recul du jet : le poitrail se relève, le dos se tend
+  J.P.ondeV += 12; J.P.dosV -= 9; J.P.cavYV -= 6;                         // le recul du jet : le poitrail se relève, le dos se tend
   // collé à un mur, la gueule dépasse de l'autre côté : le feu part du corps et s'arrête à la première pierre
   for (let k = 0; k <= 1; k += 1 / 16) {
     const x = mix(J.P.x, bx, k), y = mix(J.P.y, by, k), tx = Math.floor(x / TP), ty = Math.floor(y / TP), t = caseA(tx, ty);
@@ -60,7 +60,7 @@ export function blesser(depuisX) {
   if (J.P.inv > 0 || J.P.pv <= 0 || J.etat !== 'jeu') return;
   J.P.pv--; J.P.inv = 2.2; J.P.flash = 0.12; J.P.atk = -1; J.P.ruee = -1;
   J.gel = 0.1; J.secousse = 0.28; sfx('aie');
-  J.P.dosV -= 44; J.P.ondeV += 22; J.P.teteYV -= 26; J.P.cavYV -= 12;                       // le coup : il se voûte, l'avant se rejette en arrière
+  J.P.dosV -= 60; J.P.ondeV += 32; J.P.teteYV -= 34; J.P.cavYV -= 22; J.P.queueV += 6;                       // le coup : il se voûte, l'avant se rejette en arrière
   J.P.vx = Math.sign(J.P.x - depuisX || -J.P.face) * 170;
   if (J.P.pv <= 0) {
     J.P.mal = -1;
@@ -121,8 +121,8 @@ export function placeAccroche(r, tangage) {
 export function atterrir(sol) {
   J.P.impact = J.P.vy; J.P.mode = 'land'; J.P.at = 0; J.P.vy = 0; J.P.pitch = 0; J.P.pitchV = 0; J.P.sol = sol;
   J.P.ecrase = clamp(J.P.impact / 260, 0.35, 1);                    // l'impact écrase le corps, qui se détend
-  J.P.dosV += clamp(J.P.impact, 40, 420) * 0.17; J.P.ondeV -= clamp(J.P.impact, 0, 420) * 0.045;
-  J.P.cavYV += clamp(J.P.impact, 40, 420) * 0.12; J.P.teteYV += clamp(J.P.impact, 40, 420) * 0.1;   // le cavalier se tasse, la tête hoche   // le dos plie sous le poids, la tête plonge
+  J.P.dosV += clamp(J.P.impact, 40, 420) * 0.27; J.P.ondeV -= clamp(J.P.impact, 0, 420) * 0.07;
+  J.P.cavYV += clamp(J.P.impact, 40, 420) * 0.19; J.P.teteYV += clamp(J.P.impact, 40, 420) * 0.16;   // le cavalier se tasse, la tête hoche   // le dos plie sous le poids, la tête plonge
   const fort = J.P.impact > 170 || J.P.ruee >= 0;
   J.P.ruee = -1;
   poussiere(J.P.x - J.P.face * 10, sol, fort ? 14 : 6, fort ? 1.5 : 0.8);
@@ -313,10 +313,10 @@ export function secondaires(dt) {
   else {
     dosC = (J.P.accroupi || 0) * 2.2;                      // (le rythme des pas et du galop agit directement, voir posture)
   }
-  J.P.dosV += (75 * (dosC - J.P.dos) - 6.5 * J.P.dosV) * dt; J.P.dos = clamp(J.P.dos + J.P.dosV * dt, -5, 6);
-  J.P.ondeV += (65 * (ondeC - J.P.onde) - 7 * J.P.ondeV) * dt; J.P.onde = clamp(J.P.onde + J.P.ondeV * dt, -5, 5);
-  J.P.cavYV += (-110 * J.P.cavY - 9 * J.P.cavYV) * dt; J.P.cavY = clamp(J.P.cavY + J.P.cavYV * dt, -4, 4);
-  J.P.teteYV += (-80 * J.P.teteY - 7 * J.P.teteYV) * dt; J.P.teteY = clamp(J.P.teteY + J.P.teteYV * dt, -4, 4);
+  J.P.dosV += (75 * (dosC - J.P.dos) - 6.5 * J.P.dosV) * dt; J.P.dos = clamp(J.P.dos + J.P.dosV * dt, -8, 9);
+  J.P.ondeV += (65 * (ondeC - J.P.onde) - 7 * J.P.ondeV) * dt; J.P.onde = clamp(J.P.onde + J.P.ondeV * dt, -7, 7);
+  J.P.cavYV += (-110 * J.P.cavY - 9 * J.P.cavYV) * dt; J.P.cavY = clamp(J.P.cavY + J.P.cavYV * dt, -6, 6);
+  J.P.teteYV += (-80 * J.P.teteY - 7 * J.P.teteYV) * dt; J.P.teteY = clamp(J.P.teteY + J.P.teteYV * dt, -6, 6);
   // au repos, il vit : de temps en temps un geste (regarder autour, étirer ou secouer les ailes, un coup de queue)
   if (J.P.mode === 'ground' && Math.abs(J.P.vx) < 5 && J.P.atk < 0 && !(J.P.accroupi > 0.05)) J.P.oisif += dt; else { J.P.oisif = 0; J.P.geste = null; J.P.prochainGeste = rand(2.5, 4); }
   if (J.P.geste) { J.P.gesteT += dt; if (J.P.gesteT > GESTES[J.P.geste]) { J.P.geste = null; J.P.prochainGeste = J.P.oisif + rand(3.5, 7); } }
@@ -376,7 +376,7 @@ export function majVol(dt, E, dir, libre) {
   const avant = frac(J.P.ph);
   J.P.ph += J.P.cad * dt;
   if (avant > 0.9 && frac(J.P.ph) < 0.1 && J.P.amp > 0.6) sfx('battement');
-  J.P.bob = -1.3 * J.P.amp * Math.sin(2 * Math.PI * (frac(J.P.ph) - 0.2));
+  J.P.bob = -2.6 * J.P.amp * Math.sin(2 * Math.PI * (frac(J.P.ph) - 0.2));   // chaque battement soulève tout le corps
   ressortQueue(dt, J.P.amp * 0.09 * Math.sin(2 * Math.PI * J.P.ph - 1.3) + clamp(J.P.vy / V.VERT, -1.5, 1.8) * 0.12
     + clamp((J.P.vy - 60) / 180, 0, 1) * 0.3 + (J.P.ruee >= 0 ? 0.14 : 0) - J.P.pitchV * 0.03);   // en chute, l'air soulève la queue
   if (choc.sol !== null) {

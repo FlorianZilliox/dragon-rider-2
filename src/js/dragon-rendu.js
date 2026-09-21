@@ -15,12 +15,12 @@ export function posture() {
   const vol = () => {                    // la marionnette en vol : battements, tangage, queue, cavalier
     const ph = frac(J.P.ph);
     return { type: 'rig', pose: 'vol', x: J.P.x, y: J.P.y, fs: J.P.fs, pitch: J.P.pitch, corps: { dx: -J.P.recul * 3, dy: J.P.bob },
-             aile: poseAile(J.P), queue: J.P.queue, tete: { dx: 0, dy: -0.6 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.35)) + J.P.teteY, rot: -0.04 * J.P.teteY },
+             aile: poseAile(J.P), queue: J.P.queue, tete: { dx: 0, dy: -1.5 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.35)) + J.P.teteY, rot: -0.05 * J.P.teteY + 0.05 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.45)) },
              teteVariante: J.P.atk >= 0 ? unique('attack', J.P.atk, FPS.attack) : -1,
-             cavalier: { dy: 0.7 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.05)) + J.P.cavY, rot: (J.P.ruee >= 0 ? 0.3 : clamp(J.P.vy / V.PIQUE, 0, 1) * 0.2) + J.P.penche },
+             cavalier: { dy: 1.6 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.05)) + J.P.cavY, rot: (J.P.ruee >= 0 ? 0.3 : clamp(J.P.vy / V.PIQUE, 0, 1) * 0.2) + J.P.penche },
              queues: { 'queue-2': J.P.q2, 'queue-3': J.P.q3 }, cligne: J.P.cligne < 0,
-             etire: J.P.mode === 'jump' ? 0.09 * clamp(1 - (J.P.at - DECOLLAGE) / 0.3, 0, 1) : 0,   // l'arrachement du saut : tout le corps s'étire
-             dos: J.P.dos + 1.1 * J.P.amp * Math.cos(2 * Math.PI * ph - 0.7), onde: J.P.onde + 1.2 * J.P.amp * Math.sin(2 * Math.PI * ph - 1.3) };
+             etire: J.P.mode === 'jump' ? 0.16 * clamp(1 - (J.P.at - DECOLLAGE) / 0.35, 0, 1) : 0,   // l'arrachement du saut : tout le corps s'étire
+             dos: J.P.dos + 2.6 * J.P.amp * Math.cos(2 * Math.PI * ph - 0.7), onde: J.P.onde + 2.8 * J.P.amp * Math.sin(2 * Math.PI * ph - 1.3) };
   };
   // la marionnette au sol ; o : ce qui s'y ajoute (s'accroupir, ailes levées, tête basse, s'affaisser…)
   const sol = (o = {}) => {
@@ -31,33 +31,34 @@ export function posture() {
     // le galop (vif → 1) : la colonne s'étire à la poussée des pattes arrière, se ramasse à la réception des avant ;
     // le corps vole deux fois par foulée et se balance comme un cheval à bascule, la tête compense
     const pasG = amp * (1 - vif), galop = amp * vif, c = Math.cos(2 * Math.PI * (g - 0.45));
-    const bascule = -0.09 * galop * Math.sin(2 * Math.PI * (g - 0.05));
-    const rythmeDos = pasG * 0.6 * Math.sin(4 * Math.PI * g - 0.4) + galop * 2.8 * c;
-    const rythmeOnde = pasG * 0.35 * Math.sin(2 * Math.PI * g) + galop * 1.3 * Math.sin(2 * Math.PI * (g - 0.2));
-    return { type: 'rig', pose: 'sol', x: J.P.x, y: o.y !== undefined ? o.y : J.P.sol - G + SOL_Y, fs: J.P.fs, pieds: o.pieds, pitch: -0.04 * vif + 0.025 * pasG * Math.sin(4 * Math.PI * g - 0.6) + bascule - 0.13 * freine + (o.pitch || 0),
-             etire: 0.06 * galop * c + (o.etire || 0), freine, agite: o.agite,
-             corps: { dx: 0.8 * pasG * Math.sin(4 * Math.PI * g) + (o.avance || 0), dy: pasG * 0.9 * Math.cos(4 * Math.PI * g) - galop * 1.8 * Math.cos(4 * Math.PI * (g - 0.45)) + 0.6 * souffle + bas },
+    const bascule = -0.13 * galop * Math.sin(2 * Math.PI * (g - 0.05));
+    const rythmeDos = pasG * 1.1 * Math.sin(4 * Math.PI * g - 0.4) + galop * 4.2 * c;
+    const rythmeOnde = pasG * 0.7 * Math.sin(2 * Math.PI * g) + galop * 2.2 * Math.sin(2 * Math.PI * (g - 0.2));
+    return { type: 'rig', pose: 'sol', x: J.P.x, y: o.y !== undefined ? o.y : J.P.sol - G + SOL_Y, fs: J.P.fs, pieds: o.pieds, pitch: -0.04 * vif + 0.025 * pasG * Math.sin(4 * Math.PI * g - 0.6) + bascule - 0.2 * freine + (o.pitch || 0),
+             etire: 0.1 * galop * c + (o.etire || 0), freine, agite: o.agite,
+             corps: { dx: 0.8 * pasG * Math.sin(4 * Math.PI * g) + (o.avance || 0), dy: pasG * 1.2 * Math.cos(4 * Math.PI * g) - galop * 2.8 * Math.cos(4 * Math.PI * (g - 0.45)) + 0.6 * souffle + bas },
              aile: { s: (1 - 0.04 * (souffle + 1) - 0.03 * amp * Math.sin(4 * Math.PI * g)) * (o.aile || 1), sx: 1, rot: -0.02 * amp * Math.sin(4 * Math.PI * g) + (o.aileRot || 0) },
              queue: J.P.queue + 0.14 * amp * Math.sin(2 * Math.PI * g - 1) + 0.05 * souffle + (o.queue || 0), allure: g, amp, vif,
              tete: { dx: -2 * J.P.recul + (o.teteAvance || 0), dy: pasG * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle + (o.tete || 0) + J.P.teteY, rot: -0.06 * J.P.recul + (o.teteRot || 0) - 0.04 * J.P.teteY - 0.7 * bascule },
              teteVariante: J.P.atk >= 0 ? unique('attack', J.P.atk, FPS.attack) : -1,
              cavalier: { dy: amp * 0.7 * Math.cos(4 * Math.PI * g - 0.5) + 0.4 * souffle + (o.cavalier || 0) + J.P.cavY, rot: J.P.penche + (o.cavalierRot || 0) },
              queues: { 'queue-2': J.P.q2 + (o.queue || 0) * 0.6, 'queue-3': J.P.q3 + (o.queue || 0) * 0.4 }, cligne: o.mort ? true : J.P.cligne < 0, ecrase: J.P.ecrase,
-             dos: J.P.dos + rythmeDos - 1.2 * freine + (o.dos || 0), onde: J.P.onde + rythmeOnde + 2.2 * freine + (o.onde || 0) };
+             dos: J.P.dos + rythmeDos - 2 * freine + (o.dos || 0), onde: J.P.onde + rythmeOnde + 3.5 * freine + (o.onde || 0) };
   };
   switch (J.P.mode) {
     case 'air': case 'fall': return vol();
     case 'jump': {
       if (!J.P.envol) {                    // l'élan : il s'accroupit, lève les ailes, baisse la tête
         const u = clamp(J.P.at / DECOLLAGE, 0, 1);
-        return sol({ fige: true, bas: 3 * u, aile: 1 + 0.18 * u, aileRot: -0.12 * u, tete: 2 * u, cavalier: 1.5 * u, pitch: 0.05 * u, queue: 0.12 * u });
+        return sol({ fige: true, bas: 5.5 * u, aile: 1 + 0.3 * u, aileRot: -0.2 * u, tete: 3 * u, cavalier: 2.5 * u, pitch: 0.08 * u, queue: 0.2 * u, dos: 2.5 * u });
       }
       return vol();                      // arraché du sol : nez levé, grand battement
     }
     case 'land': {                       // l'impact écrase le corps, les ailes encore hautes se replient, la tête plonge et remonte
       const u = clamp(J.P.at * FPS.land / AN.land.frames, 0, 1), avant = (1 - Math.min(1, u * 2.5)) ** 2;
-      return sol({ bas: 2 * (1 - u), aile: 1 + 0.22 * (1 - u), tete: 2.5 * Math.sin(Math.PI * Math.min(1, u * 1.6)), cavalier: 1.5 * Math.sin(Math.PI * Math.min(1, u * 1.3)),
-                   pitch: 0.12 * avant });           // les pattes avant touchent d'abord (Simba), l'arrière suit
+      const lourd = 1 + 1.6 * clamp((J.P.impact - 140) / 260, 0, 1);   // plus il tombe de haut, plus il s'écrase
+      return sol({ bas: 3.5 * lourd * (1 - u), aile: 1 + 0.3 * (1 - u), tete: 3.5 * lourd * Math.sin(Math.PI * Math.min(1, u * 1.6)), cavalier: 2.5 * lourd * Math.sin(Math.PI * Math.min(1, u * 1.3)),
+                   pitch: 0.16 * avant });           // les pattes avant touchent d'abord (Simba), l'arrière suit
     }
     case 'agrippe': {                    // accroché au rebord (Simba) : griffes sur l'arête, pattes arrière qui pédalent, ailes qui battent fort
       const u = clamp((J.P.at - PRISE.accroche) / PRISE.hisse, 0, 1), b = Math.sin(J.temps * 15), r = J.P.rebord;
@@ -70,7 +71,7 @@ export function posture() {
       // pattes arrière qui glissent, pattes avant qui battent l'air, ailes grandes ouvertes, cavalier couché sur l'encolure ; puis il retombe
       const u = clamp(J.P.at / RENVERSE, 0, 1), r = clamp(u / 0.7, 0, 1), cabre = Math.sin(Math.PI * r) ** 0.8;
       const apres = clamp((u - 0.7) / 0.3, 0, 1), secoue = apres > 0 ? Math.sin(apres * Math.PI * 5) * (1 - apres) : 0;
-      return sol({ fige: true, agite: r < 0.92 ? 'avant' : false, pitch: -0.5 * cabre, bas: -9 * cabre + 1.5 * Math.sin(Math.PI * apres),
+      return sol({ fige: true, agite: r < 0.92 ? 'avant' : false, pitch: -0.64 * cabre, bas: -12 * cabre + 2.5 * Math.sin(Math.PI * apres),
                    aile: 1.28 - 0.28 * r + 0.06 * Math.sin(J.temps * 26) * cabre, aileRot: -0.22 * cabre, queue: -0.22 * cabre,
                    tete: -1.5 * cabre, teteRot: -0.28 * cabre + 0.25 * secoue, cavalier: 1.5 * cabre, cavalierRot: 0.38 * cabre, dos: -1.5 * cabre });
     }
@@ -82,8 +83,8 @@ export function posture() {
       if (J.P.accroupi > 0.05 && J.tenuBas && J.P.atk < 0) return sol({ fige: true, bas: 3 * clamp(J.P.accroupi / 0.15, 0, 1), aile: 1.06, tete: 1.5 });   // accroupi : ressort bandé
       if (J.P.atk >= 0 && Math.abs(J.P.vx) < V.COURSE * 0.8) {     // le jet de feu au sol : un rugissement (Simba) — il plonge en avant, se ramasse, revient
         const u = clamp(J.P.atk / 0.36, 0, 1), L = u < 0.16 ? Math.sin(Math.PI / 2 * u / 0.16) : Math.cos(Math.PI / 2 * (u - 0.16) / 0.84) ** 2 - 0.12 * Math.sin(Math.PI * (u - 0.16) / 0.84);
-        return sol({ avance: 4 * L, teteAvance: 3.5 * L, bas: 2.4 * L, aile: 1 + 0.22 * L, aileRot: -0.09 * L, queue: -0.2 * L, teteRot: -0.08 * L, dos: 2 * L, onde: -1.2 * L,
-                     cavalier: 1.2 * L, cavalierRot: 0.12 * L });   // le dragonnier se tasse pour encaisser
+        return sol({ avance: 6.5 * L, teteAvance: 5 * L, bas: 3.6 * L, aile: 1 + 0.34 * L, aileRot: -0.14 * L, queue: -0.3 * L, teteRot: -0.12 * L, dos: 3.2 * L, onde: -2.2 * L,
+                     cavalier: 1.8 * L, cavalierRot: 0.18 * L });   // le dragonnier se tasse pour encaisser
       }
       return Math.abs(J.P.vx) < 5 && J.P.atk < 0 ? sol({ ...vieAuRepos(), repos: true }) : sol();
   }
@@ -194,7 +195,7 @@ export function transformer(q, d, loin) {
     case 'jambe': { const [a, h] = (d.jambes && d.jambes[q.nom]) || [0, 0]; autour(q, a, 0, Math.round(h)); break; }
   }
 }
-const MARGE_TRONC = 7, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
+const MARGE_TRONC = 13, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
 export function dessinerPosture(d, jeu) {
   if (d.type === 'planche') {
     ctx.save();
@@ -227,7 +228,7 @@ export function dessinerPosture(d, jeu) {
     d.ecart = 1 + 2.2 * tour;
   }
   ctx.translate(auPixel(d.x, J.cam), auPixel(d.y - (auSolPose ? 4 : 3) * tour, J.camY));
-  if (e) { ctx.translate(0, G); ctx.scale(1 + 0.1 * e, 1 - 0.12 * e); ctx.translate(0, -G); }   // écrasé par l'impact, pattes au sol
+  if (e) { ctx.translate(0, G); ctx.scale(1 + 0.16 * e, 1 - 0.2 * e); ctx.translate(0, -G); }   // écrasé par l'impact, pattes au sol
   ctx.scale(largeurDemiTour(d.fs), 1 + (auSolPose ? 0.04 : 0.08) * tour);
   if (d.pitch || tour) ctx.rotate((d.pitch || 0) - (auSolPose ? 0.2 : 0.3) * tour);
   if (d.etire) ctx.scale(1 + d.etire, 1 - 0.5 * d.etire);           // au galop : tout le corps s'allonge, puis se ramasse
