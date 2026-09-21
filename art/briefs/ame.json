@@ -1,9 +1,9 @@
 {
  "nom": "ame",
- "sujet": "Une âme errante : un fantôme au corps entier, silhouette humaine décharnée drapée dans un linceul en lambeaux, tête penchée au visage creusé et bouche ouverte sur un cri muet, bras tendus aux mains osseuses, le bas du linceul se défaisant en volutes. Les images : il flotte, le linceul ondule, les bras se tendent puis se replient, la tête se renverse. Planche d'animation de sprite pour un jeu : 6 images de la même créature, vue de profil tournée vers la droite, alignées sur UNE seule rangée horizontale, même échelle, bien séparées par du vide, sans aucun chevauchement. Chaque image doit être une pose NETTEMENT différente. Rien d'autre, fond transparent.",
  "reference": "references/ambiance.png",
  "style": "style-creature.txt",
  "taille": "1536x1024",
  "qualite": "high",
- "fond": "transparent"
+ "fond": "transparent",
+ "sujet": "Une dame blanche hurlante, spectre fait pour être reconnu au premier coup d'œil même tout petit : grande tête au visage de crâne blafard, TRÈS clair, avec deux immenses orbites NOIRES et une bouche béante NOIRE qui hurle ; longs cheveux blancs emmêlés qui fouettent vers l'arrière ; un linceul SOMBRE en lambeaux qui s'effiloche en fumée vers le bas ; deux mains osseuses pâles tendues vers l'avant. Contrastes très forts : visage et cheveux blancs, orbites et bouche noires, linceul gris foncé. La tête occupe un tiers de la hauteur. Planche d'animation de sprite : 6 images de la même créature, vue de profil tournée vers la droite, alignées sur UNE seule rangée horizontale, même échelle, séparées par un LARGE espace vide, sans aucun chevauchement : les cheveux et le linceul ondulent, les bras se tendent puis se replient, la bouche s'ouvre plus grand. Rien d'autre, fond transparent."
 }

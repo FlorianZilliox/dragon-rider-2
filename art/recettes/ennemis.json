@@ -44,18 +44,20 @@
   "ame": {
    "source": "ame",
    "objets": true,
-   "echelle": 0.14,
+   "echelle": 0.13,
    "tons": [
-    1,
+    0,
     14
    ],
-   "tramage": 0.35,
+   "tramage": 0.3,
    "contour": true,
    "contour_ton": 0,
    "regarde": "droite",
    "attendus": 6,
    "joindre": 0.006,
-   "seuil_alpha": 0.4
+   "seuil_alpha": 0.5,
+   "ilot_min": 14,
+   "trous_max": 80
   },
   "spectre": {
    "source": "spectre",

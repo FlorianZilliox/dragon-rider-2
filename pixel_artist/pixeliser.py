@@ -63,6 +63,7 @@ OPTIONS = [
     ('seuil_alpha', '0.5', "opacité (0 à 1) à partir de laquelle un pixel réduit reste visible"),
     ('ilot_min', '6', "avec alpha : un morceau isolé de moins de ilot_min pixels est effacé"),
     ('garder', 'aucun', "avec alpha : \"bas\" ou \"haut\" : ne garde que ce qui touche le bas (ou le haut) du motif"),
+    ('trous_max', '2', "avec alpha : bouche les trous intérieurs jusqu'à cette taille (pixels), avec la couleur de leur bord"),
     ('rogner', 'false', "rogne le vide autour du motif (le décalage est noté dans le JSON)"),
     ('raccord', '0', "fraction de la largeur (ex. 0.1, au plus 0.5) fondue pour un raccord horizontal sans couture"),
     ('raccord_v', '0', "même chose en hauteur (texture qui se répète aussi verticalement)"),
@@ -385,11 +386,15 @@ def traiter(img, el, cols, bornes=None):
                 tranche = lab[y1 - bande:y1] if garder == 'bas' else lab[y0:y0 + bande]
                 gardes = np.unique(tranche)
                 opaque &= np.isin(lab, gardes[gardes > 0])
-        trous = ndi.binary_fill_holes(opaque) & ~opaque     # bouche les trous de 1 ou 2 pixels dans le motif
+        trous = ndi.binary_fill_holes(opaque) & ~opaque     # bouche les trous du motif (1 ou 2 pixels par défaut)
         lab, n = ndi.label(trous)
         if n:
             tailles = ndi.sum(trous, lab, range(1, n + 1))
-            opaque |= np.isin(lab, 1 + np.flatnonzero(tailles <= 2))
+            bouches = np.isin(lab, 1 + np.flatnonzero(tailles <= el.get('trous_max', 2)))
+            if bouches.any() and el.get('trous_max', 2) > 2:  # un vrai trou : il prend la couleur de son bord, pas le noir
+                _, (iy, ix) = ndi.distance_transform_edt(~opaque, return_indices=True)
+                a[bouches, :3] = a[iy[bouches], ix[bouches], :3]
+            opaque |= bouches
     # valeur -> plage de teintes, tramage ordonné
     L = clarte(a[..., :3])
     if el.get('etirer', True) and (opaque.any() or bornes):
@@ -466,9 +471,14 @@ def planche_objets(img, el, cols, nom=''):
             coupes = sorted(c for _, c in sorted(bandes, reverse=True)[:n - 1])
             bords = np.array([x0] + [x0 + c for c in coupes] + [x1])
             print(f"  {len(boites)} objet(s) trouvé(s) au lieu de {n} : découpe aux {n - 1} plus larges bandes vides")
-        else:
-            bords = np.linspace(x0, x1, n + 1).round().astype(int)
-            print(f"  {len(boites)} objet(s) trouvé(s) au lieu de {n} : découpe en {n} colonnes égales")
+        else:                                          # pas assez de vides francs : au plus creux, près des divisions égales
+            couverture = ndi.uniform_filter1d(masque[:, x0:x1].sum(0).astype(float), max(3, (x1 - x0) // 200))
+            egales = np.linspace(0, x1 - x0, n + 1)
+            marge = (x1 - x0) / n * 0.25
+            coupes = [int(lo + np.argmin(couverture[int(lo):int(hi) + 1]))
+                      for lo, hi in ((max(0, c - marge), min(x1 - x0 - 1, c + marge)) for c in egales[1:-1])]
+            bords = np.array([x0] + [x0 + c for c in coupes] + [x1])
+            print(f"  {len(boites)} objet(s) trouvé(s) au lieu de {n} : découpe au plus creux près de {n} colonnes égales")
         boites = []
         for k in range(el['attendus']):
             lab[y0:y1, bords[k]:bords[k + 1]] = k + 1

@@ -382,6 +382,7 @@
      "nom": "aile",
      "role": "aile",
      "z": 1,
+     "double": true,
      "pivot": [
       92.5,
       54.0

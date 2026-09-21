@@ -1,0 +1,9 @@
+{
+ "nom": "titre-cimetiere",
+ "style": "style-titre.txt",
+ "reference": "references/titre.png",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent",
+ "sujet": "Garde EXACTEMENT la même police de capitales gothiques, les mêmes matières (os et argent vieilli), le même biseau, le même contour et le même filet ornemental que l'inscription de l'image de référence. Écris à la place l'inscription « LE CIMETIÈRE DES ROIS », orthographiée exactement ainsi : L-E puis C-I-M-E-T-I-È-R-E puis D-E-S puis R-O-I-S ; un seul accent, grave, posé sur le deuxième E de CIMETIÈRE (juste avant le R), aucun accent sur le I, sur deux lignes : LE CIMETIÈRE en haut, DES ROIS en bas, centrée, avec le même filet dessous. Rien d'autre, fond transparent."
+}

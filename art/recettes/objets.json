@@ -133,6 +133,21 @@
    "contour_ton": 0,
    "regarde": "droite",
    "attendus": 1
+  },
+  "poussiere": {
+   "source": "poussiere",
+   "objets": true,
+   "echelle": 0.1,
+   "tons": [
+    6,
+    13
+   ],
+   "tramage": 0.5,
+   "regarde": "droite",
+   "attendus": 4,
+   "ancre": "bas",
+   "joindre": 0.006,
+   "aire_min": 0.01
   }
  }
 }

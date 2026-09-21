@@ -160,6 +160,50 @@
     0,
     0
    ]
+  },
+  "poussiere": {
+   "image": "objets/poussiere.png",
+   "taille": [
+    160,
+    24
+   ],
+   "cellule": [
+    40,
+    24
+   ],
+   "images": 4,
+   "rects": [
+    [
+     14,
+     13,
+     12,
+     11
+    ],
+    [
+     48,
+     0,
+     23,
+     24
+    ],
+    [
+     89,
+     5,
+     22,
+     19
+    ],
+    [
+     120,
+     9,
+     40,
+     15
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
   }
  }
 }

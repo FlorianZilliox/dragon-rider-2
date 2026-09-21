@@ -624,28 +624,29 @@
   "date": "2026-09-21T14:44:01+00:00"
  },
  "ame": {
-  "fichier": "generes/ame-b99d1f754c79.png",
-  "empreinte": "b99d1f754c79",
+  "fichier": "generes/ame-df5c88831511.png",
+  "empreinte": "df5c88831511",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 670,
+   "input_tokens": 726,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 347
+    "text_tokens": 403
    },
-   "output_tokens": 6642,
+   "output_tokens": 6633,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 434
+    "text_tokens": 425
    },
-   "total_tokens": 7312
+   "total_tokens": 7359
   },
   "essai": false,
-  "date": "2026-09-21T15:28:57+00:00"
+  "date": "2026-09-21T17:40:55+00:00",
+  "empreinte_style": "a195292f82de"
  },
  "crane": {
   "fichier": "generes/crane-628dc1bc8c3c.png",
@@ -970,5 +971,129 @@
   },
   "essai": false,
   "date": "2026-09-21T15:28:42+00:00"
+ },
+ "titre-cimetiere": {
+  "fichier": "generes/titre-cimetiere-a50ecb8800a5.png",
+  "empreinte": "a50ecb8800a5",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/titre.png",
+  "usage": {
+   "input_tokens": 615,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 292
+   },
+   "output_tokens": 6500,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 292
+   },
+   "total_tokens": 7115
+  },
+  "essai": false,
+  "date": "2026-09-21T17:51:22+00:00",
+  "empreinte_style": "324c626286da"
+ },
+ "titre-terres": {
+  "fichier": "generes/titre-terres-8bbcb0fddb9a.png",
+  "empreinte": "8bbcb0fddb9a",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 555,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 232
+   },
+   "output_tokens": 6538,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 330
+   },
+   "total_tokens": 7093
+  },
+  "essai": false,
+  "date": "2026-09-21T17:49:54+00:00",
+  "empreinte_style": "324c626286da"
+ },
+ "titre-cryptes": {
+  "fichier": "generes/titre-cryptes-bc8e86ce00e9.png",
+  "empreinte": "bc8e86ce00e9",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/titre.png",
+  "usage": {
+   "input_tokens": 561,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 238
+   },
+   "output_tokens": 6486,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 278
+   },
+   "total_tokens": 7047
+  },
+  "essai": false,
+  "date": "2026-09-21T17:51:11+00:00",
+  "empreinte_style": "324c626286da"
+ },
+ "titre-veilleur": {
+  "fichier": "generes/titre-veilleur-80f870d95df7.png",
+  "empreinte": "80f870d95df7",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/titre.png",
+  "usage": {
+   "input_tokens": 566,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 243
+   },
+   "output_tokens": 6494,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 286
+   },
+   "total_tokens": 7060
+  },
+  "essai": false,
+  "date": "2026-09-21T17:51:11+00:00",
+  "empreinte_style": "324c626286da"
+ },
+ "poussiere": {
+  "fichier": "generes/poussiere-9f8d6875e5c4.png",
+  "empreinte": "9f8d6875e5c4",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 654,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 331
+   },
+   "output_tokens": 6616,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 408
+   },
+   "total_tokens": 7270
+  },
+  "essai": false,
+  "date": "2026-09-21T18:01:53+00:00"
  }
 }

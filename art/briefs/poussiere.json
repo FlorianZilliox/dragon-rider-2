@@ -1,0 +1,8 @@
+{
+ "nom": "poussiere",
+ "reference": "references/ambiance.png",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent",
+ "sujet": "Planche d'animation de sprite : une bouffée de poussière et de cendre soulevée au sol par un pas ou un atterrissage, vue de profil, décomposée en 5 images alignées sur UNE seule rangée, séparées par un large espace vide : un petit panache qui jaillit, qui gonfle en volutes arrondies, qui s'étire et se disperse, puis quelques derniers flocons. Gris clair et gris moyen, contours tramés. Rien d'autre, fond transparent."
+}
