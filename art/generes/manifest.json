@@ -1304,5 +1304,133 @@
   },
   "essai": false,
   "date": "2026-09-21T20:15:34+00:00"
+ },
+ "tours-noires": {
+  "fichier": "generes/tours-noires-83267befaf83.png",
+  "empreinte": "83267befaf83",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": [
+   "references/ambiance.png",
+   "references/externes/chateau-1.jpeg",
+   "references/externes/chateau-2.jpeg"
+  ],
+  "usage": {
+   "input_tokens": 1264,
+   "input_tokens_details": {
+    "image_tokens": 711,
+    "text_tokens": 553
+   },
+   "output_tokens": 6573,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 365
+   },
+   "total_tokens": 7837
+  },
+  "essai": false,
+  "date": "2026-09-21T21:05:15+00:00"
+ },
+ "tours-balcon": {
+  "fichier": "generes/tours-balcon-a0ed27ec4d36.png",
+  "empreinte": "a0ed27ec4d36",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": [
+   "references/ambiance.png",
+   "references/externes/chateau-1.jpeg",
+   "references/externes/chateau-2.jpeg"
+  ],
+  "usage": {
+   "input_tokens": 1076,
+   "input_tokens_details": {
+    "image_tokens": 711,
+    "text_tokens": 365
+   },
+   "output_tokens": 6549,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 341
+   },
+   "total_tokens": 7625
+  },
+  "essai": false,
+  "date": "2026-09-21T21:05:13+00:00"
+ },
+ "herse": {
+  "fichier": "generes/herse-e61a9bf534fe.png",
+  "empreinte": "e61a9bf534fe",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 627,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 304
+   },
+   "output_tokens": 4484,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 324
+   },
+   "total_tokens": 5111
+  },
+  "essai": false,
+  "date": "2026-09-21T21:17:34+00:00"
+ },
+ "levier": {
+  "fichier": "generes/levier-5bcd15e8dcbf.png",
+  "empreinte": "5bcd15e8dcbf",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 647,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 324
+   },
+   "output_tokens": 6509,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 301
+   },
+   "total_tokens": 7156
+  },
+  "essai": false,
+  "date": "2026-09-21T21:17:41+00:00"
+ },
+ "tours-soubassements": {
+  "fichier": "generes/tours-soubassements-dce3fa3e433f.png",
+  "empreinte": "dce3fa3e433f",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 658,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 335
+   },
+   "output_tokens": 6537,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 329
+   },
+   "total_tokens": 7195
+  },
+  "essai": false,
+  "date": "2026-09-21T21:58:55+00:00"
  }
 }

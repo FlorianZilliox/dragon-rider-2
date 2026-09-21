@@ -1,0 +1,9 @@
+{
+ "nom": "tours-balcon",
+ "_doc": "Les galeries en encorbellement des Tours (corniches =). Mêmes références que tours-noires.",
+ "reference": ["references/ambiance.png", "references/externes/chateau-1.jpeg", "references/externes/chateau-2.jpeg"],
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent",
+ "sujet": "Une longue galerie de château en encorbellement, vue de profil, presque noire avec un fin liseré gris clair de lune : un plancher de planches sombres, bien plat et lisible sur le dessus, avec un garde-corps de bois ajouré, porté par une rangée régulière de corbeaux de pierre sculptés et de consoles de bois en jambes de force qui s'amenuisent vers le bas. Une seule bande horizontale continue sur toute la largeur de l'image, rien au-dessus ni au-dessous, fond transparent."
+}

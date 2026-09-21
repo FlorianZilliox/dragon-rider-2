@@ -23,14 +23,16 @@ const ev = async (e) => (await cmd('Runtime.evaluate', { expression: e, returnBy
 await cmd('Runtime.enable'); await cmd('Page.enable'); await cmd('Page.navigate', { url }); await sleep(1500);
 await key('keyDown', 'x'); await sleep(60); await key('keyUp', 'x'); await sleep(4300);
 if (options.startsWith('poser:')) { const [, tx, ty] = options.split(':'); await ev(`window.__essai.poser(${tx}, ${ty})`); await sleep(300); }
-// lecture de la carte côté page : sol et plafond devant le dragon
+// lecture de la carte côté page : sol et plafond devant le dragon (cases qui bloquent : roc 1, mur fissuré 4, herse 6, tour 7 ;
+// corniche 2, pics 3), sur toute la hauteur de la carte
 const lire = `(() => { const e = window.__dragonRider(), c = window.__essai.caseA, TP = 16, tx = Math.floor(e.x / TP), ty = Math.floor(e.y / TP);
+  const H = window.__essai.niveau().h, dur = (t) => t === 1 || t === 4 || t === 6 || t === 7;
   let sol = 1e9, plafond = -1e9, ici = 1e9;
   for (let x = tx - 1; x <= tx + 7; x++) {
-    for (let y = Math.max(0, ty - 1); y < 24; y++) { const t = c(x, y); if (t === 1 || t === 4 || t === 3 || t === 2) { sol = Math.min(sol, y * TP); break; } }
-    for (let y = ty; y >= 0; y--) { const t = c(x, y); if (t === 1 || t === 4) { plafond = Math.max(plafond, (y + 1) * TP); break; } }
+    for (let y = Math.max(0, ty - 1); y < H; y++) { const t = c(x, y); if (dur(t) || t === 3 || t === 2) { sol = Math.min(sol, y * TP); break; } }
+    for (let y = ty; y >= 0; y--) { const t = c(x, y); if (dur(t)) { plafond = Math.max(plafond, (y + 1) * TP); break; } }
   }
-  for (let x = tx - 1; x <= tx + 1; x++) for (let y = ty; y < 24; y++) { const t = c(x, y); if (t === 1 || t === 4 || t === 2) { ici = Math.min(ici, y * TP); break; } if (t === 3) break; }
+  for (let x = tx - 1; x <= tx + 1; x++) for (let y = ty; y < H; y++) { const t = c(x, y); if (dur(t) || t === 2) { ici = Math.min(ici, y * TP); break; } if (t === 3) break; }
   return JSON.stringify(Object.assign(e, { solDevant: sol, plafondDevant: plafond, solIci: ici })); })()`;
 let tenu = new Set();
 const tenir = async (voulu) => { for (const k of tenu) if (!voulu.has(k)) await key('keyUp', k); for (const k of voulu) if (!tenu.has(k)) await key('keyDown', k); tenu = voulu; };

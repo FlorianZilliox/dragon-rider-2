@@ -50,6 +50,17 @@
    "tramage": 0.35,
    "rogner": true,
    "garder": "bas"
+  },
+  "soubassements": {
+   "_doc": "le mur du fond des souterrains, vu à travers les galeries et les puits, sous la brume (plan « monde » dans decor.js)",
+   "source": "tours-soubassements",
+   "largeur": 560,
+   "raccord": 0.12,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.5
   }
  }
 }

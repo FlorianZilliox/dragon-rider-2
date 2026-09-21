@@ -115,7 +115,7 @@ Un fichier `briefs/<nom>.json` par image. Le brief réel du plan lointain de l'a
 | `nom` | oui | lettres, chiffres, `-`, `_` | identifiant de l'image ; nomme le fichier produit et sert de clé dans le manifeste (les recettes y font référence) ; unique dans le projet |
 | `sujet` | oui | texte | ce que montre l'image ; la demande envoyée est `style` + « Sujet : » + `sujet` |
 | `style` | non | chemin relatif au projet, ex. `"style-perso.txt"` | remplace `style.txt` pour ce brief |
-| `reference` | non | chemin relatif au projet (PNG, JPEG ou WebP) | l'image est produite en **éditant** cette référence : garde la série dans la même main |
+| `reference` | non | chemin relatif au projet (PNG, JPEG ou WebP), ou une liste de chemins | l'image est produite en **éditant** cette référence : garde la série dans la même main. Avec une liste, la première donne la main et les suivantes des formes à reprendre (champ `image[]` de l'API) ; une référence locale non versionnée doit être recopiée sur une autre machine avant de regénérer |
 | `taille` | non | **`1536x1024`**, `1024x1024`, `1024x1536`, `auto` | format de l'image reçue |
 | `qualite` | non | **`high`**, `medium`, `low`, `auto` | plus la qualité est haute, plus l'image coûte cher |
 | `fond` | non | **`opaque`**, `transparent` | `transparent` pour tout ce qui sera détouré : plans de parallaxe, objets, planches |
@@ -204,9 +204,11 @@ Comment les couleurs sont choisies : pixeliser.py ne garde que la **valeur** (cl
 | `raccord_v` | `0` | la même chose en hauteur, pour une texture qui se répète dans les deux sens |
 | `recadrer` | aucun | `[x0, y0, x1, y1]` en fractions de la source (0 à 1), appliqué avant tout le reste ; ex. `[0, 0.47, 1, 1]` garde le bas |
 | `etirer` | `true` | étire les valeurs de la source (centiles 1 à 99) sur toute la plage `tons` ; `false` garde les valeurs telles quelles |
+| `valeurs` | centiles | `[bas, haut]` (0 à 1) : les valeurs de la source étirées sur `tons`, fixées au lieu des centiles de l'élément. Des pièces découpées dans une même source (sommet, fût, pied d'une tour) gardent ainsi les mêmes teintes, sans marche à la jointure |
 | `gamma` | `1.0` | courbe des valeurs avant projection : au-dessus de 1 assombrit, en dessous éclaircit |
 | `contour` | `false` | liseré d'un pixel sur le bord du motif : un petit objet reste lisible sur n'importe quel fond |
 | `contour_ton` | `t0` | indice de palette du liseré |
+| `lumiere` | aucune | `{ "ton": 10, "dx": 1, "dy": -1 }` : liseré de lumière d'un pixel sur les bords tournés vers une source (`dx` 1 : bords de droite ; `dy` -1 : bords du haut ; ici la lune, en haut à droite). Les bords coupés de l'image (une pièce qu'on empile ou qu'on raccorde) ne s'éclairent pas |
 | `objets` | `false` | **planche** : la source contient plusieurs objets côte à côte (images d'une animation) ; chacun est découpé, réduit et rangé dans une case identique, de gauche à droite |
 | `echelle` | requis si `objets` | planche : facteur de réduction (`0.15` : un objet de 1 000 px en fait 150) ; toutes les images gardent la même échelle |
 | `attendus` | aucun | planche : nombre d'objets attendus ; si la découpe automatique n'en trouve pas autant (objets qui se touchent), la planche est découpée en colonnes égales |

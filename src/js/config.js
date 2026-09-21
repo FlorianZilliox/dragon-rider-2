@@ -27,7 +27,8 @@ export const FEU = ['#f4f4f4', '#ffd9a0', '#f0a050', '#e0702e', '#b8323a', '#7a1
 export const NIVEAUX = [
   { cle: 'terres', nom: 'LES TERRES DÉCHARNÉES', sous: "RIEN NE POUSSE PLUS. RIEN N'ATTEND.", plaque: 'inscriptions/terres' },
   { cle: 'cimetiere', nom: 'LE CIMETIÈRE DES ROIS', sous: 'ILS ONT RÉGNÉ. IL RESTE LEURS NOMS.', plaque: 'inscriptions/cimetiere' },
-  { cle: 'tours', nom: 'LES TOURS FOUDROYÉES', sous: 'LE CIEL EST TOUT PRÈS. LE SOL, NULLE PART.', plaque: 'inscriptions/tours' },
+  { cle: 'tours', nom: 'LES TOURS FOUDROYÉES', sous: 'LE CIEL EST TOUT PRÈS. LE SOL, NULLE PART.', plaque: 'inscriptions/tours',
+    obscurite: { debut: 24, plein: 32, max: 0.85 } },            // sous la brume, les fondations du château, dans la pénombre
   { cle: 'cryptes', nom: 'LES CRYPTES', sous: 'EN BAS, QUELQUE CHOSE VEILLE ENCORE.', plaque: 'inscriptions/cryptes' },
 ];
 // la difficulté ne monte pas d'un niveau à l'autre, seulement d'un acte à l'autre (a = 0 à l'acte I) :
