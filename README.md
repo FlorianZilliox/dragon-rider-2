@@ -20,6 +20,8 @@ Le jeu est aussi une application installable (PWA) : installé, il se joue sans 
 | Piqué éclair | ↓ + C | |
 | Au sol : accroupi, super saut | ↓ puis ↑ | |
 | Briser un mur fissuré | feu ou ruée | |
+| S'agripper à un rebord et se hisser | pousser vers le rebord, en arrivant trop bas | croix |
+| Actionner un levier | feu ou ruée | |
 | Repères (ancre, collisions) | I | |
 | Couper le son | M | icône haut-parleur |
 | Pause | P ou Échap | automatique quand on quitte l'application ou qu'on tourne l'écran |

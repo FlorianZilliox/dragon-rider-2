@@ -92,6 +92,32 @@ function bordSeul(sol) {
   for (let tx = x0; tx <= x1; tx++) { const t = caseA(tx, ty); if (bloque(t) || t === CORNICHE) { somme += tx * TP + TP / 2; n++; } }
   return n && somme / n > J.P.x + J.P.face * 4 ? -1 : 1;
 }
+// ---------- s'agripper à un rebord (Simba) ----------
+// Arrivé trop bas contre un rebord (en poussant vers lui, sans monter), le dragon y accroche ses griffes avant et se hisse.
+export const PRISE = { accroche: 0.28, hisse: 0.62 };      // secondes : la prise, puis la hisse
+export const GRIFFES = [30.5, 6];                          // les griffes avant, dans le repère de la pose au sol
+export function chercherRebord(dir) {
+  if (!dir || dir !== J.P.face || J.P.vy < -30 || J.P.ruee >= 0 || J.P.mal >= 0 || J.P.pv <= 0) return null;
+  const cx = Math.floor((J.P.x + J.P.face * (LARG + 2)) / TP), plein = (x, y) => bloque(caseA(x, y));
+  for (let ty = Math.floor((J.P.y - 18) / TP); ty <= Math.floor((J.P.y + 12) / TP); ty++) {
+    const y = ty * TP;
+    if (y < J.P.y - 18 || y > J.P.y + 12 || !plein(cx, ty)) continue;
+    if (plein(cx, ty - 1) || plein(cx, ty - 2) || plein(cx, ty - 3)) continue;              // de la place au-dessus
+    if (!plein(cx + J.P.face, ty) || plein(cx + J.P.face, ty - 1) || plein(cx + J.P.face, ty - 2)) continue;   // une vraie plateforme
+    return { x: J.P.face > 0 ? cx * TP : (cx + 1) * TP, y };
+  }
+  return null;
+}
+export function agripper(r) {
+  J.P.mode = 'agrippe'; J.P.at = 0; J.P.rebord = r; J.P.vx = 0; J.P.vy = 0; J.P.ruee = -1; J.P.atk = -1;
+  J.P.dosV -= 10; J.P.teteYV -= 8; J.P.cavYV += 6; sfx('pose');
+  for (let i = 0; i < 6; i++) particule({ x: r.x + J.P.face * rand(0, 5), y: r.y + rand(0, 3), vx: -J.P.face * rand(10, 60), vy: rand(-60, 10), vie: rand(0.35, 0.6), max: 0.6, t: 2, rot: rand(0, 6), genre: 'gravat' });   // les griffes arrachent des éclats
+}
+// la place du corps pour que les griffes restent sur l'arête, à un tangage donné (même transformation que le dessin)
+export function placeAccroche(r, tangage) {
+  const c = Math.cos(tangage), s = Math.sin(tangage), [gx, gy] = GRIFFES;
+  return [r.x + J.P.face * 3 - J.P.face * (gx * c - gy * s), r.y - (gx * s + gy * c)];
+}
 export function atterrir(sol) {
   J.P.impact = J.P.vy; J.P.mode = 'land'; J.P.at = 0; J.P.vy = 0; J.P.pitch = 0; J.P.pitchV = 0; J.P.sol = sol;
   J.P.ecrase = clamp(J.P.impact / 260, 0.35, 1);                    // l'impact écrase le corps, qui se détend
@@ -199,6 +225,15 @@ export function majDragon(dt, E) {
       const avant = Math.floor(J.P.pas);
       J.P.pas += dt * FPS.walk * Math.abs(J.P.vx) / V.MARCHE;
       if (Math.floor(J.P.pas) !== avant && Math.floor(J.P.pas) % AN.walk.frames === 3 && Math.abs(J.P.vx) > V.MARCHE * 1.2) poussiere(J.P.x - J.P.face * 26, J.P.sol, 2, 0.5);
+      break;
+    }
+    case 'agrippe': {                                   // accroché au rebord, puis il se hisse
+      J.P.at += dt;
+      const r = J.P.rebord, u = clamp((J.P.at - PRISE.accroche) / PRISE.hisse, 0, 1), e = u * u * (3 - 2 * u);
+      const tangage = -0.55 * (1 - e), [xa, ya] = placeAccroche(r, -0.55), xf = r.x + J.P.face * (LARG + 6), yf = r.y - G + SOL_Y;
+      J.P.pitch = tangage;
+      J.P.x = mix(xa, xf, Math.pow(e, 1.6)); J.P.y = mix(ya, yf, Math.pow(e, 0.6));   // d'abord monter, puis passer par-dessus
+      if (u >= 1) { J.P.mode = 'ground'; J.P.at = 0; J.P.sol = r.y; J.P.pitch = 0; J.P.dosV += 10; J.P.cavYV += 8; poussiere(J.P.x - J.P.face * 12, r.y, 3, 0.6); sfx('pose'); }
       break;
     }
     case 'renverse': {                                  // renversé : il glisse en roulant, puis se relève (voir posture)
@@ -326,6 +361,7 @@ export function majVol(dt, E, dir, libre) {
   if (courant && J.P.ruee < 0) J.P.vy = Math.max(J.P.vy - 460 * dt, -165);      // le courant porte vers le haut
   const choc = deplacerVol(J.P.vx * dt, J.P.vy * dt);
   if (choc.plafond) J.P.vy = Math.max(0, J.P.vy);
+  if (libre && choc.sol === null) { const r = chercherRebord(dir); if (r) { agripper(r); return; } }   // trop bas contre un rebord : il s'y accroche
   if (choc.mur && J.P.ruee >= 0) { J.P.ruee = -1; J.P.vx = 0; J.secousse = Math.max(J.secousse, 0.08); }
   // arrondi avant de toucher le sol (ailes levées, nez relevé), puis atterrissage
   const solDessous = solSous(J.P.x, J.P.y + BAS - 1), hauteur = solDessous === null ? 1e9 : solDessous - (J.P.y + BAS);
