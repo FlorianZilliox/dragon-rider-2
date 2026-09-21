@@ -230,6 +230,19 @@
    ],
    "hauteurAvantRognage": 66,
    "raccord": false
+  },
+  "fleche": {
+   "image": "objets/fleche.png",
+   "taille": [
+    30,
+    111
+   ],
+   "decalage": [
+    33,
+    15
+   ],
+   "hauteurAvantRognage": 144,
+   "raccord": false
   }
  }
 }

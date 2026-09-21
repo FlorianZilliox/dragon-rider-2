@@ -104,18 +104,16 @@
    "rogner": true
   },
   "crete-tours": {
-   "_doc": "créneaux en ruine : merlons ébréchés, pinacles penchés",
+   "_doc": "six merlons exactement (d'un créneau au même créneau six périodes plus loin) : le motif boucle sans fondu",
    "source": "tours-crete",
-   "largeur": 144,
+   "largeur": 160,
    "alpha": true,
    "recadrer": [
+    0.1038,
     0,
-    0,
-    1,
-    0.845
+    0.9082,
+    0.64
    ],
-   "raccord": 0.1,
-   "ilot_min": 10,
    "tons": [
     2,
     10
@@ -147,13 +145,12 @@
    "largeur": 128,
    "alpha": true,
    "recadrer": [
-    0.036,
-    0.328,
-    0.965,
-    0.86
+    0.044,
+    0.221,
+    0.955,
+    0.93
    ],
    "raccord": 0.1,
-   "ilot_min": 10,
    "tons": [
     0,
     7

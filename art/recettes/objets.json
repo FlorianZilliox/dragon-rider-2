@@ -108,6 +108,19 @@
    "rogner": true,
    "contour": true
   },
+  "fleche": {
+   "_doc": "clocheton gothique posé sur le sommet d'une tour (lettre I)",
+   "source": "fleche",
+   "largeur": 96,
+   "alpha": true,
+   "tons": [
+    0,
+    8
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
   "ile": {
    "source": "terres-dessous",
    "largeur": 180,

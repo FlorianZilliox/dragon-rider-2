@@ -9,8 +9,8 @@ import { flamme } from './titre.js';
 
 // ---------- terrain et objets : textures et objets peints par Pixel Artist (art/recettes/terrain.json, objets.json) ----------
 // roc : texture raccordable (128 px), crete : bordure posée sur les sols, dessous : roche qui pend sous les îles
-// par clé d'acte (voir ACTES) ; sousLeCiel : la crête seulement à l'air libre, et au plafond d'une salle le dessous
-// n'est qu'une corniche (pas de créneaux sur le sol d'une salle de tour, pas de culs-de-lampe qui pendent dans la salle)
+// par clé d'acte (voir ACTES) ; sousLeCiel : la crête seulement à l'air libre, et au plafond d'une alcôve le dessous
+// n'est qu'une corniche (pas de créneaux sur le sol d'une alcôve, pas de culs-de-lampe qui la remplissent)
 export const TERRAIN = {
   terres: { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
   cimetiere: { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
@@ -51,7 +51,7 @@ export function construireAccessoires() {
   const gargouille = IMAGES_ART['objets/gargouille'], miroir = toile(gargouille.width, gargouille.height), g = miroir.getContext('2d');
   g.translate(gargouille.width, 0); g.scale(-1, 1); g.drawImage(gargouille, 0, 0);
   return { T: IMAGES_ART['objets/arbre'], t: IMAGES_ART['objets/tombe'], '+': IMAGES_ART['objets/croix'],
-           G: gargouille, g: miroir, B: IMAGES_ART['objets/etendard'] };
+           G: gargouille, g: miroir, B: IMAGES_ART['objets/etendard'], I: IMAGES_ART['objets/fleche'] };
 }
 // ---------- le terrain, peint une fois par niveau en bandes verticales ----------
 // Le terrain ne bouge pas (sauf un mur fissuré qui s'effondre) : le repeindre à chaque image coûtait des centaines
@@ -105,11 +105,10 @@ function peindreTerrain(g, x0, x1) {
       tx = fin + 1;
     }
   };
-  // sousLeCiel : un sol est abrité (le sol d'une salle) s'il a un plafond dans la carte à moins de 10 rangées au-dessus ;
-  // un plafond couvre une salle s'il y a un sol à moins de 10 rangées en dessous (le bas de la carte est le vide).
-  // Dix rangées : les salles des tours s'empilent, une trappe dans un plancher ne doit pas ouvrir le ciel.
-  const abrite = (tx, ty) => { for (let k = 2; k <= 10 && ty - k >= 0; k++) if (plein(tx, ty - k)) return true; return false; };
-  const salle = (tx, ty) => { for (let k = 4; k <= 10 && ty + k < H; k++) if (plein(tx, ty + k)) return true; return false; };
+  // sousLeCiel : un sol est abrité (le sol d'une alcôve) s'il a un plafond dans la carte à 4 rangées au plus au-dessus ;
+  // un plafond couvre une alcôve s'il y a un sol à 5 rangées au plus en dessous (le bas de la carte est le vide).
+  const abrite = (tx, ty) => { for (let k = 2; k <= 5 && ty - k >= 0; k++) if (plein(tx, ty - k)) return true; return false; };
+  const salle = (tx, ty) => { for (let k = 4; k <= 5 && ty + k < H; k++) if (plein(tx, ty + k)) return true; return false; };
   // 1. la roche qui pend sous les îles (derrière la roche elle-même) : pleine profondeur au milieu,
   //    elle s'effile vers les bords de chaque île au lieu d'être coupée net
   if (T.dessous) {

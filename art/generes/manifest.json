@@ -1171,52 +1171,30 @@
   "empreinte_style": "324c626286da"
  },
  "tours-crete": {
-  "fichier": "generes/tours-crete-fcd1275cf813.png",
-  "empreinte": "fcd1275cf813",
+  "fichier": "generes/tours-crete-91732ee4cb9e.png",
+  "empreinte": "91732ee4cb9e",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
-  "usage": {
-   "input_tokens": 680,
-   "input_tokens_details": {
-    "image_tokens": 323,
-    "text_tokens": 357
-   },
-   "output_tokens": 6513,
-   "output_tokens_details": {
-    "image_tokens": 6208,
-    "text_tokens": 305
-   },
-   "total_tokens": 7193
-  },
+  "usage": null,
   "essai": false,
-  "date": "2026-09-21T19:17:58+00:00"
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
  },
  "tours-dessous": {
-  "fichier": "generes/tours-dessous-9de7ccef8b9b.png",
-  "empreinte": "9de7ccef8b9b",
+  "fichier": "generes/tours-dessous-b92a6c7d7299.png",
+  "empreinte": "b92a6c7d7299",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
-  "usage": {
-   "input_tokens": 692,
-   "input_tokens_details": {
-    "image_tokens": 323,
-    "text_tokens": 369
-   },
-   "output_tokens": 6540,
-   "output_tokens_details": {
-    "image_tokens": 6208,
-    "text_tokens": 332
-   },
-   "total_tokens": 7232
-  },
+  "usage": null,
   "essai": false,
-  "date": "2026-09-21T19:17:59+00:00"
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
  },
  "tours-lointain": {
   "fichier": "generes/tours-lointain-2ab56de3d0a8.png",
@@ -1291,27 +1269,40 @@
   "date": "2026-09-21T19:17:59+00:00"
  },
  "tours-roc": {
-  "fichier": "generes/tours-roc-b246b1885d71.png",
-  "empreinte": "b246b1885d71",
+  "fichier": "generes/tours-roc-9069676e2ae2.png",
+  "empreinte": "9069676e2ae2",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "opaque",
   "reference": "references/ambiance.png",
+  "usage": null,
+  "essai": false,
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
+ },
+ "fleche": {
+  "fichier": "generes/fleche-232e06a243f9.png",
+  "empreinte": "232e06a243f9",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1536",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 674,
+   "input_tokens": 641,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 351
+    "text_tokens": 318
    },
-   "output_tokens": 6500,
+   "output_tokens": 6595,
    "output_tokens_details": {
-    "image_tokens": 6208,
-    "text_tokens": 292
+    "image_tokens": 6240,
+    "text_tokens": 355
    },
-   "total_tokens": 7174
+   "total_tokens": 7236
   },
   "essai": false,
-  "date": "2026-09-21T19:18:01+00:00"
+  "date": "2026-09-21T20:15:34+00:00"
  }
 }
