@@ -1,6 +1,6 @@
 import { J } from './etat.js';
 import { AN, BOUCHE, BRUME, DESCENTE, FPS, G, OS, RUEE_COUT, SOUFFLE, S_BAS, V } from './config.js';
-import { DECOLLAGE, GESTES, SOL_Y, foulee, posture } from './dragon-rendu.js';
+import { DECOLLAGE, GESTES, RENVERSE, SOL_Y, foulee, posture } from './dragon-rendu.js';
 import { explosionSol } from './monde.js';
 import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, toucheCase } from './niveau.js';
 import { approche, clamp, frac, mix, rand } from './outils.js';
@@ -68,6 +68,12 @@ export function blesser(depuisX) {
     else { J.P.mode = 'fall'; J.P.at = 0; J.P.vy = -70; }
     sfx('chute');
   } else {
+    if (auSol() || J.P.mode === 'renverse') {             // au sol, le coup le renverse : il roule sur le dos (Scar), glisse, se relève
+      J.P.mode = 'renverse'; J.P.at = 0; J.P.mal = -1;
+      J.P.renverseDir = Math.sign(J.P.vx) === J.P.face ? 1 : -1;
+      J.P.vx *= 0.8; poussiere(J.P.x, J.P.sol, 6, 1.2);
+      return;
+    }
     J.P.mal = 0;
     if (J.P.mode !== 'air') { J.P.mode = 'air'; J.P.at = 0; J.P.ph = 0; J.P.pitch = 0; J.P.y = Math.min(J.P.y, J.P.sol - BAS - 2); }
     J.P.vy = -80; J.P.pitchV += Math.random() < 0.5 ? 9 : -9;
@@ -195,6 +201,15 @@ export function majDragon(dt, E) {
       if (Math.floor(J.P.pas) !== avant && Math.floor(J.P.pas) % AN.walk.frames === 3 && Math.abs(J.P.vx) > V.MARCHE * 1.2) poussiere(J.P.x - J.P.face * 26, J.P.sol, 2, 0.5);
       break;
     }
+    case 'renverse': {                                  // renversé : il glisse en roulant, puis se relève (voir posture)
+      J.P.at += dt;
+      J.P.vx = approche(J.P.vx, 0, dt * 2.2);
+      if (deplacerSol(J.P.vx * dt)) J.P.vx = 0;
+      if (!appuiOuMarche()) { tomber(); break; }
+      if (J.P.at > 0.73 && J.P.at - dt <= 0.73) { J.P.dosV += 18; J.P.teteYV += 12; poussiere(J.P.x, J.P.sol, 4, 0.8); sfx('pose'); }   // il retombe sur ses pattes
+      if (J.P.at >= RENVERSE) { J.P.mode = 'ground'; J.P.at = 0; }
+      break;
+    }
     case 'fall': {
       J.P.vy += 620 * dt; J.P.vx = approche(J.P.vx, 0, dt);
       const r = deplacerVol(J.P.vx * dt, J.P.vy * dt);
@@ -211,7 +226,7 @@ export function majDragon(dt, E) {
       if (J.etat === 'jeu' && J.P.at * FPS.dead >= AN.dead.frames + 5) { J.etat = 'fin'; J.finT = 0; }
       break;
   }
-  if (J.P.mode === 'ground' || J.P.mode === 'land' || J.P.mode === 'dead') {   // au sol, le corps suit l'image
+  if (J.P.mode === 'ground' || J.P.mode === 'land' || J.P.mode === 'dead' || J.P.mode === 'renverse') {   // au sol, le corps suit l'image
     const d = posture();
     J.P.y = d.type === 'rig' ? J.P.sol - G + SOL_Y : J.P.sol - G + (AN[d.an].grounded ? AN[d.an].bodyY[d.i] : 0);
   }
