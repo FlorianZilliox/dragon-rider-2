@@ -1,4 +1,4 @@
-// L'adresse du jeu pour les robots : une adresse http(s) donnée telle quelle, sinon la PWA de dist/ servie ici,
+// L'adresse du jeu pour les robots : une adresse complète (http, https, file) donnée telle quelle, sinon la PWA de dist/ servie ici,
 // sur un port libre, le temps du test (lancer d'abord  npm run build).
 //   « - » ou « »   → le jeu local        « #essai… » → le jeu local, avec ces raccourcis
 import { createServer } from 'node:http';
@@ -11,7 +11,7 @@ const DIST = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'dist');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.map': 'application/json' };
 
 export async function adresseDuJeu(arg = '-') {
-  if (/^https?:\/\//.test(arg)) return arg;
+  if (/^(https?|file):\/\//.test(arg)) return arg;          // une adresse complète : telle quelle
   if (!existsSync(join(DIST, 'index.html'))) { console.error("\n✗ dist/ absent : lancer d'abord  npm run build\n"); process.exit(1); }
   const serveur = createServer(async (req, res) => {
     const chemin = normalize(decodeURIComponent(new URL(req.url, 'http://x').pathname)).replace(/^(\.\.[/\\])+/, '');
