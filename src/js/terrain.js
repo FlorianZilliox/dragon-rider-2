@@ -61,6 +61,7 @@ function peindreBande(i) {
   g.clearRect(0, 0, b.toile.width, b.toile.height);
   g.translate(-i * BANDE, MARGE_HAUT);
   peindreTerrain(g, i * BANDE, (i + 1) * BANDE);
+  eroder(g, i * BANDE);
   b.propre = true;
 }
 // un mur s'est effondré entre les colonnes gauche et droite : les bandes qu'il touche, roche qui pend
@@ -112,6 +113,7 @@ function peindreTerrain(g, x0, x1) {
     });
   }
   // 2. la roche, les murs fissurés, les pointes
+  const pendSous = (tx, ty) => !plein(tx, ty + 1) && !plein(tx, ty + 2) && !plein(tx, ty + 3);
   for (let ty = 0; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++) {
     const t = caseA(tx, ty), x = tx * TP, y = ty * TP;
     if (t === ROC || t === FRAGILE) {
@@ -120,7 +122,7 @@ function peindreTerrain(g, x0, x1) {
       g.fillStyle = '#060606';
       if (!plein(tx - 1, ty)) g.fillRect(x, y, 1, TP);
       if (!plein(tx + 1, ty)) g.fillRect(x + TP - 1, y, 1, TP);
-      if (!plein(tx, ty + 1) && ty < H - 1) g.fillRect(x, y + TP - 1, TP, 1);
+      if (!plein(tx, ty + 1) && ty < H - 1 && !(T.dessous && pendSous(tx, ty))) g.fillRect(x, y + TP - 1, TP, 1);   // (sauf si la roche qui pend la prolonge)
       if (!T.crete && ty > 0 && !plein(tx, ty - 1)) { g.fillStyle = '#9a9a96'; g.fillRect(x, y, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(x, y + 1, TP, 1); }
     } else if (t === PICS) {
       const p = T.pointes;
@@ -144,6 +146,58 @@ function peindreTerrain(g, x0, x1) {
     for (let ty = 1; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++)
       if (plein(tx, ty) && !plein(tx, ty - 1)) g.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
   }
+}
+// ---------- l'érosion : aucun flanc de roche tiré à la règle ----------
+// Chaque bord de roche exposé à l'air (flancs, dessous non couvert par la roche qui pend) est rongé de 0 à 4 pixels,
+// par petites marches comme des pierres descellées ; les coins s'arrondissent et le bout des crêtes s'effile.
+// Le nouveau bord reçoit le liseré sombre. Fait une fois, sur les pixels de la bande, quand elle est peinte.
+// profondeur rongée au bord « bord », à la rangée de pixels y (négative : une pierre qui dépasse)
+const ronge = (bord, y, cote) => {
+  const bloc = Math.floor(y / 3), h = hash(bord * 0.731 + bloc * 3.17 + cote * 11.3);
+  let e = h < 0.2 ? 0 : h < 0.42 ? 1 : h < 0.64 ? 2 : h < 0.84 ? 3 : 4;
+  if (hash(bord * 1.37 + Math.floor((y + 2) / 5) * 7.1 + cote * 5.9) > 0.86) e += 2;   // une pierre tombée
+  const saillie = hash(bord * 2.11 + bloc * 5.3 + cote * 1.7);
+  if (e <= 1 && saillie > 0.8) e = saillie > 0.93 ? -2 : -1;                          // une pierre qui dépasse
+  return e;
+};
+function eroder(g, x0) {
+  const T = J.TUILES[ACTES[J.acteVisuel].cle], plein = (tx, ty) => bloque(caseA(tx, ty)), H = J.NIV.h;
+  const L = BANDE, Hc = g.canvas.height, img = g.getImageData(0, 0, L, Hc), d = img.data;
+  const i4 = (x, y) => (x >= x0 && x < x0 + L && y + MARGE_HAUT >= 0 && y + MARGE_HAUT < Hc) ? ((y + MARGE_HAUT) * L + x - x0) * 4 : -1;
+  const effacer = (x, y) => { const k = i4(x, y); if (k >= 0) d[k + 3] = 0; };
+  const opaque = (x, y) => { const k = i4(x, y); return k >= 0 && d[k + 3] > 0; };
+  const liserer = (x, y) => { const k = i4(x, y); if (k >= 0) { d[k] = d[k + 1] = d[k + 2] = 6; d[k + 3] = 255; } };
+  const pend = (tx, ty) => T.dessous && !plein(tx, ty + 1) && !plein(tx, ty + 2) && !plein(tx, ty + 3);
+  const copier = (xs, ys, x, y) => { const a = i4(xs, ys), b = i4(x, y); if (a >= 0 && b >= 0) for (let c = 0; c < 4; c++) d[b + c] = d[a + c]; };
+  // ronge un bord : n pixels à partir de (x, y) vers l'intérieur (dx, dy), puis liseré sur le premier pixel resté plein ;
+  // n négatif : la pierre dépasse de -n pixels vers l'extérieur (on y prolonge la texture du bord)
+  const ronger = (x, y, dx, dy, n) => {
+    if (n < 0) {
+      if (!opaque(x, y)) return;
+      for (let k = 1; k <= -n; k++) copier(x + dx * 2, y + dy * 2, x - dx * k, y - dy * k);
+      liserer(x + dx * n, y + dy * n);
+      return;
+    }
+    for (let k = 0; k < n; k++) effacer(x + dx * k, y + dy * k);
+    for (let k = n; k < n + 3; k++) if (opaque(x + dx * k, y + dy * k)) { liserer(x + dx * k, y + dy * k); break; }
+  };
+  for (let ty = 0; ty < H; ty++) for (let tx = Math.floor(x0 / TP) - 1; tx <= Math.floor((x0 + L) / TP); tx++) {
+    if (!plein(tx, ty)) continue;
+    const x = tx * TP, y = ty * TP;
+    const hautLibre = ty > 0 && !plein(tx, ty - 1), basLibre = ty < H - 1 && !plein(tx, ty + 1) && !pend(tx, ty);
+    const yHaut = hautLibre && T.crete ? y - T.sol : y;       // la crête dépasse au-dessus de la case
+    for (const [voisin, bordX, dx, cote] of [[tx - 1, x, 1, -1], [tx + 1, x + TP - 1, -1, 1]]) {
+      if (plein(voisin, ty)) continue;
+      for (let yy = yHaut; yy < y + TP; yy++) {
+        let e = ronge(bordX, yy, cote);
+        const coin = (hautLibre ? Math.max(0, 4 - (yy - yHaut)) : 0) + (basLibre ? Math.max(0, 4 - (y + TP - 1 - yy)) : 0);
+        if (coin) e = Math.max(e, 0) + coin;                    // coins arrondis, bout de crête effilé
+        ronger(bordX, yy, dx, 0, Math.min(e, 7));
+      }
+    }
+    if (basLibre) for (let xx = x; xx < x + TP; xx++) ronger(xx, y + TP - 1, 0, -1, Math.max(0, Math.min(3, ronge(xx, y, 2) - 1)));
+  }
+  g.putImageData(img, 0, 0);
 }
 export function dessinerCourants() {           // colonnes de cendre qui montent : on voit où le vent porte
   ctx.fillStyle = '#c8c7c2';
