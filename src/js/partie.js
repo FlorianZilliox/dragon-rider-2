@@ -42,7 +42,7 @@ export function entrerNiveau(n, reprise) {
 }
 export function modeTitre() {
   J.etat = 'titre'; J.carte = null; J.P = null;
-  entrerNiveau(0, false);
+  entrerNiveau(Math.max(0, NIVEAUX.findIndex((n) => n.cle === 'terres')), false);   // l'écran titre : toujours les Terres
   J.P.mode = 'air'; J.P.x = 220; J.P.y = J.NIV.depart[1] - J.SOL + 108; cadrer(); J.camY = J.NIV.depart[1] - J.SOL;
 }
 // « ACTE II · NIVEAU 3 », au-dessus du nom du niveau
