@@ -243,6 +243,51 @@
    ],
    "hauteurAvantRognage": 144,
    "raccord": false
+  },
+  "herse": {
+   "image": "objets/herse.png",
+   "taille": [
+    16,
+    16
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 16,
+   "raccord": false
+  },
+  "levier": {
+   "image": "objets/levier.png",
+   "taille": [
+    42,
+    23
+   ],
+   "cellule": [
+    21,
+    23
+   ],
+   "images": 2,
+   "rects": [
+    [
+     2,
+     0,
+     17,
+     23
+    ],
+    [
+     21,
+     12,
+     21,
+     11
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
   }
  }
 }

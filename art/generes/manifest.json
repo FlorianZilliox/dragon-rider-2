@@ -1360,5 +1360,53 @@
   },
   "essai": false,
   "date": "2026-09-21T21:05:13+00:00"
+ },
+ "herse": {
+  "fichier": "generes/herse-e61a9bf534fe.png",
+  "empreinte": "e61a9bf534fe",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 627,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 304
+   },
+   "output_tokens": 4484,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 324
+   },
+   "total_tokens": 5111
+  },
+  "essai": false,
+  "date": "2026-09-21T21:17:34+00:00"
+ },
+ "levier": {
+  "fichier": "generes/levier-5bcd15e8dcbf.png",
+  "empreinte": "5bcd15e8dcbf",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 647,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 324
+   },
+   "output_tokens": 6509,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 301
+   },
+   "total_tokens": 7156
+  },
+  "essai": false,
+  "date": "2026-09-21T21:17:41+00:00"
  }
 }

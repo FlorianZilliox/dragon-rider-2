@@ -121,6 +121,42 @@
    "rogner": true,
    "contour": true
   },
+  "herse": {
+   "_doc": "case de herse (H) : un barreau et une traverse, recadrés à mi-chemin des voisins pour se raccorder dans les deux sens",
+   "source": "herse",
+   "largeur": 16,
+   "alpha": true,
+   "recadrer": [
+    0.25,
+    0.2188,
+    0.4844,
+    0.4531
+   ],
+   "tons": [
+    0,
+    10
+   ],
+   "tramage": 0.2,
+   "ilot_min": 0
+  },
+  "levier": {
+   "_doc": "levier (l) : relevé, puis abaissé",
+   "source": "levier",
+   "objets": true,
+   "echelle": 0.04,
+   "attendus": 2,
+   "joindre": 0.04,
+   "seuil_alpha": 0.2,
+   "ancre": "bas",
+   "tons": [
+    2,
+    12
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "contour_ton": 0,
+   "regarde": "droite"
+  },
   "ile": {
    "source": "terres-dessous",
    "largeur": 180,
