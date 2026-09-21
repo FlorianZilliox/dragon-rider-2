@@ -822,7 +822,7 @@
       croisiere: 0, atk: -1, tire: false, cd: 0, recul: 0, mal: -1, inv: 0, flash: 0, pv: PV_MAX,
       ruee: -1, rueeDir: [1, 0], rueeCd: 0, rueeDispo: true, refus: 0, charge: 1, envol: false, accroupi: 0, course: 0, pas: 0, ombreT: 0, impact: 0,
       souffle: 1, dernierSol: [x, sol],
-      q2: 0, q2v: 0, q3: 0, q3v: 0, allure: 0, penche: 0, pencheV: 0, vxAvant: 0, ecrase: 0, cligne: 3,
+      q2: 0, q2v: 0, q3: 0, q3v: 0, allure: 0, oisif: 0, geste: null, gesteT: 0, prochainGeste: 3, penche: 0, pencheV: 0, vxAvant: 0, ecrase: 0, cligne: 3,
     };
   }
   function vider() { ennemis = []; boules = []; orbes = []; coeurs = []; particules = []; popups = []; ombres = []; }
@@ -1126,6 +1126,10 @@
     P.vxAvant = P.vx;
     P.pencheV += (60 * (clamp(-acc / 900, -0.25, 0.25) - P.penche) - 8 * P.pencheV) * dt; P.penche += P.pencheV * dt;
     P.ecrase = Math.max(0, P.ecrase - dt * 4);
+    // au repos, il vit : de temps en temps un geste (regarder autour, étirer ou secouer les ailes, un coup de queue)
+    if (P.mode === 'ground' && Math.abs(P.vx) < 5 && P.atk < 0 && !(P.accroupi > 0.05)) P.oisif += dt; else { P.oisif = 0; P.geste = null; P.prochainGeste = rand(2.5, 4); }
+    if (P.geste) { P.gesteT += dt; if (P.gesteT > GESTES[P.geste]) { P.geste = null; P.prochainGeste = P.oisif + rand(3.5, 7); } }
+    else if (P.oisif > P.prochainGeste) { const g = Object.keys(GESTES); P.geste = g[Math.floor(Math.random() * g.length)]; P.gesteT = 0; }
     if (P.mode === 'ground') {
       const avant = P.allure;
       P.allure += dt * Math.abs(P.vx) / foulee() + (Math.abs(P.fs) < 0.98 ? dt * 3 : 0);   // un pas tous les « foulee » pixels ; il piétine en se retournant
@@ -1208,7 +1212,7 @@
       // la marche : le corps descend à chaque appui, tête et cavalier suivent avec un léger retard ;
       // les pattes (dessinerPattes) gardent leurs pieds plantés au sol ; à l'arrêt, une respiration
       const g = P.allure, amp = clamp(Math.abs(P.vx) / V.MARCHE, 0, 1) * (o.fige ? 0 : 1), vif = clamp((Math.abs(P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1);
-      const souffle = Math.sin(temps * 2.2) * (1 - amp) * (o.mort ? 0 : 1), bas = o.bas || 0;
+      const souffle = o.repos || o.mort ? 0 : Math.sin(temps * 2.2) * (1 - amp), bas = o.bas || 0;
       return { type: 'rig', pose: 'sol', x: P.x, y: P.sol - G + SOL_Y, fs: P.fs, pitch: -0.04 * vif + (0.025 + 0.03 * vif) * amp * Math.sin(4 * Math.PI * g - 0.6) + (o.pitch || 0),
                corps: { dx: 0.8 * amp * Math.sin(4 * Math.PI * g), dy: amp * (0.9 + 1.1 * vif) * Math.cos(4 * Math.PI * g) + 0.6 * souffle + bas },
                aile: { s: (1 - 0.04 * (souffle + 1) - 0.03 * amp * Math.sin(4 * Math.PI * g)) * (o.aile || 1), sx: 1, rot: -0.02 * amp * Math.sin(4 * Math.PI * g) + (o.aileRot || 0) },
@@ -1237,10 +1241,21 @@
       }
       default:
         if (P.accroupi > 0.05 && tenuBas && P.atk < 0) return sol({ fige: true, bas: 3 * clamp(P.accroupi / 0.15, 0, 1), aile: 1.06, tete: 1.5 });   // accroupi : ressort bandé
-        return sol();
+        return Math.abs(P.vx) < 5 && P.atk < 0 ? sol({ ...vieAuRepos(), repos: true }) : sol();
     }
   }
   const DECOLLAGE = 0.12;                  // durée de l'élan avant de s'arracher du sol
+  const GESTES = { regard: 1.6, etire: 1.3, secoue: 0.7, queue: 0.9 };   // les gestes au repos et leur durée
+  function vieAuRepos() {                  // ce que le repos ajoute à la pose au sol : respiration décalée et geste en cours
+    const r = Math.sin(temps * 2.1), o = { bas: 0.7 * r, tete: 0.7 * Math.sin(temps * 2.1 - 0.9), cavalier: 0.6 * Math.sin(temps * 2.1 - 1.6), aile: 1 - 0.035 * (1 + r), queue: 0.06 * Math.sin(temps * 1.2) };
+    if (!P.geste) return o;
+    const u = P.gesteT / GESTES[P.geste], env = Math.sin(Math.PI * clamp(u, 0, 1));
+    if (P.geste === 'regard') { o.teteRot = -0.14 * env * (u < 0.6 ? 1 : -0.5); o.tete -= 1.2 * env; o.cavalierRot = -0.1 * env; }
+    else if (P.geste === 'etire') { o.aile *= 1 + 0.32 * env; o.aileRot = -0.16 * env; o.bas -= 0.8 * env; o.tete += 0.8 * env; }
+    else if (P.geste === 'secoue') { o.aileRot = 0.12 * Math.sin(u * Math.PI * 7) * env; o.aile *= 1 + 0.08 * env; }
+    else if (P.geste === 'queue') o.queue += 0.4 * env * Math.sin(u * Math.PI * 3);
+    return o;
+  }
   const SOL_Y = -1.5;                      // la marionnette au sol, un peu haut sur pattes : de son repère au sol
   const foulee = () => mix(24, 36, clamp((Math.abs(P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));
   // les quatre pattes, dans le repère de la pose au sol : hanche, côté (près / loin), décalage dans le pas (marche à quatre temps)
