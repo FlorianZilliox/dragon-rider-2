@@ -55,7 +55,7 @@ function donnees() {
     `export const ATLAS = ${js(image(join(PIXEL, 'dragon.png'), 'images/dragon.png'))};`,
     `export const PLANCHE = ${js(image(join(PIXEL, 'dragon_propre.png'), 'images/dragon_propre.png'))};`,
     `export const ART = ${js(art)};`,
-    `export const NIVEAUX = ${js(Object.fromEntries(niveaux.map((f) => [f.slice(0, -4), readFileSync(join(NIV, f), 'utf8')])))};`,
+    `export const CARTES = ${js(Object.fromEntries(niveaux.map((f) => [f.slice(0, -4), readFileSync(join(NIV, f), 'utf8')])))};`,
   ].join('\n');
   return { code, copies };
 }

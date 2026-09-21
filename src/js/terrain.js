@@ -1,5 +1,5 @@
 import { J } from './etat.js';
-import { ACTES } from './config.js';
+import { NIVEAUX } from './config.js';
 import { IMAGES_ART } from './decor.js';
 import { ctx } from './ecran.js';
 import { CORNICHE, FRAGILE, PICS, ROC, TP, bloque, caseA, porteOuverte } from './niveau.js';
@@ -9,7 +9,7 @@ import { flamme } from './titre.js';
 
 // ---------- terrain et objets : textures et objets peints par Pixel Artist (art/recettes/terrain.json, objets.json) ----------
 // roc : texture raccordable (128 px), crete : bordure posée sur les sols, dessous : roche qui pend sous les îles
-// par clé d'acte (voir ACTES)
+// par clé de niveau (voir NIVEAUX)
 export const TERRAIN = {
   terres: { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
   cimetiere: { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
@@ -33,7 +33,7 @@ export function ligneOpaque(img) {             // première ligne presque pleine
   return img.height >> 1;
 }
 export function construireTuiles() {
-  const fissures = toile(TP, TP), g = fissures.getContext('2d');   // le mur fissuré : la roche de l'acte, zébrée de fentes claires
+  const fissures = toile(TP, TP), g = fissures.getContext('2d');   // le mur fissuré : la roche du niveau, zébrée de fentes claires
   g.fillStyle = '#9a9a96';
   [[3, 2], [4, 3], [5, 4], [5, 5], [6, 6], [7, 7], [8, 6], [9, 7], [10, 8], [10, 9], [11, 10], [6, 8], [5, 9], [4, 10], [4, 11], [12, 11], [12, 12], [8, 12], [7, 13]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
   g.fillStyle = '#060606';
@@ -70,9 +70,9 @@ export function retoucherTerrain(gauche, droite) {
   cache.bandes.forEach((b, i) => { if ((i + 1) * BANDE > x0 && i * BANDE < x1) b.propre = false; });
 }
 export function dessinerTuiles() {
-  if (cache.niv !== J.NIV || cache.visuel !== J.acteVisuel) {            // nouveau niveau : tout repeindre
+  if (cache.niv !== J.NIV || cache.visuel !== J.niveauVisuel) {            // nouveau niveau : tout repeindre
     for (const b of cache.bandes) if (b.toile) b.toile.width = 0;         // libère la mémoire tout de suite (Safari)
-    cache.niv = J.NIV; cache.visuel = J.acteVisuel;
+    cache.niv = J.NIV; cache.visuel = J.niveauVisuel;
     cache.bandes = Array.from({ length: Math.ceil(J.NIV.largeur / BANDE) }, () => ({ toile: null, propre: false }));
     cache.bandes.forEach((_, i) => peindreBande(i));
   }
@@ -85,7 +85,7 @@ export function dessinerTuiles() {
 }
 // peint tout le terrain des colonnes [x0, x1[ (coordonnées de la carte), sur toute la hauteur du niveau
 function peindreTerrain(g, x0, x1) {
-  const T = J.TUILES[ACTES[J.acteVisuel].cle], plein = (tx, ty) => bloque(caseA(tx, ty)), L = J.NIV.l, H = J.NIV.h;
+  const T = J.TUILES[NIVEAUX[J.niveauVisuel].cle], plein = (tx, ty) => bloque(caseA(tx, ty)), L = J.NIV.l, H = J.NIV.h;
   const tx0 = Math.max(0, Math.floor(x0 / TP) - 1), tx1 = Math.min(L - 1, Math.floor(x1 / TP) + 1);
   // une suite de cases (même rangée) qui vérifient « est », prise en entier même si elle déborde de la bande
   const suites = (ty, est, marge, faire) => {

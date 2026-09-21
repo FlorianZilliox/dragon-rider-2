@@ -1,5 +1,5 @@
 import { PIXEL } from './donnees.js';
-import { clamp, romain } from './outils.js';
+import { clamp } from './outils.js';
 
 // ================= Constantes =================
 export const POSES = PIXEL.poses;                        // la pose en vol, découpée en pièces
@@ -21,25 +21,29 @@ export const SANG = '#7a1c26', SANG_VIF = '#b8323a';
 export const LOGO = ['#f4f3ee', '#e2e1dc', '#c9c8c3', '#abaaa5', '#8c8b87', '#6e6d69', '#4f4e4b'];
 export const FEU = ['#f4f4f4', '#ffd9a0', '#f0a050', '#e0702e', '#b8323a', '#7a1c26', '#262626'];
 
-// l'histoire : des actes vers la droite, puis le Veilleur au fond du dernier. C'est la seule liste des actes :
-// cle nomme la carte (niveaux/<cle>.txt), les plans du décor (PLANS) et la roche (TERRAIN) de l'acte.
-export const ACTES = [
+// l'histoire : des niveaux vers la droite, le Veilleur au bout du dernier. Les jouer tous et vaincre le Veilleur,
+// c'est un ACTE ; l'acte suivant reprend les mêmes niveaux, plus durs. C'est la seule liste des niveaux :
+// cle nomme la carte (niveaux/<cle>.txt), les plans du décor (PLANS) et la roche (TERRAIN) du niveau.
+export const NIVEAUX = [
   { cle: 'terres', nom: 'LES TERRES DÉCHARNÉES', sous: "RIEN NE POUSSE PLUS. RIEN N'ATTEND.", plaque: 'inscriptions/terres' },
   { cle: 'cimetiere', nom: 'LE CIMETIÈRE DES ROIS', sous: 'ILS ONT RÉGNÉ. IL RESTE LEURS NOMS.', plaque: 'inscriptions/cimetiere' },
   { cle: 'cryptes', nom: 'LES CRYPTES', sous: 'EN BAS, QUELQUE CHOSE VEILLE ENCORE.', plaque: 'inscriptions/cryptes' },
-].map((a, i) => ({ ...a, num: romain(i + 1) }));
-// la difficulté monte d'acte en acte, puis de cycle en cycle (rang 0 : acte I du premier cycle)
+];
+// la difficulté ne monte pas d'un niveau à l'autre, seulement d'un acte à l'autre (a = 0 à l'acte I) :
+// plus d'ennemis, et plus résistants — sans qu'on les distingue des autres
 export const DIFFICULTE = {
-  vivacite: (r) => 1 + Math.min(0.6, r * 0.07),                   // vitesse et réflexes des ennemis
-  renfort: (r) => Math.min(0.6, r * 0.14),                        // part des ennemis de la carte qui viennent accompagnés
-  coriace: (r) => Math.min(0.55, r * 0.14),                       // part des ennemis d'un coup qui en demandent deux
-  cuirasse: (r) => Math.min(0.4, Math.max(0, r - ACTES.length + 1) * 0.1),   // au cycle suivant : deux coups → trois
+  vivacite: (a) => 1 + Math.min(0.6, a * 0.15),                     // vitesse et réflexes des ennemis
+  renfort: (a) => Math.min(0.7, a * 0.3),                           // part des ennemis de la carte qui viennent accompagnés
+  coriace: (a) => Math.min(0.7, a * 0.35),                          // part des ennemis d'un coup qui en demandent deux
+  cuirasse: (a) => Math.min(0.5, Math.max(0, a - 1) * 0.25),        // dès l'acte III : deux coups → trois
 };
 // le souffle du dragon (1 = plein) : ce que coûte une seconde de vol, ce que rendent le sol et les courants
 export const SOUFFLE = { montee: 1 / 3.5, palier: 1 / 7, courant: 1.4, sol: 1.2, epuise: 42 };
 export const RUEE_COUT = 0.25;                   // une ruée coûte un quart du souffle
 export const EPILOGUE = ["LE VEILLEUR S'EST TU.", "AU FOND DE LA CRYPTE, IL N'Y AVAIT RIEN.",
                   'NI TRÉSOR, NI RÉPONSE. SEULEMENT LA NUIT.', 'LE DRAGONNIER REPRIT SON VOL.'];
-// raccourcis d'entraînement : #calme (sans ennemis), #acte=2, #acte=3…, #veilleur ; #essai expose des aides de test
+// raccourcis d'entraînement : #calme (sans ennemis), #niveau=2, #niveau=3…, #veilleur, #acte=2 (l'acte II : plus dur) ;
+// #essai expose des aides de test
 export const CALME = /calme/.test(location.hash), ESSAI = /essai/.test(location.hash), VEILLEUR = /veilleur/.test(location.hash);
-export const DEPART = VEILLEUR ? ACTES.length - 1 : clamp((+((/acte=(\d+)/.exec(location.hash) || [])[1]) || 1) - 1, 0, ACTES.length - 1);
+export const DEPART = VEILLEUR ? NIVEAUX.length - 1 : clamp((+((/niveau=(\d+)/.exec(location.hash) || [])[1]) || 1) - 1, 0, NIVEAUX.length - 1);
+export const ACTE_DEPART = Math.max(1, +((/acte=(\d+)/.exec(location.hash) || [])[1]) || 1);

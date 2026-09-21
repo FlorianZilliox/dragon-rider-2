@@ -36,7 +36,7 @@ while ((Date.now() - t0) / 1000 < +duree) {
   const s = (Date.now() - t0) / 1000;
   const brut = await ev(lire); if (!brut) { console.log('lecture vide'); await sleep(200); continue; }
   const e = JSON.parse(brut);
-  if (e.acte !== acte) { if (acte) journal.push(`${s.toFixed(0)}s acte ${acte} fini en ${(s - debutActe).toFixed(0)} s`); acte = e.acte; debutActe = s; }
+  if (e.niveau !== acte) { if (acte) journal.push(`${s.toFixed(0)}s niveau ${acte} fini en ${(s - debutActe).toFixed(0)} s`); acte = e.niveau; debutActe = s; }
   if (options.includes('reliques') && e.reliques.split('/')[0] !== e.reliques.split('/')[1]) await ev('window.__essai.reliques()');
   if (e.pv < pv) { pertes += pv - e.pv; journal.push(`${s.toFixed(0)}s -${pv - e.pv} cœur(s) à x=${e.x} y=${e.y} (${e.mode})`); }
   pv = e.pv;
@@ -54,7 +54,7 @@ while ((Date.now() - t0) / 1000 < +duree) {
   if (Math.abs(e.x - dernierX) < 2 && !repos) { if (!bloqueDepuis) bloqueDepuis = s; if (s - bloqueDepuis > 2.5) { journal.push(`${s.toFixed(0)}s BLOQUÉ à x=${e.x} y=${e.y} mode=${e.mode} souffle=${e.souffle}`); bloqueDepuis = s + 5; } } else bloqueDepuis = 0;
   dernierX = e.x;
   await tenir(v);
-  if (Math.floor(s) % 15 === 0 && !journal.find((j) => j.startsWith(Math.floor(s) + 's ·'))) journal.push(`${Math.floor(s)}s · acte ${e.acte} x=${e.x}/${e.largeur} y=${e.y} pv=${e.pv} souffle=${e.souffle} reliques=${e.reliques} ${e.mode}`);
+  if (Math.floor(s) % 15 === 0 && !journal.find((j) => j.startsWith(Math.floor(s) + 's ·'))) journal.push(`${Math.floor(s)}s · niveau ${e.niveau} x=${e.x}/${e.largeur} y=${e.y} pv=${e.pv} souffle=${e.souffle} reliques=${e.reliques} ${e.mode}`);
   await sleep(90);
 }
 const r = await cmd('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${out}/fin.png`, Buffer.from(r.result.data, 'base64'));

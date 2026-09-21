@@ -168,8 +168,8 @@ export function majEnnemi(e, dt) {
   }
   e.y = clamp(e.y, 10, J.NIV.hauteur - 10);
 }
-// la difficulté de l'acte, décidée à l'entrée du niveau : des renforts près des ennemis de la carte,
-// une part d'entre eux plus coriaces (cerclés de sang : un coup de plus). Rang 0 : la carte telle quelle.
+// la difficulté de l'acte, décidée à l'entrée du niveau : des renforts près des ennemis de la carte, et une part
+// d'entre eux plus résistants (un coup de plus), rien ne les distingue des autres. Acte I : la carte telle quelle.
 export function durcir(niv, r) {
   if (r <= 0) return;
   const D = DIFFICULTE, places = [[28, 0], [-28, 0], [20, -20], [-20, -20], [0, -28], [36, 12], [-36, 12]];

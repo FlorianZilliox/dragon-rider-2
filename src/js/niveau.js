@@ -1,6 +1,6 @@
 import { J } from './etat.js';
-import { ACTES, AN, G } from './config.js';
-import { NIVEAUX } from './donnees.js';
+import { NIVEAUX, AN, G } from './config.js';
+import { CARTES } from './donnees.js';
 import { rand } from './outils.js';
 import { particule } from './partie.js';
 import { sfx } from './son.js';
@@ -16,10 +16,10 @@ export const ENNEMIS_CARTE = { c: 'charognard', a: 'ame', b: 'chauve', s: 'spect
 export const LARG = 24, HAUT = 12, BAS = G - AN.land.bodyY[0], CORPS_SOL = 44;
 J.NIV = null;
 export function lireNiveau(n) {
-  const lignes = NIVEAUX[ACTES[n].cle].split('\n').filter((l) => !l.startsWith(';')).map((l) => l.replace(/\s+$/, ''));
+  const lignes = CARTES[NIVEAUX[n].cle].split('\n').filter((l) => !l.startsWith(';')).map((l) => l.replace(/\s+$/, ''));
   while (lignes.length && !lignes[lignes.length - 1]) lignes.pop();
   const h = lignes.length, l = Math.max(...lignes.map((x) => x.length));
-  const niv = { acte: n, l, h, cases: new Uint8Array(l * h), objets: [], courants: [], largeur: l * TP, hauteur: h * TP,
+  const niv = { niveau: n, l, h, cases: new Uint8Array(l * h), objets: [], courants: [], largeur: l * TP, hauteur: h * TP,
                 depart: [TP * 3, TP * (h - 2)], reprise: null, veilleur: null, sortie: null, arene: null, reliques: 0, prises: 0 };
   lignes.forEach((ligne, ty) => [...ligne.padEnd(l, '.')].forEach((ch, tx) => {
     const x = tx * TP + TP / 2, y = ty * TP + TP / 2, sol = (ty + 1) * TP;

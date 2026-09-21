@@ -21,7 +21,7 @@ const K = { ArrowUp: [38, 'ArrowUp'], ArrowDown: [40, 'ArrowDown'], ArrowRight: 
 const key = (type, k) => cmd('Input.dispatchKeyEvent', { type, key: k, code: K[k][1], windowsVirtualKeyCode: K[k][0] });
 const ev = async (e) => (await cmd('Runtime.evaluate', { expression: e, returnByValue: true })).result.result.value;
 await cmd('Runtime.enable'); await cmd('Page.enable');
-await cmd('Page.navigate', { url: url + '#essai#calme#acte=' + acte }); await sleep(1400);
+await cmd('Page.navigate', { url: url + '#essai#calme#niveau=' + acte }); await sleep(1400);
 await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(4300);
 await ev(`window.__essai.${mode === 'vol' ? 'voler' : 'poser'}(${tx}, ${ty})`); await sleep(+attente);
 if (avant) { const [, ks, ms] = avant.split(':'); for (const k of ks.split('+')) await key('keyDown', k); await sleep(+ms); for (const k of ks.split('+')) await key('keyUp', k); }

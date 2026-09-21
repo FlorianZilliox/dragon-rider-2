@@ -33,7 +33,7 @@ export function coeur(x, y, plein) {            // blanc d'os cerclé de noir (v
 export function dessinerEnnemis() {
   for (const c of J.coeurs) if (c.t < 7 || Math.floor(J.temps * 12) % 2) coeur(Math.round(c.x) - 3, Math.round(c.y + Math.sin(c.t * 4) * 2) - 3, true);
   for (const e of J.ennemis) {
-    const S = SPR[TYPES[e.type].sprite], im = S.images[e.image % S.images.length], img = e.flash > 0 ? im.b : e.pv > TYPES[e.type].pv ? im.r : im.n;
+    const S = SPR[TYPES[e.type].sprite], im = S.images[e.image % S.images.length], img = e.flash > 0 ? im.b : im.n;
     if (e.alpha <= 0.02) continue;
     ctx.globalAlpha = e.alpha;
     ctx.save(); ctx.translate(auPixel(e.x, J.cam), auPixel(e.y, J.camY));
@@ -75,7 +75,6 @@ export function dessinerEffets() {
       ctx.fillRect(x - l, y, l * 2, 1); ctx.fillRect(x, y - 1, 1, 1);
     } else if (p.genre === 'gravat') { ctx.fillStyle = k > 0.4 ? '#333333' : '#202020'; ctx.fillRect(x, y, Math.cos(p.rot) > 0 ? 2 : 1, 2); }
     else if (p.genre === 'ecto') { ctx.fillStyle = k > 0.5 ? BRUME : '#3a3a3a'; ctx.fillRect(x, y, 1, 1); }
-    else if (p.genre === 'sang') { ctx.fillStyle = k > 0.5 ? SANG_VIF : SANG; ctx.fillRect(x, y, 1, k > 0.7 ? 2 : 1); }   // éclats du cercle de sang
     else if (p.genre === 'poussiere') imagePlanche('objets/poussiere', Math.min(3, Math.floor((1 - k) * 4)), x, y + 1, p.t, 'bas');
     else if (p.genre === 'eclair') disque(x, y, 9, '#ffffff');
     else if (p.genre === 'bouche') { disque(x, y, 5, FEU[3]); disque(x, y, 3, FEU[1]); disque(x, y, 1, FEU[0]); }

@@ -30,7 +30,7 @@ export function blesserVeilleur(v, n) {
   if (v.pv <= 0) {
     v.mort = 0; J.orbes = []; J.secousse = 0.6; sfx('veilleur');
     J.ennemis.forEach((e) => explosion(e.x, e.y, true)); J.ennemis = [];
-    J.score += 5000 * J.cycle; popup('+' + 5000 * J.cycle, v.x, v.y - 40, '#e0c080', 2);
+    J.score += 5000 * J.acte; popup('+' + 5000 * J.acte, v.x, v.y - 40, '#e0c080', 2);
     noterRecord();
   }
 }
@@ -46,7 +46,7 @@ export function majVeilleur(dt) {
     return;
   }
   if (v.entree < 2) { v.entree += dt; v.y = approche(v.y, milieu, dt * 1.6); v.machoire = v.entree < 1.6 ? 0.5 + 0.5 * Math.sin(v.t * 9) : 0; return; }
-  const rage = v.pv < v.pvMax / 2, diff = 1 + (J.cycle - 1) * 0.2;
+  const rage = v.pv < v.pvMax / 2, diff = 1 + (J.acte - 1) * 0.2;
   v.x = A.x + J.W * (0.74 + 0.07 * Math.sin(v.t * 0.55));
   v.y = milieu + Math.sin(v.t * (rage ? 1.05 : 0.75)) * (bas - haut) * 0.45;
   v.tir -= dt * diff; v.invoc -= dt;

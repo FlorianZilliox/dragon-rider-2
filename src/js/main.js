@@ -1,9 +1,9 @@
 import { J } from './etat.js';
 import { suivreCamera } from './camera.js';
-import { ACTES, ENCRE, ESSAI, G, OS, PV_MAX, SANG_VIF, reduit } from './config.js';
+import { NIVEAUX, ENCRE, ESSAI, G, OS, PV_MAX, SANG_VIF, reduit } from './config.js';
 import { IMAGES_ART, PLANS, construireHalo, decor, dessinerMeteo, majMeteo } from './decor.js';
 import { entreesDemo } from './demo.js';
-import { ART, ATLAS, NIVEAUX, PLANCHE } from './donnees.js';
+import { ART, ATLAS, CARTES, PLANCHE } from './donnees.js';
 import { majDragon } from './dragon.js';
 import { construirePieces, construirePlanche } from './dragon-pieces.js';
 import { dessinerDragon, posture } from './dragon-rendu.js';
@@ -14,7 +14,7 @@ import { dessinerCarte, hud } from './interface.js';
 import { majMonde } from './monde.js';
 import { TP, caseA } from './niveau.js';
 import { rand } from './outils.js';
-import { cadrer, majCarte, modeTitre, nouveauCycle, nouvellePartie, progression, reprendre } from './partie.js';
+import { cadrer, majCarte, modeTitre, nouvelActe, nouvellePartie, progression, reprendre } from './partie.js';
 import { dessinerEffets, dessinerEnnemis } from './rendu-monde.js';
 import { sfx } from './son.js';
 import { TERRAIN, construireAccessoires, construireTuiles, dessinerCourants, dessinerObjets, dessinerTuiles } from './terrain.js';
@@ -30,7 +30,7 @@ export function boucle(tms) {
   J.temps += dt;
   if (J.etat === 'epilogue') {
     J.epiT += dt;
-    if (J.epiT > 7 && J.appuis.has('fire')) nouveauCycle();
+    if (J.epiT > 7 && J.appuis.has('fire')) nouvelActe();
     J.appuis.clear(); J.gestes.clear();
     if (J.etat === 'epilogue') { ecranEpilogue(); requestAnimationFrame(boucle); return; }
   }
@@ -78,7 +78,7 @@ export function boucle(tms) {
 
 // lecture seule, pour les tests automatisés (outils de vérification)
 window.__dragonRider = () => {
-  return { etat: J.etat, acte: J.acte + 1, decor: J.acteVisuel + 1, arene: J.arene, veilleur: J.veilleur ? J.veilleur.pv : null, veilleurY: J.veilleur ? Math.round(J.veilleur.y) : null, mode: J.P.mode,
+  return { etat: J.etat, niveau: J.niveau + 1, acte: J.acte, decor: J.niveauVisuel + 1, arene: J.arene, veilleur: J.veilleur ? J.veilleur.pv : null, veilleurY: J.veilleur ? Math.round(J.veilleur.y) : null, mode: J.P.mode,
            pv: J.P.pv, score: J.score, ennemis: J.ennemis.length, x: Math.round(J.P.x), y: Math.round(J.P.y), sol: J.P.sol, souffle: +J.P.souffle.toFixed(2),
            sx: Math.round(J.P.x - J.cam), sy: Math.round(J.P.y - J.camY), cam: Math.round(J.cam), camY: Math.round(J.camY),
            reliques: J.NIV.prises + '/' + J.NIV.reliques, reprise: J.NIV.reprise, largeur: J.NIV.largeur, rueeDispo: J.P.rueeDispo, ruee: J.P.ruee,
@@ -91,7 +91,7 @@ if (ESSAI) window.__essai = {
   voler(tx, ty) { J.P.x = tx * TP + TP / 2; J.P.y = ty * TP + TP / 2; J.P.mode = 'air'; J.P.vx = J.P.vy = 0; cadrer(); },
   niveau: () => ({ l: J.NIV.l, h: J.NIV.h, objets: J.NIV.objets.length, reliques: J.NIV.reliques }),
   souffle(v) { J.P.souffle = v; },
-  reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte de l'acte
+  reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte du niveau
   pv(n) { J.P.pv = n; },
   caseA: (tx, ty) => caseA(tx, ty),
   objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),
@@ -115,9 +115,9 @@ export const demarrerJeu = (img, imgPlanche) => {
   requestAnimationFrame((t) => { J.avant = t; requestAnimationFrame(boucle); });
 };
 // garde-fous : chaque acte a sa carte, ses plans de décor et sa roche (sinon un message, jamais un écran noir)
-const sansCarte = ACTES.find((a) => !NIVEAUX || !NIVEAUX[a.cle]);
-const sansDecor = ACTES.find((a) => !PLANS[a.cle] || !TERRAIN[a.cle] || PLANS[a.cle].plans.some((p) => !ART || !ART[p.el]));
-if (sansCarte) panne('CARTE INTROUVABLE : NIVEAUX/' + sansCarte.cle.toUpperCase() + '.TXT', 'RECONSTRUIRE LE JEU : NPM RUN BUILD');
+const sansCarte = NIVEAUX.find((a) => !CARTES || !CARTES[a.cle]);
+const sansDecor = NIVEAUX.find((a) => !PLANS[a.cle] || !TERRAIN[a.cle] || PLANS[a.cle].plans.some((p) => !ART || !ART[p.el]));
+if (sansCarte) panne('CARTE INTROUVABLE : CARTES/' + sansCarte.cle.toUpperCase() + '.TXT', 'RECONSTRUIRE LE JEU : NPM RUN BUILD');
 else if (sansDecor) panne('DÉCOR INCOMPLET : ' + sansDecor.cle.toUpperCase(), 'RECONSTRUIRE LE JEU : NPM RUN BUILD');
 else Promise.all([charger(ATLAS), charger(PLANCHE), ...Object.entries(ART).map(([k, a]) => charger(a.src).then((i) => { IMAGES_ART[k] = i; }))])
   .then(([img, imgPlanche]) => demarrerJeu(img, imgPlanche))

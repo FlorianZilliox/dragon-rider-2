@@ -1,5 +1,5 @@
 import { J } from './etat.js';
-import { ACTES, BRUME, CENDRE, FEU } from './config.js';
+import { NIVEAUX, BRUME, CENDRE, FEU } from './config.js';
 import { BAYER, ctx } from './ecran.js';
 import { hash, rand, toile } from './outils.js';
 import { sfx } from './son.js';
@@ -14,7 +14,7 @@ export let IMAGES_ART = {}; J.HALOS = null;
 // bas : le bas du plan tombe à tant de pixels sous la ligne de sol ; x : plan fixe, centré à cette fraction de l'écran
 export const CIEL = [{ el: 'commun/ciel', f: 0.03, v: 0.05, haut: -70 }, { el: 'commun/lune', f: 0.01, v: 0.04, haut: 34, x: 0.72 },
               { el: 'objets/ile', f: 0.06, v: 0.08, haut: 58, pas: 620 }];
-// les plans de chaque décor, par clé d'acte (voir ACTES)
+// les plans de chaque décor, par clé de niveau (voir NIVEAUX)
 export const PLANS = {
   terres: { dehors: true, plans: [...CIEL, { el: 'terres/lointain', f: 0.1, v: 0.12, bas: -14 }, { el: 'commun/nuages', f: 0.16, v: 0.3, bas: 150 },
                           { el: 'terres/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'terres/proche', f: 0.55, v: 0.55, bas: 34 }] },
@@ -22,7 +22,7 @@ export const PLANS = {
                           { el: 'cimetiere/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'cimetiere/proche', f: 0.55, v: 0.55, bas: 34 }] },
   cryptes: { dehors: false, plans: [{ el: 'cryptes/fond', f: 0.15, v: 0.2, haut: -40 }, { el: 'cryptes/arcades', f: 0.45, v: 0.45, haut: -30 }] },
 };
-export const decorActe = () => PLANS[ACTES[J.acteVisuel].cle];
+export const decorNiveau = () => PLANS[NIVEAUX[J.niveauVisuel].cle];
 export function construireHalo(r, graine) {
   const c = toile(r * 2 + 1, r * 2 + 1), g = c.getContext('2d');
   for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
@@ -82,7 +82,7 @@ J.eclair = 0; J.prochainEclair = 8;
 // la caméra monte et descend : chaque plan du décor suit d'autant moins qu'il est loin
 export const monte = (f) => Math.round((J.NIV.depart[1] - J.camY - J.SOL) * f);
 export function decor() {
-  const A = decorActe();
+  const A = decorNiveau();
   ctx.fillStyle = '#060606'; ctx.fillRect(0, 0, J.W, J.H);
   let fond = 0;
   A.plans.forEach((p, k) => {
@@ -103,7 +103,7 @@ export function decor() {
 J.flocons = [];
 export function majMeteo(dt) {
   if (!J.flocons.length) J.flocons = Array.from({ length: 28 }, () => ({ x: rand(0, 600), y: rand(0, 300), v: rand(5, 14), d: rand(-10, -3), t: rand(0, 6) }));
-  const dedans = !decorActe().dehors;
+  const dedans = !decorNiveau().dehors;
   for (const f of J.flocons) {
     f.t += dt;
     f.y += (dedans ? -0.35 : 1) * f.v * dt;
@@ -111,12 +111,12 @@ export function majMeteo(dt) {
     if (f.y > J.H) f.y -= J.H; if (f.y < 0) f.y += J.H;
     if (f.x < 0) f.x += J.W; if (f.x > J.W) f.x -= J.W;
   }
-  if (decorActe().orage && J.etat !== 'titre') {
+  if (decorNiveau().orage && J.etat !== 'titre') {
     J.eclair -= dt; J.prochainEclair -= dt;
     if (J.prochainEclair <= 0) { J.eclair = 0.24; J.prochainEclair = rand(8, 15); sfx('tonnerre', 0.45); }
   }
 }
 export function dessinerMeteo() {
-  const dedans = !decorActe().dehors;
+  const dedans = !decorNiveau().dehors;
   J.flocons.forEach((f, i) => { ctx.fillStyle = dedans ? '#3a3a3a' : (i % 3 ? CENDRE : BRUME); ctx.fillRect(Math.round(f.x), Math.round(f.y), 1, 1); });
 }

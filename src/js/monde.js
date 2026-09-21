@@ -35,10 +35,7 @@ export function majMonde(dt) {
       if (e.mort || !e.visible || Math.hypot(e.x - b.x, e.y - b.y) > TYPES[e.type].r + 8) continue;
       b.vie = 0; e.pv--; e.flash = 0.08;
       if (e.pv <= 0) { e.mort = true; tuer(e); }
-      else if (e.pv === TYPES[e.type].pv && e.source && e.source.coriace) {   // le cercle de sang se brise
-        for (let i = 0; i < 12; i++) particule({ x: e.x + rand(-8, 8), y: e.y + rand(-8, 8), vx: rand(-90, 90), vy: rand(-110, 10), vie: rand(0.3, 0.6), max: 0.6, t: 1, genre: 'sang' });
-        sfx('touche'); sfx('orbe', 0.03); J.gel = Math.max(J.gel, 0.03);
-      } else sfx('touche');
+      else sfx('touche');
       break;
     }
     for (const o of J.orbes) if (b.vie > 0 && Math.hypot(o.x - b.x, o.y - b.y) < 10) { o.vie = 0; b.vie = 0; explosionSol(o.x, o.y); }
@@ -88,9 +85,9 @@ export function ramasser() {
       if (o.pris || ((o.x - hx) / 42) ** 2 + ((o.y - hy) / 26) ** 2 > 1) continue;   // au contact du corps, du cou ou de la tête
       o.pris = true;
       if (o.genre === 'coeur') { J.P.pv = Math.min(PV_MAX, J.P.pv + 1); popup('VIE +1', o.x, o.y - 10, '#e0505a'); sfx('soin'); continue; }
-      J.NIV.prises++; J.score += 500 * J.cycle; noterRecord();
+      J.NIV.prises++; J.score += 500 * J.acte; noterRecord();
       popup('RELIQUE ' + J.NIV.prises + '/' + J.NIV.reliques, o.x, o.y - 12, '#e0c080');
-      if (porteOuverte() && J.NIV.sortie) {                      // la dernière : la porte se révèle au bout de l'acte
+      if (porteOuverte() && J.NIV.sortie) {                      // la dernière : la porte se révèle au bout du niveau
         J.NIV.sortie.revele = J.temps;
         popup('LA PORTE EST APPARUE', o.x, o.y - 26, OS, 1.6); sfx('glas', 0.25);
       }

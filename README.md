@@ -28,15 +28,15 @@ La manette à l'écran n'apparaît que sur un écran tactile. La croix se joue a
 
 ## L'histoire
 
-Chaque acte est une carte dessinée à la main, à explorer en vol et à pied ; au bout du dernier, l'arène du Veilleur se referme. Puis un nouveau cycle commence, plus difficile.
+Le jeu compte plusieurs **niveaux**, chacun une carte dessinée à la main, à explorer en vol et à pied ; au bout du dernier, l'arène du Veilleur se referme. Les jouer tous et vaincre le Veilleur, c'est un **acte** : l'acte II reprend les mêmes niveaux, plus durs, puis l'acte III, etc. En haut à gauche, « 2-1 » veut dire acte II, niveau 1.
 
 - **Le souffle** (barre sous les cœurs) : voler l'use, monter l'use plus vite ; épuisé, le dragon ne peut que planer vers le bas. Se poser le rend, tout comme les **colonnes de cendre** qui portent vers le haut.
-- **Les reliques** : la porte de sortie d'un acte n'apparaît qu'une fois toutes ses reliques ramassées.
+- **Les reliques** : la porte de sortie d'un niveau n'apparaît qu'une fois toutes ses reliques ramassées.
 - **Autels** : on les allume en s'y posant ; ils soignent, et après une défaite on reprend au dernier autel allumé.
 - **Secrets** : murs fissurés à briser, cœurs cachés.
-- **Difficulté** : elle monte d'acte en acte, puis de cycle en cycle. Les ennemis deviennent plus vifs, certains viennent accompagnés, et une part d'entre eux est **coriace** : cerclés d'un liseré de sang, il leur faut un coup de plus (le liseré se brise au premier).
+- **Difficulté** : elle ne change pas d'un niveau à l'autre, seulement d'un acte à l'autre : à partir de l'acte II, plus d'ennemis, plus vifs, et une part d'entre eux plus résistants (un coup de plus), sans que rien ne les distingue.
 
-Raccourcis d'entraînement, à ajouter à la fin de l'adresse : `#calme` (sans ennemis), `#acte=2`, `#acte=3`…, `#veilleur`. `#essai` expose des aides de test (`window.__essai`) pour les robots de vérification.
+Raccourcis d'entraînement, à ajouter à la fin de l'adresse : `#calme` (sans ennemis), `#niveau=2`, `#niveau=3`…, `#veilleur`, `#acte=2` (les niveaux de l'acte II). `#essai` expose des aides de test (`window.__essai`) pour les robots de vérification.
 
 ## Construire le jeu
 
@@ -66,7 +66,7 @@ src/
   js/               le jeu, en modules ES
     main.js           démarrage et boucle de jeu
     etat.js           l'état partagé de la partie (J)
-    config.js         constantes, liste des actes, difficulté
+    config.js         constantes, liste des niveaux, difficulté par acte
     appareil.js       PWA, écran allumé, pause automatique, plein écran
     ecran.js · entrees.js · son.js · texte.js · pinceau.js · outils.js
     niveau.js         lecture des cartes, cases, collisions
@@ -75,9 +75,9 @@ src/
     dragon.js         le dragon : vol, marche, feu, ruée
     dragon-rendu.js   le dragon en marionnette : poses, pattes en cinématique inverse, ombre
     ennemis.js · ennemis-sprites.js · veilleur.js · monde.js · rendu-monde.js
-    partie.js         actes, cartes de titre, progression
+    partie.js         niveaux et actes, cartes de titre, progression
     interface.js · titre.js · demo.js · camera.js
-niveaux/<cle>.txt   une carte par acte
+niveaux/<cle>.txt   une carte par niveau
 assets/             sorties de Pixel Artist (dragon, décors, ennemis)
 art/                recettes et briefs de génération des images
 pixel_artist/       le pipeline pixel art (réutilisable pour d'autres jeux)
@@ -89,12 +89,12 @@ Les données (dragon, décors, cartes) sont injectées à l'assemblage dans un m
 
 ## Level design
 
-Chaque acte est un fichier texte, `niveaux/<cle>.txt`, dont la clé est déclarée dans la liste `ACTES` de `src/js/config.js` (qui donne aussi l'ordre des actes, leurs noms, leurs décors). Une lettre = une case de 16 × 16 pixels, 22 lignes de haut. Les lignes qui commencent par `;` sont des commentaires.
+Chaque niveau est un fichier texte, `niveaux/<cle>.txt`, dont la clé est déclarée dans la liste `NIVEAUX` de `src/js/config.js` (qui donne aussi l'ordre des niveaux, leurs noms, leurs décors). Une lettre = une case de 16 × 16 pixels, 22 lignes de haut. Les lignes qui commencent par `;` sont des commentaires.
 
 | Lettre | Case | Lettre | Objet |
 |---|---|---|---|
 | `.` | vide | `P` | départ du dragon |
-| `#` | roc | `E` | porte de sortie de l'acte |
+| `#` | roc | `E` | porte de sortie du niveau |
 | `=` | corniche (on la traverse par-dessous, on s'y pose) | `f` | autel (point de reprise) |
 | `^` | pics | `h` / `r` | cœur / relique |
 | `x` | mur fissuré (feu ou ruée ; tout le mur cède d'un coup) | `V` | le Veilleur (son arène) |
@@ -124,7 +124,7 @@ Les robots de `outils/tests/` pilotent Chrome sans fenêtre (Chrome est trouvé 
 
 ```sh
 node outils/tests/titre.mjs - /tmp/titre                       # écran titre et menu
-node outils/tests/traverser.mjs "#essai" /tmp/trav 90 reliques   # un robot joue les actes (portes ouvertes d'office)
+node outils/tests/traverser.mjs "#essai" /tmp/trav 90 reliques   # un robot joue les niveaux (portes ouvertes d'office)
 node outils/tests/inspection.mjs - /tmp/insp                   # sauts d'image, tressautements
 node outils/tests/perf.mjs - /tmp/perf 60 4                   # téléphone simulé (processeur ÷ 4)
 node outils/tests/mobile.mjs /tmp/mobile        # la PWA (dist/) sur téléphone simulé : croix, portrait, hors ligne

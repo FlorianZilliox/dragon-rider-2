@@ -1,4 +1,5 @@
 // Scénarios de test : suite d'actions « nom:arg:arg » (nav, poser, voler, souffle, tenir, tap, attendre, etat, shot, eval).
+// nav:N ouvre le niveau N (sans ennemis ; nav:N:1 avec), nav:v juste avant le Veilleur.
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
 import { adresseDuJeu } from './serveur.mjs';
@@ -24,14 +25,14 @@ for (const a of actions) {
   const [nom, ...arg] = a.split(':');
   if (nom === 'nav') {
     await cmd('Page.navigate', { url: 'about:blank' }); await sleep(300);
-    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + '#acte=' + arg[0] + (arg[0] === '4' ? '#veilleur' : '') }); await sleep(1400);
-    await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(4200);
+    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + (arg[0] === 'v' ? '#veilleur' : '#niveau=' + arg[0]) }); await sleep(1400);
+    await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(+(arg[2] || 4200));   // 3e argument : l'attente après le lancement (ms)
   } else if (nom === 'poser' || nom === 'voler') await ev(`window.__essai.${nom}(${arg[0]}, ${arg[1]})`);
   else if (nom === 'souffle') await ev(`window.__essai.souffle(${arg[0]})`);
   else if (nom === 'tenir') { const ks = arg[0].split('+'); for (const k of ks) await key('keyDown', k); await sleep(+arg[1]); for (const k of ks) await key('keyUp', k); }
   else if (nom === 'tap') { await key('keyDown', arg[0]); await sleep(60); await key('keyUp', arg[0]); }
   else if (nom === 'attendre') await sleep(+arg[0]);
-  else if (nom === 'etat') { const e = await etat(); console.log(`[${arg[0] || ''}]`, `mode=${e.mode} x=${e.x} y=${e.y} sol=${e.sol} pv=${e.pv} souffle=${e.souffle} acte=${e.acte} etat=${e.etat} reliques=${e.reliques} reprise=${JSON.stringify(e.reprise)} arene=${e.arene} veilleur=${e.veilleur} score=${e.score}`); }
+  else if (nom === 'etat') { const e = await etat(); console.log(`[${arg[0] || ''}]`, `mode=${e.mode} x=${e.x} y=${e.y} sol=${e.sol} pv=${e.pv} souffle=${e.souffle} niveau=${e.niveau} acte=${e.acte} etat=${e.etat} reliques=${e.reliques} reprise=${JSON.stringify(e.reprise)} arene=${e.arene} veilleur=${e.veilleur} score=${e.score}`); }
   else if (nom === 'shot') { const r = await cmd('Page.captureScreenshot', { format: 'png' }); writeFileSync(`${out}/${String(n++).padStart(2, '0')}_${arg[0]}.png`, Buffer.from(r.result.data, 'base64')); }
   else if (nom === 'eval') console.log(`[eval]`, await ev(arg.join(':')));
 }

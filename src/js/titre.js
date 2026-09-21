@@ -1,10 +1,10 @@
 import { J } from './etat.js';
-import { ACTES, BRUME, ENCRE, EPILOGUE, LOGO, OS, OS2 } from './config.js';
+import { BRUME, ENCRE, EPILOGUE, LOGO, OS, OS2 } from './config.js';
 import { IMAGES_ART } from './decor.js';
 import { ART } from './donnees.js';
 import { ctx } from './ecran.js';
 import { hautParleur } from './interface.js';
-import { hash, pad, toile } from './outils.js';
+import { hash, pad, romain, toile } from './outils.js';
 import { texte } from './texte.js';
 
 // ================= Écran titre : un menu (COMMENCER, COMMANDES) et l'écran des commandes =================
@@ -111,7 +111,7 @@ export function ecranFin(dt) {
   const y = Math.round(J.H * 0.3);
   texte('LE DRAGONNIER EST TOMBÉ', J.W / 2, y, LOGO, J.W >= 290 ? 2 : 1, 'contour', 'centre');
   texte('SCORE ' + pad(J.score, 6) + '   RECORD ' + pad(J.record, 6), J.W / 2, y + 30, OS2, 1, 'ombre', 'centre');
-  if (Math.floor(J.temps * 2) % 2) texte(J.NIV.reprise ? "FEU : REPRENDRE À L'AUTEL" : "FEU : REPRENDRE L'ACTE " + ACTES[J.acte].num, J.W / 2, y + 50, OS, 1, 'contour', 'centre');
+  if (Math.floor(J.temps * 2) % 2) texte(J.NIV.reprise ? "FEU : REPRENDRE À L'AUTEL" : 'FEU : REPRENDRE LE NIVEAU ' + (J.niveau + 1), J.W / 2, y + 50, OS, 1, 'contour', 'centre');
 }
 export function ecranEpilogue() {
   ctx.fillStyle = ENCRE; ctx.fillRect(0, 0, J.W, J.H);
@@ -119,6 +119,6 @@ export function ecranEpilogue() {
   EPILOGUE.forEach((l, i) => { if (J.epiT > 0.8 + i * 1.5) texte(l, J.W / 2, Math.round(J.H * 0.24) + i * 16, i === 3 ? OS : BRUME, 1, 'ombre', 'centre'); });
   if (J.epiT > 7) {
     texte('SCORE ' + pad(J.score, 6) + '   RECORD ' + pad(J.record, 6), J.W / 2, Math.round(J.H * 0.24) + 82, OS2, 1, 'ombre', 'centre');
-    if (Math.floor(J.temps * 2) % 2) texte('FEU : UN NOUVEAU CYCLE', J.W / 2, Math.round(J.H * 0.24) + 100, OS, 1, 'contour', 'centre');
+    if (Math.floor(J.temps * 2) % 2) texte("FEU : L'ACTE " + romain(J.acte + 1), J.W / 2, Math.round(J.H * 0.24) + 100, OS, 1, 'contour', 'centre');
   }
 }

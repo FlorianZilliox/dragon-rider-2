@@ -1,8 +1,8 @@
 import { J } from './etat.js';
-import { ACTES, BRUME, CENDRE, ENCRE, OS, OS2, PV_MAX, RUEE_COUT, SANG_VIF } from './config.js';
+import { BRUME, CENDRE, ENCRE, OS, OS2, PV_MAX, RUEE_COUT, SANG_VIF } from './config.js';
 import { IMAGES_ART } from './decor.js';
 import { ctx } from './ecran.js';
-import { clamp, pad, romain } from './outils.js';
+import { clamp, pad } from './outils.js';
 import { voileCarte } from './partie.js';
 import { coeur } from './rendu-monde.js';
 import { texte } from './texte.js';
@@ -20,7 +20,7 @@ export function barre(x, y, w, f, c) {
   ctx.fillStyle = c; ctx.fillRect(x, y, Math.round(w * clamp(f, 0, 1)), 3);
 }
 export function hud() {
-  // à gauche : cœurs, souffle, acte ; à droite : score et son. Chaque côté s'écarte de l'encoche du téléphone.
+  // à gauche : cœurs, souffle, « 2-1 » (acte II, niveau 1) ; à droite : score et son. Chaque côté s'écarte de l'encoche du téléphone.
   ctx.save(); ctx.translate(J.bordG, 0);
   for (let i = 0; i < PV_MAX; i++) coeur(6 + i * 9, 6, i < J.P.pv);
   // le souffle, sous les cœurs : il pâlit quand il s'épuise, clignote quand il est vide
@@ -28,7 +28,7 @@ export function hud() {
   if ((!vide && J.P.refus <= 0) || Math.floor(J.temps * 12) % 2) barre(6, 15, 43, s, s < RUEE_COUT ? SANG_VIF : '#9a9a96');
   ctx.fillStyle = J.P.rueeDispo ? OS : '#2a2a29'; ctx.fillRect(52, 15, 3, 3);   // le témoin de la ruée
   if (!J.arene) {
-    texte('ACTE ' + ACTES[J.acte].num + (J.cycle > 1 ? ' · CYCLE ' + romain(J.cycle) : ''), 6, 22, BRUME);
+    texte(J.acte + '-' + (J.niveau + 1), 6, 22, BRUME);
     barre(6, 32, 52, J.P.x / J.NIV.largeur, CENDRE);
     if (J.NIV.reliques) {                                    // reliquaire : petite croix et compte
       ctx.fillStyle = ENCRE; ctx.fillRect(63, 28, 5, 9); ctx.fillRect(61, 30, 9, 3);
@@ -52,7 +52,7 @@ export function dessinerCarte() {
   if (a > 0) { ctx.globalAlpha = clamp(a, 0, 1); ctx.fillStyle = ENCRE; ctx.fillRect(0, 0, J.W, J.H); ctx.globalAlpha = 1; }
   const visible = J.carte.fondu ? J.carte.t > 0.7 && J.carte.t < 3.4 : J.carte.t < 2.7;
   if (!visible) return;
-  // l'inscription gothique de l'acte (ou du Veilleur), « A C T E   I » au-dessus, la devise dessous
+  // l'inscription gothique du niveau (ou du Veilleur), « A C T E  I  ·  N I V E A U  1 » au-dessus, la devise dessous
   const plaque = IMAGES_ART[J.carte.plaque], espace = (t) => t.split('').join(' ');
   const py = Math.round(J.H * 0.44 - plaque.height / 2);
   if (J.carte.fondu) texte(espace(J.carte.titre), J.W / 2, py - 12, BRUME, 1, 'ombre', 'centre');

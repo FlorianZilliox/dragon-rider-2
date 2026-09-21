@@ -1,7 +1,7 @@
 import { J } from './etat.js';
-import { ACTES, AN, DEPART, G, OS, PV_MAX, VEILLEUR } from './config.js';
+import { ACTE_DEPART, AN, DEPART, G, NIVEAUX, OS, PV_MAX, VEILLEUR } from './config.js';
 import { BAS, HAUT, LARG, lireNiveau, porteOuverte, solSous } from './niveau.js';
-import { clamp, rand } from './outils.js';
+import { clamp, rand, romain } from './outils.js';
 import { sfx } from './son.js';
 import { entrerArene } from './veilleur.js';
 import { durcir } from './ennemis.js';
@@ -9,7 +9,7 @@ import { durcir } from './ennemis.js';
 // ================= État du jeu =================
 J.etat = 'titre'; J.P = null; J.ennemis = []; J.boules = []; J.orbes = []; J.coeurs = []; J.particules = []; J.popups = []; J.ombres = [];
 J.cam = 0; J.camY = 0; J.temps = 0; J.score = 0; J.record = 0; J.combo = 0; J.dernierKill = -9; J.secousse = 0; J.gel = 0; J.finT = 0; J.tenuBas = false;
-J.acte = 0; J.acteVisuel = 0; J.carte = null; J.arene = false; J.veilleur = null; J.cycle = 1; J.epiT = 0;
+J.niveau = 0; J.niveauVisuel = 0; J.carte = null; J.arene = false; J.veilleur = null; J.acte = 1; J.epiT = 0;   // acte : 1, 2, 3… (les niveaux rejoués, plus durs)
 try { J.record = +localStorage.getItem('dragon-rider-record') || 0; } catch {}
 
 export function joueurNeuf(x, sol) {
@@ -23,8 +23,8 @@ export function joueurNeuf(x, sol) {
   };
 }
 export function vider() { J.ennemis = []; J.boules = []; J.orbes = []; J.coeurs = []; J.particules = []; J.popups = []; J.ombres = []; }
-// rang de difficulté : 0 à l'acte I du premier cycle, +1 à chaque acte, et le cycle suivant repart plus haut
-export const rang = () => J.acte + (J.cycle - 1) * ACTES.length;
+// rang de difficulté : 0 pendant tout l'acte I, 1 pendant l'acte II… (le même pour tous les niveaux d'un acte)
+export const rang = () => J.acte - 1;
 export function cadrer() {
   J.cam = clamp(J.P.x - J.W * 0.38, 0, Math.max(0, J.NIV.largeur - J.W));
   J.camY = clamp(J.P.y - J.H * 0.55, 0, Math.max(0, J.NIV.hauteur - J.H));
@@ -32,8 +32,8 @@ export function cadrer() {
 // entrer dans un niveau : neuf, ou repris à l'autel (reliques prises, murs brisés et ennemis vaincus le restent)
 export function entrerNiveau(n, reprise) {
   const pv = J.P ? J.P.pv : PV_MAX;
-  J.acte = n; J.acteVisuel = n; J.arene = false; J.veilleur = null; vider();
-  if (!reprise || !J.NIV || J.NIV.acte !== n) { J.NIV = lireNiveau(n); durcir(J.NIV, rang()); }
+  J.niveau = n; J.niveauVisuel = n; J.arene = false; J.veilleur = null; vider();
+  if (!reprise || !J.NIV || J.NIV.niveau !== n) { J.NIV = lireNiveau(n); durcir(J.NIV, rang()); }
   else J.NIV.objets.forEach((o) => { if (o.genre === 'ennemi' && !o.mort) o.actif = false; });
   const [x, sol] = reprise && J.NIV.reprise ? J.NIV.reprise : J.NIV.depart;
   J.P = joueurNeuf(x, sol);
@@ -45,14 +45,16 @@ export function modeTitre() {
   entrerNiveau(0, false);
   J.P.mode = 'air'; J.P.x = 220; J.P.y = J.NIV.depart[1] - J.SOL + 108; cadrer(); J.camY = J.NIV.depart[1] - J.SOL;
 }
-export function lancerActe(n, depuisLeNoir) {
-  J.carte = { titre: 'ACTE ' + ACTES[n].num, nom: ACTES[n].nom, plaque: ACTES[n].plaque, sous: ACTES[n].sous, t: depuisLeNoir ? 0.45 : 0, fondu: true, bascule: depuisLeNoir, acte: n };
+// « ACTE II · NIVEAU 3 », au-dessus du nom du niveau
+export const titreNiveau = (n) => `ACTE ${romain(J.acte)} · NIVEAU ${n + 1}`;
+export function lancerNiveau(n, depuisLeNoir) {
+  J.carte = { titre: titreNiveau(n), nom: NIVEAUX[n].nom, plaque: NIVEAUX[n].plaque, sous: NIVEAUX[n].sous, t: depuisLeNoir ? 0.45 : 0, fondu: true, bascule: depuisLeNoir, acte: n };
   if (depuisLeNoir) entrerNiveau(n, false);
   sfx('glas');
 }
 export function nouvellePartie() {
-  J.etat = 'jeu'; J.cycle = 1; J.score = 0; J.combo = 0; J.P = null;
-  lancerActe(DEPART, true);
+  J.etat = 'jeu'; J.acte = ACTE_DEPART; J.score = 0; J.combo = 0; J.P = null;
+  lancerNiveau(DEPART, true);
   if (VEILLEUR && J.NIV.veilleur) {                  // entraînement : juste avant l'arène
     const x = J.NIV.veilleur.x - J.W * 0.8, sol = solSous(x, J.NIV.veilleur.y);
     J.P = joueurNeuf(x, sol); cadrer();
@@ -60,10 +62,10 @@ export function nouvellePartie() {
 }
 export function reprendre() {
   J.etat = 'jeu'; J.combo = 0;
-  J.carte = { titre: 'ACTE ' + ACTES[J.acte].num, nom: ACTES[J.acte].nom, plaque: ACTES[J.acte].plaque, sous: J.NIV.reprise ? "L'AUTEL VOUS RAPPELLE." : ACTES[J.acte].sous, t: 0.45, fondu: true, bascule: true, acte: J.acte };
-  entrerNiveau(J.acte, true); sfx('glas');
+  J.carte = { titre: titreNiveau(J.niveau), nom: NIVEAUX[J.niveau].nom, plaque: NIVEAUX[J.niveau].plaque, sous: J.NIV.reprise ? "L'AUTEL VOUS RAPPELLE." : NIVEAUX[J.niveau].sous, t: 0.45, fondu: true, bascule: true, acte: J.niveau };
+  entrerNiveau(J.niveau, true); sfx('glas');
 }
-export function nouveauCycle() { J.etat = 'jeu'; J.cycle++; J.combo = 0; J.P = null; lancerActe(0, true); }
+export function nouvelActe() { J.etat = 'jeu'; J.acte++; J.combo = 0; J.P = null; lancerNiveau(0, true); }
 
 export function majCarte(dt) {
   if (!J.carte) return;
@@ -71,7 +73,7 @@ export function majCarte(dt) {
   if (J.carte.fondu && !J.carte.bascule && J.carte.t >= 0.45) {
     J.carte.bascule = true;
     const pv = Math.min(PV_MAX, J.P.pv + 2);
-    entrerNiveau(J.carte.acte, false); J.P.pv = pv;
+    entrerNiveau(J.carte.niveau, false); J.P.pv = pv;
   }
   if (J.carte.t > (J.carte.fondu ? 3.7 : 2.9)) J.carte = null;
 }
@@ -88,8 +90,8 @@ export function progression() {
   if (!J.NIV || (J.carte && J.carte.fondu) || J.P.pv <= 0) return;
   const s = J.NIV.sortie;
   // la porte : il suffit que le corps du dragon la touche, à pied ou en vol ; sans toutes les reliques, elle n'est pas là
-  if (s && J.acte < ACTES.length - 1 && Math.abs(J.P.x - s.x) < 15 + LARG && J.P.y + BAS > s.y - 50 && J.P.y - HAUT < s.y) {
-    if (porteOuverte()) { lancerActe(J.acte + 1, false); J.P.inv = 3; }
+  if (s && J.niveau < NIVEAUX.length - 1 && Math.abs(J.P.x - s.x) < 15 + LARG && J.P.y + BAS > s.y - 50 && J.P.y - HAUT < s.y) {
+    if (porteOuverte()) { lancerNiveau(J.niveau + 1, false); J.P.inv = 3; }
     else if (!(J.temps - (s.rappel ?? -9) < 4)) {           // rappel, au plus toutes les 4 secondes
       s.rappel = J.temps;
       const manque = J.NIV.reliques - J.NIV.prises;
