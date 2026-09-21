@@ -1,0 +1,14 @@
+{
+  "name": "dragon-rider",
+  "private": true,
+  "description": "Dragon Rider : jeu d'action 16 bits, gothique, en noir et blanc. PWA et fichier unique jouable hors ligne.",
+  "type": "module",
+  "scripts": {
+    "build": "node outils/construire.mjs",
+    "dev": "node outils/construire.mjs --dev"
+  },
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

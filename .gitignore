@@ -10,3 +10,7 @@ sillage-ui-pipeline/
 art/generes/*.png
 # espaces de travail des agents (outil de développement)
 .claude/
+
+# dépendances de construction (npm install) et sortie de la PWA (npm run build)
+node_modules/
+dist/

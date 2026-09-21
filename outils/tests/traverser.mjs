@@ -1,10 +1,11 @@
 // Joueur automatique « qui lit la carte » : vole vers la droite au-dessus des obstacles, se pose pour reprendre son souffle.
 import { spawn } from 'node:child_process';
+import { trouverChrome } from './chrome.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 const [,, url, out, duree = '120', options = ''] = process.argv;
 mkdirSync(out, { recursive: true });
 const port = 9700 + Math.floor(Math.random() * 200);
-const chrome = spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=1280,760', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });
+const chrome = spawn(trouverChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=1280,760', `--user-data-dir=${out}/p${port}`, 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let ws, id = 0; const pend = new Map(); const logs = [];
 for (let i = 0; i < 40; i++) { try { const r = await fetch(`http://127.0.0.1:${port}/json`); const t = (await r.json()).find((x) => x.type === 'page'); if (t) { ws = new WebSocket(t.webSocketDebuggerUrl); break; } } catch {} await sleep(250); }

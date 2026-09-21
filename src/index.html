@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Dragon Rider</title>
+<link rel="stylesheet" href="styles.css">
+
+<div id="jeu" class="paysage">
+  <canvas id="ecran" aria-label="Dragon Rider : un dragonnier traverse un monde éteint, des terres décharnées jusqu'aux cryptes"></canvas>
+  <div class="manette">
+    <div class="croix" aria-label="Croix directionnelle">
+      <button type="button" id="btn-haut" data-k="up" aria-label="Monter"><svg viewBox="0 0 10 10"><path d="M5 1 9.5 8h-9z"/></svg></button>
+      <button type="button" id="btn-gauche" data-k="left" aria-label="Gauche"><svg viewBox="0 0 10 10"><path d="M1 5 8 .5v9z"/></svg></button>
+      <div class="moyeu"></div>
+      <button type="button" id="btn-droite" data-k="right" aria-label="Droite"><svg viewBox="0 0 10 10"><path d="M9 5 2 .5v9z"/></svg></button>
+      <button type="button" id="btn-bas" data-k="down" aria-label="Descendre"><svg viewBox="0 0 10 10"><path d="M5 9 9.5 2h-9z"/></svg></button>
+    </div>
+    <div class="actions">
+      <div class="action"><button type="button" class="rond" id="btn-ruee" data-k="ruee" aria-label="Ruée (touche C)">C</button><span>RUÉE</span></div>
+      <div class="action"><button type="button" class="rond" id="btn-feu" data-k="fire" aria-label="Feu (touche X ou Espace)">X</button><span>FEU</span></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="jeu.js"></script>

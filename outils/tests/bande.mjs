@@ -1,11 +1,12 @@
 // Bande d'animation : pose le dragon (#essai), tient des touches, capture N images zoomées sur lui à intervalle régulier.
 // node outils/tests/bande.mjs <url> <sortie.png> <acte> <sol|vol> <tx> <ty> <touches|-> <n> <intervalle_ms> [attente_ms] [avant:touches:ms]
 import { spawn } from 'node:child_process';
+import { trouverChrome } from './chrome.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 const [,, url, sortie, acte, mode, tx, ty, touches, n = '8', pas = '60', attente = '600', avant = ''] = process.argv;
 const dossier = path.dirname(sortie); mkdirSync(dossier, { recursive: true });
-const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const chrome = trouverChrome();
 const port = 9200 + Math.floor(Math.random() * 300);
 const proc = spawn(chrome, ['--headless=new', `--remote-debugging-port=${port}`, '--window-size=1280,760', `--user-data-dir=${dossier}/p${port}`, 'about:blank'], { stdio: 'ignore' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

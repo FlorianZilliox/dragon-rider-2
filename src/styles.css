@@ -1,0 +1,73 @@
+/* Un seul monde visuel : un crépuscule gothique en 16 bits. Pas de variante claire/sombre. */
+[hidden] { display: none !important; }
+:root {
+  --fond: #070707;
+  --croix: #1d1d1d;
+  --croix-creux: #131313;
+  --sang: #8e2230;
+  --bronze: #7d7d7d;
+  --panneau: #232323;
+  --panneau-ombre: #181818;
+  --etiquette: #818181;
+  --b: clamp(44px, 8vmin, 60px);
+}
+html, body { height: 100%; }
+body {
+  margin: 0; overflow: hidden; background: var(--fond);
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  font-family: ui-rounded, "Arial Rounded MT Bold", system-ui, sans-serif;
+}
+#jeu {
+  position: fixed; inset: 0; touch-action: none; background: var(--fond);
+  display: flex; align-items: center; justify-content: center;
+}
+#jeu.portrait { flex-direction: column; justify-content: flex-start; padding-top: env(safe-area-inset-top, 0px); }
+#ecran { display: block; flex: none; image-rendering: pixelated; image-rendering: crisp-edges; }
+
+.manette {
+  position: absolute; left: 0; right: 0; bottom: 0; pointer-events: none;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(16px, env(safe-area-inset-left, 0px));
+}
+#jeu.paysage .manette { opacity: .72; }
+#jeu.portrait .manette {
+  position: relative; flex: 1; align-items: center; width: 100%; box-sizing: border-box;
+  background: linear-gradient(var(--panneau), var(--panneau-ombre));
+  border-top: 3px solid #373737; padding-top: 10px;
+}
+.croix {
+  pointer-events: auto; display: grid;
+  grid-template-columns: repeat(3, var(--b)); grid-template-rows: repeat(3, var(--b));
+  grid-template-areas: ". haut ." "gauche moyeu droite" ". bas .";
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .45));
+}
+.croix button, .moyeu { background: var(--croix); border: 0; padding: 0; }
+.croix button {
+  -webkit-tap-highlight-color: transparent; touch-action: none; cursor: pointer;
+  color: #6a6a6a; display: grid; place-items: center;
+}
+.croix button svg { width: 38%; height: 38%; fill: currentColor; }
+.croix button.on { background: var(--croix-creux); color: #adadad; }
+#btn-haut { grid-area: haut; border-radius: 7px 7px 0 0; }
+#btn-bas { grid-area: bas; border-radius: 0 0 7px 7px; }
+#btn-gauche { grid-area: gauche; border-radius: 7px 0 0 7px; }
+#btn-droite { grid-area: droite; border-radius: 0 7px 7px 0; }
+.moyeu { grid-area: moyeu; display: grid; place-items: center; }
+.moyeu::after { content: ""; width: 42%; height: 42%; border-radius: 50%; background: var(--croix-creux); }
+
+.actions { pointer-events: auto; display: flex; gap: 14px; align-items: flex-start; }
+.action { display: grid; justify-items: center; gap: 5px; }
+.action:first-child { margin-top: calc(var(--b) * .55); }
+.rond {
+  -webkit-tap-highlight-color: transparent; touch-action: none; cursor: pointer;
+  width: calc(var(--b) * 1.3); height: calc(var(--b) * 1.3); border-radius: 50%; border: 0; padding: 0;
+  font-family: inherit; font-weight: 800; font-size: calc(var(--b) * .38); line-height: 1;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, .28), 0 3px 0 rgba(0, 0, 0, .5);
+  transition: transform .06s;
+}
+.rond.on { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .28), 0 1px 0 rgba(0, 0, 0, .5); }
+#btn-ruee { background: var(--bronze); color: #1c1c1c; }
+#btn-feu { background: var(--sang); color: #e7e7e7; }
+.action span { font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #c7c7c7; text-shadow: 0 1px 0 #000; }
+#jeu.portrait .action span { color: var(--etiquette); text-shadow: none; }
+button:focus-visible { outline: 2px solid #d1d1d1; outline-offset: 2px; }
