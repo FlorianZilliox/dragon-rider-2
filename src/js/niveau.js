@@ -9,8 +9,8 @@ import { retoucherTerrain } from './terrain.js';
 // ================= Niveaux : cases, collisions, objets (fichiers niveaux/acteN.txt) =================
 
 export const TP = 16;                                           // une case = 16 × 16 pixels
-export const VIDE = 0, ROC = 1, CORNICHE = 2, PICS = 3, FRAGILE = 4, COURANT = 5;
-export const CASES = { '#': ROC, '=': CORNICHE, '^': PICS, 'x': FRAGILE, '~': COURANT };
+export const VIDE = 0, ROC = 1, CORNICHE = 2, PICS = 3, FRAGILE = 4, COURANT = 5, HERSE = 6;
+export const CASES = { '#': ROC, '=': CORNICHE, '^': PICS, 'x': FRAGILE, '~': COURANT, 'H': HERSE };
 export const ENNEMIS_CARTE = { c: 'charognard', a: 'ame', b: 'chauve', s: 'spectre', k: 'crane' };
 // objets de décor, posés sur le sol, sans collision (images : construireAccessoires dans terrain.js) :
 // arbre mort, tombe, croix, gargouille tournée vers la droite (G) ou vers la gauche (g), étendard en lambeaux (B), clocheton (I)
@@ -18,6 +18,45 @@ export const DECOR = 'Tt+GgBI';
 // zone de collision du dragon, autour de son corps ; en vol, le bas s'arrête là où l'atterrissage commence
 export const LARG = 24, HAUT = 12, BAS = G - AN.land.bodyY[0], CORPS_SOL = 44;
 J.NIV = null;
+// les herses : chaque groupe de cases H qui se touchent se lève d'un bloc quand un levier l'actionne
+function herses(niv) {
+  const vus = new Set(), groupes = [];
+  for (let i = 0; i < niv.cases.length; i++) {
+    if (niv.cases[i] !== HERSE || vus.has(i)) continue;
+    const g = { cases: [], x0: 1e9, y0: 1e9, x1: -1, y1: -1, ouverture: null, levee: false }, pile = [i];
+    vus.add(i);
+    while (pile.length) {
+      const k = pile.pop(), tx = k % niv.l, ty = Math.floor(k / niv.l);
+      g.cases.push(k); g.x0 = Math.min(g.x0, tx); g.x1 = Math.max(g.x1, tx); g.y0 = Math.min(g.y0, ty); g.y1 = Math.max(g.y1, ty);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const x = tx + dx, y = ty + dy, j = y * niv.l + x;
+        if (x >= 0 && x < niv.l && y >= 0 && y < niv.h && niv.cases[j] === HERSE && !vus.has(j)) { vus.add(j); pile.push(j); }
+      }
+    }
+    groupes.push(g);
+  }
+  return groupes;
+}
+export const MONTEE_HERSE = 0.9;                     // secondes pour qu'une herse remonte dans la voûte
+// un levier actionné (feu ou ruée) lève la herse la plus proche de lui
+export function tirerLevier(o) {
+  if (o.tire) return;
+  o.tire = true;
+  let meilleure = null, dmin = Infinity;
+  for (const g of J.NIV.herses) {
+    if (g.ouverture !== null) continue;
+    const d = Math.hypot((g.x0 + g.x1 + 1) / 2 * TP - o.x, (g.y0 + g.y1 + 1) / 2 * TP - o.y);
+    if (d < dmin) { dmin = d; meilleure = g; }
+  }
+  sfx('touche');
+  if (meilleure) { meilleure.ouverture = J.temps; sfx('boum', 0.1); sfx('chute', 0.15); }
+}
+export function majHerses() {                        // la herse bloque jusqu'à ce qu'elle soit remontée
+  for (const g of J.NIV.herses) if (g.ouverture !== null && !g.levee && J.temps - g.ouverture > MONTEE_HERSE) {
+    g.levee = true;
+    for (const k of g.cases) J.NIV.cases[k] = VIDE;
+  }
+}
 export function lireNiveau(n) {
   const lignes = CARTES[NIVEAUX[n].cle].split('\n').filter((l) => !l.startsWith(';')).map((l) => l.replace(/\s+$/, ''));
   while (lignes.length && !lignes[lignes.length - 1]) lignes.pop();
@@ -31,11 +70,13 @@ export function lireNiveau(n) {
     else if (ch === 'h') niv.objets.push({ genre: 'coeur', x, y });
     else if (ch === 'r') { niv.objets.push({ genre: 'relique', x, y }); niv.reliques++; }
     else if (ch === 'f') niv.objets.push({ genre: 'autel', x, y: sol });
+    else if (ch === 'l') niv.objets.push({ genre: 'levier', x, y: sol, tire: false });
     else if (DECOR.includes(ch)) niv.objets.push({ genre: 'decor', type: ch, x, y: sol });
     else if (ch === 'P') niv.depart = [x, sol];
     else if (ch === 'E') niv.sortie = { x, y: sol };
     else if (ch === 'V') niv.veilleur = { x, y };
   }));
+  niv.herses = herses(niv);
   for (let tx = 0; tx < l; tx++) {                        // colonnes de courant ascendant, pour l'effet visuel
     let debut = -1;
     for (let ty = 0; ty <= h; ty++) {
@@ -50,7 +91,7 @@ export function lireNiveau(n) {
 // la porte de sortie n'apparaît qu'une fois toutes les reliques de l'acte ramassées
 export const porteOuverte = () => J.NIV.prises >= J.NIV.reliques;
 export const caseA = (tx, ty) => (tx < 0 || tx >= J.NIV.l || ty < 0 ? ROC : ty >= J.NIV.h ? VIDE : J.NIV.cases[ty * J.NIV.l + tx]);
-export const bloque = (t) => t === ROC || t === FRAGILE;
+export const bloque = (t) => t === ROC || t === FRAGILE || t === HERSE;
 export function briser(tx, ty) {               // un mur fissuré s'effondre d'un bloc : toutes les cases fragiles qui se touchent
   const pile = [[tx, ty]];
   let gauche = tx, droite = tx;

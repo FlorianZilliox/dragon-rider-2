@@ -84,6 +84,8 @@ export function disque(cx, cy, r, teinte) {
 }
 
 J.eclair = 0; J.prochainEclair = 8;
+// l'instant où l'éclair blanchit le ciel (deux coups rapprochés, comme un vrai éclair)
+export const eclairVisible = () => J.eclair > 0.16 || (J.eclair > 0.04 && J.eclair < 0.1);
 // la caméra monte et descend : chaque plan du décor suit d'autant moins qu'il est loin
 export const monte = (f) => Math.round((J.NIV.depart[1] - J.camY - J.SOL) * f);
 export function decor() {
@@ -100,7 +102,7 @@ export function decor() {
     }
     if (p.bas !== undefined) fond = Math.max(fond, y + img.height);
     // l'orage : l'éclair blanchit le ciel, les silhouettes restent noires devant
-    if (A.orage && k === 2 && (J.eclair > 0.16 || (J.eclair > 0.04 && J.eclair < 0.1))) { ctx.fillStyle = 'rgba(236,235,230,0.32)'; ctx.fillRect(0, 0, J.W, J.H); }
+    if (A.orage && k === 2 && eclairVisible()) { ctx.fillStyle = 'rgba(236,235,230,0.32)'; ctx.fillRect(0, 0, J.W, J.H); }
   });
   if (A.dehors && fond < J.H) { ctx.fillStyle = '#b3b2ad'; ctx.fillRect(0, fond, J.W, J.H - fond); }   // sous les îles : la mer de nuages
 }

@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { FEU, OS, PV_MAX } from './config.js';
 import { auSol, blesser } from './dragon.js';
 import { TYPES, apparitions, majEnnemi, noterRecord, tuer } from './ennemis.js';
-import { FRAGILE, TP, bloque, briser, caseA, porteOuverte } from './niveau.js';
+import { FRAGILE, TP, bloque, briser, caseA, majHerses, porteOuverte, tirerLevier } from './niveau.js';
 import { rand } from './outils.js';
 import { explosion, particule, popup } from './partie.js';
 import { sfx } from './son.js';
@@ -11,6 +11,7 @@ import { blesserVeilleur, majVeilleur } from './veilleur.js';
 // ================= Le monde : ennemis, boules de feu, orbes, cœurs, objets de la carte, particules =================
 export function majMonde(dt) {
   apparitions();
+  majHerses();
   for (const e of J.ennemis) majEnnemi(e, dt);
   J.ennemis = J.ennemis.filter((e) => {
     const loin = Math.abs(e.x - (J.cam + J.W / 2)) > J.W + 220 || Math.abs(e.y - (J.camY + J.H / 2)) > J.H + 160;
@@ -39,6 +40,7 @@ export function majMonde(dt) {
       break;
     }
     for (const o of J.orbes) if (b.vie > 0 && Math.hypot(o.x - b.x, o.y - b.y) < 10) { o.vie = 0; b.vie = 0; explosionSol(o.x, o.y); }
+    for (const o of J.NIV.objets) if (b.vie > 0 && o.genre === 'levier' && !o.tire && Math.hypot(o.x - b.x, o.y - 9 - b.y) < 12) { tirerLevier(o); b.vie = 0; explosionSol(b.x, b.y); }
     // le feu touche tout le crâne et la mâchoire
     if (J.veilleur && b.vie > 0 && ((J.veilleur.x - b.x) / 34) ** 2 + ((J.veilleur.y + 8 - b.y) / 44) ** 2 < 1) { b.vie = 0; blesserVeilleur(J.veilleur, 1); explosionSol(b.x, b.y); }
   }
@@ -47,6 +49,7 @@ export function majMonde(dt) {
   // collisions avec le dragon (zone réduite au corps, plus indulgente que le sprite)
   const hx = J.P.x + J.P.face * 6, hy = J.P.y + 4, fonce = J.P.ruee >= 0;
   const touche = (x, y, r) => { const dx = (x - hx) / (34 + r), dy = (y - hy) / (12 + r); return dx * dx + dy * dy < 1; };
+  if (fonce) for (const o of J.NIV.objets) if (o.genre === 'levier' && !o.tire && touche(o.x, o.y - 9, 6)) tirerLevier(o);   // la ruée actionne un levier
   for (const e of J.ennemis) {
     if (e.mort || !e.visible || J.P.pv <= 0 || !touche(e.x, e.y, TYPES[e.type].r)) continue;
     if (fonce) { e.mort = true; tuer(e); }

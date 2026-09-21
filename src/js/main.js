@@ -21,6 +21,7 @@ import { TERRAIN, construireAccessoires, construireTuiles, dessinerCourants, des
 import { texte } from './texte.js';
 import { MENU, ecranEpilogue, ecranFin, ecranPause, ecranTitre } from './titre.js';
 import { enPause } from './appareil.js';
+import { dessinerObscurite } from './obscurite.js';
 
 // ================= Boucle =================
 J.avant = 0;
@@ -30,17 +31,18 @@ export function boucle(tms) {
   J.temps += dt;
   if (J.etat === 'epilogue') {
     J.epiT += dt;
-    if (J.epiT > 7 && J.appuis.has('fire')) nouvelActe();
+    if (J.epiT > 7 && J.appuis.has('fire')) { nouvelActe(); J.feuRetenu = true; }
     J.appuis.clear(); J.gestes.clear();
     if (J.etat === 'epilogue') { ecranEpilogue(); requestAnimationFrame(boucle); return; }
   }
+  if (J.feuRetenu && !tenu('fire')) J.feuRetenu = false;         // l'appui qui a validé un menu ne tire pas : il faut relâcher
   const E = J.etat === 'titre' ? entreesDemo()
-    : { L: tenu('left'), R: tenu('right'), U: tenu('up'), D: tenu('down'), feu: tenu('fire'), appuis: J.appuis, gestes: J.gestes };
+    : { L: tenu('left'), R: tenu('right'), U: tenu('up'), D: tenu('down'), feu: tenu('fire') && !J.feuRetenu, appuis: J.appuis, gestes: J.gestes };
   J.tenuBas = E.D;
   if (J.etat === 'titre' && J.pageTitre === 'commandes' && (J.appuis.has('fire') || J.appuis.has('ruee'))) { J.pageTitre = 'menu'; sfx('touche'); }
   else if (J.etat === 'titre' && (J.appuis.has('up') || J.appuis.has('down'))) { J.choix = (J.choix + (J.appuis.has('up') ? MENU.length - 1 : 1)) % MENU.length; sfx('touche'); }
-  else if (J.etat === 'titre' && (J.appuis.has('fire') || J.appuis.has('ruee'))) { if (J.choix === 0) nouvellePartie(); else { J.pageTitre = 'commandes'; sfx('touche'); } }
-  else if (J.etat === 'fin' && J.finT > 0.8 && J.appuis.has('fire')) reprendre();
+  else if (J.etat === 'titre' && (J.appuis.has('fire') || J.appuis.has('ruee'))) { if (J.choix === 0) { nouvellePartie(); J.feuRetenu = true; } else { J.pageTitre = 'commandes'; sfx('touche'); } }
+  else if (J.etat === 'fin' && J.finT > 0.8 && J.appuis.has('fire')) { reprendre(); J.feuRetenu = true; }
   else if (J.etat === 'jeu' && enPause()) J.appuis.clear();          // pause : l'image reste figée
   else if (J.gel > 0) J.gel -= dt;                                   // micro-pause à l'impact
   else {
@@ -68,6 +70,7 @@ export function boucle(tms) {
   dessinerEffets();
   ctx.restore();
   dessinerMeteo();
+  dessinerObscurite();                                             // la pénombre des profondeurs (certains niveaux)
   ctx.restore();
   if (J.etat === 'titre') ecranTitre();
   else { hud(); dessinerCarte(); if (J.etat === 'fin') ecranFin(dt); }
@@ -91,10 +94,11 @@ if (ESSAI) window.__essai = {
   voler(tx, ty) { J.P.x = tx * TP + TP / 2; J.P.y = ty * TP + TP / 2; J.P.mode = 'air'; J.P.vx = J.P.vy = 0; cadrer(); },
   niveau: () => ({ l: J.NIV.l, h: J.NIV.h, objets: J.NIV.objets.length, reliques: J.NIV.reliques }),
   souffle(v) { J.P.souffle = v; },
+  eclair() { J.eclair = 0.24; },                               // déclenche un éclair (niveaux d'orage)
   reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte du niveau
   pv(n) { J.P.pv = n; },
   caseA: (tx, ty) => caseA(tx, ty),
-  objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),
+  objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.tire ? ' tiré' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),
 };
 
 export function panne(l1, l2) {

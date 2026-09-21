@@ -1,8 +1,9 @@
 import { J } from './etat.js';
-import { NIVEAUX } from './config.js';
-import { IMAGES_ART } from './decor.js';
+import { FEU, NIVEAUX } from './config.js';
+import { IMAGES_ART, eclairVisible } from './decor.js';
+import { silhouette } from './dragon-pieces.js';
 import { ctx } from './ecran.js';
-import { CORNICHE, FRAGILE, PICS, ROC, TP, bloque, caseA, porteOuverte } from './niveau.js';
+import { CORNICHE, FRAGILE, MONTEE_HERSE, PICS, ROC, TP, bloque, caseA, porteOuverte } from './niveau.js';
 import { clamp, hash, toile } from './outils.js';
 import { coeur } from './rendu-monde.js';
 import { flamme } from './titre.js';
@@ -50,8 +51,10 @@ export function construireTuiles() {
 export function construireAccessoires() {
   const gargouille = IMAGES_ART['objets/gargouille'], miroir = toile(gargouille.width, gargouille.height), g = miroir.getContext('2d');
   g.translate(gargouille.width, 0); g.scale(-1, 1); g.drawImage(gargouille, 0, 0);
+  // les gargouilles : des silhouettes noires, que seul l'éclair révèle
   return { T: IMAGES_ART['objets/arbre'], t: IMAGES_ART['objets/tombe'], '+': IMAGES_ART['objets/croix'],
-           G: gargouille, g: miroir, B: IMAGES_ART['objets/etendard'], I: IMAGES_ART['objets/fleche'] };
+           G: gargouille, g: miroir, B: IMAGES_ART['objets/etendard'], I: IMAGES_ART['objets/fleche'],
+           ombres: { G: silhouette(gargouille, '#050505'), g: silhouette(miroir, '#050505') } };
 }
 // ---------- le terrain, peint une fois par niveau en bandes verticales ----------
 // Le terrain ne bouge pas (sauf un mur fissuré qui s'effondre) : le repeindre à chaque image coûtait des centaines
@@ -91,7 +94,8 @@ export function dessinerTuiles() {
 }
 // peint tout le terrain des colonnes [x0, x1[ (coordonnées de la carte), sur toute la hauteur du niveau
 function peindreTerrain(g, x0, x1) {
-  const T = J.TUILES[NIVEAUX[J.niveauVisuel].cle], plein = (tx, ty) => bloque(caseA(tx, ty)), L = J.NIV.l, H = J.NIV.h;
+  const T = J.TUILES[NIVEAUX[J.niveauVisuel].cle], L = J.NIV.l, H = J.NIV.h;
+  const plein = (tx, ty) => { const t = caseA(tx, ty); return t === ROC || t === FRAGILE; };   // (une herse n'est pas de la pierre : elle se dessine à part)
   const tx0 = Math.max(0, Math.floor(x0 / TP) - 1), tx1 = Math.min(L - 1, Math.floor(x1 / TP) + 1);
   // une suite de cases (même rangée) qui vérifient « est », prise en entier même si elle déborde de la bande
   const suites = (ty, est, marge, faire) => {
@@ -160,6 +164,43 @@ function peindreTerrain(g, x0, x1) {
     }
   }
 }
+// ---------- herses et leviers ----------
+// Une herse de fer forgé ferme un passage ; un levier (feu ou ruée) la fait remonter dans la voûte : un raccourci.
+// Peintes si la planche d'objets les fournit (objets/herse, objets/levier), sinon dessinées en pixels ici.
+let MOTIF_HERSE = null;
+function motifHerse() {                               // une case de grille : barreaux, traverses, rivets
+  if (MOTIF_HERSE) return MOTIF_HERSE;
+  const c = toile(TP, TP), g = c.getContext('2d');
+  for (const x of [1, 6, 11]) { g.fillStyle = '#141414'; g.fillRect(x, 0, 3, TP); g.fillStyle = '#4a4a48'; g.fillRect(x, 0, 1, TP); }
+  for (const y of [4, 12]) { g.fillStyle = '#141414'; g.fillRect(0, y, TP, 2); g.fillStyle = '#5c5c59'; g.fillRect(0, y, TP, 1); }
+  g.fillStyle = '#8a8a86'; for (const x of [2, 7, 12]) for (const y of [4, 12]) g.fillRect(x, y, 1, 1);
+  return (MOTIF_HERSE = c);
+}
+function dessinerHerse(g) {
+  const X = g.x0 * TP, Y = g.y0 * TP, L = (g.x1 - g.x0 + 1) * TP, H = (g.y1 - g.y0 + 1) * TP;
+  if (X + L < J.cam - 8 || X > J.cam + J.W + 8 || Y + H < J.camY - 8 || Y > J.camY + J.H + 8) return;
+  const u = g.ouverture === null ? 0 : clamp((J.temps - g.ouverture) / MONTEE_HERSE, 0, 1), monte = Math.round(H * u * u * (3 - 2 * u));
+  if (monte >= H) { ctx.fillStyle = '#141414'; for (let x = X + 2; x < X + L; x += 5) ctx.fillRect(x, Y, 2, 3); return; }   // pointes rentrées dans la voûte
+  ctx.save(); ctx.beginPath(); ctx.rect(X, Y, L, H); ctx.clip();
+  const peinte = IMAGES_ART['objets/herse'];
+  for (let y = Y - monte; y < Y + H - monte; y += TP) for (let x = X; x < X + L; x += TP) ctx.drawImage(peinte || motifHerse(), x, y);
+  ctx.fillStyle = '#141414';                            // les pointes du bas
+  for (let x = X + 1; x < X + L; x += 5) { ctx.fillRect(x, Y + H - monte, 3, 2); ctx.fillRect(x + 1, Y + H - monte + 2, 1, 2); }
+  ctx.restore();
+}
+function dessinerLevier(o) {
+  const peint = IMAGES_ART['objets/levier'], x = Math.round(o.x), y = o.y;
+  if (peint) {                                          // planche de deux images : relevé, abaissé
+    const w = peint.width >> 1;
+    ctx.drawImage(peint, o.tire ? w : 0, 0, w, peint.height, x - (w >> 1), y - peint.height + 1, w, peint.height);
+    return;
+  }
+  ctx.fillStyle = '#141414'; ctx.fillRect(x - 5, y - 4, 11, 4);                  // le socle
+  ctx.fillStyle = '#5c5c59'; ctx.fillRect(x - 5, y - 4, 11, 1);
+  const a = o.tire ? 0.9 : -0.9, lx = Math.round(x + Math.sin(a) * 9), ly = Math.round(y - 4 - Math.cos(a) * 9);
+  for (let k = 0; k <= 8; k++) { const px = Math.round(x + (lx - x) * k / 8), py = Math.round(y - 4 + (ly - y + 4) * k / 8); ctx.fillStyle = '#2a2a28'; ctx.fillRect(px, py, 2, 1); }
+  ctx.fillStyle = o.tire ? '#8a8a86' : FEU[2]; ctx.fillRect(lx - 1, ly - 1, 3, 3);   // la poignée : une braise tant qu'on ne l'a pas tiré
+}
 export function dessinerCourants() {           // colonnes de cendre qui montent : on voit où le vent porte
   ctx.fillStyle = '#c8c7c2';
   for (const c of J.NIV.courants) {
@@ -175,7 +216,7 @@ export function dessinerObjets() {
   const au = (img, x, y) => ctx.drawImage(img, Math.round(x - img.width / 2), Math.round(y - img.height));   // posé sur le sol
   for (const o of J.NIV.objets) {
     if (o.x < J.cam - 70 || o.x > J.cam + J.W + 70 || o.y < J.camY - 90 || o.y > J.camY + J.H + 90) continue;
-    if (o.genre === 'decor') au(J.ACCESSOIRES[o.type], o.x, o.y + 1);
+    if (o.genre === 'decor') au(J.ACCESSOIRES.ombres[o.type] && !eclairVisible() ? J.ACCESSOIRES.ombres[o.type] : J.ACCESSOIRES[o.type], o.x, o.y + 1);
     else if (o.genre === 'autel') {
       const img = IMAGES_ART['objets/autel'], x = Math.round(o.x), y = o.y;
       au(img, x, y + 1);
@@ -184,7 +225,8 @@ export function dessinerObjets() {
         ctx.drawImage(J.HALOS[f ? 1 : 0], x - (J.HALOS[0].width >> 1), h - 8 - (J.HALOS[0].height >> 1));
         flamme(x, h, x);
       }
-    } else if ((o.genre === 'relique' || o.genre === 'coeur') && !o.pris) {
+    } else if (o.genre === 'levier') dessinerLevier(o);
+    else if ((o.genre === 'relique' || o.genre === 'coeur') && !o.pris) {
       const y = Math.round(o.y + Math.sin(J.temps * 3 + o.x) * 2);
       if (o.genre === 'coeur') { coeur(Math.round(o.x) - 3, y - 3, true); continue; }
       const img = IMAGES_ART['objets/reliquaire'];
@@ -192,6 +234,7 @@ export function dessinerObjets() {
       if (Math.sin(J.temps * 5 + o.x) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(o.x) + 5, y - 9, 1, 3); ctx.fillRect(Math.round(o.x) + 4, y - 8, 3, 1); }
     }
   }
+  for (const g of J.NIV.herses) dessinerHerse(g);
   const s = J.NIV.sortie;
   if (s && porteOuverte() && s.x > J.cam - 60 && s.x < J.cam + J.W + 60) {
     const u = s.revele === undefined ? 1 : clamp((J.temps - s.revele) / 1.2, 0, 1);   // elle monte de la brume

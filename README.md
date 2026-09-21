@@ -101,6 +101,10 @@ Chaque niveau est un fichier texte, `niveaux/<cle>.txt`, dont la clé est décla
 | `~` | colonne de cendre (porte vers le haut, rend le souffle) | `T` `t` `+` | arbre mort, tombe, croix (décor) |
 | | | `G` `g` `B` `I` | gargouille tournée vers la droite, vers la gauche ; étendard en lambeaux ; clocheton (décor) |
 
+Herses et leviers (raccourcis à la Castlevania) : `H` est une case de herse, qui bloque tant qu'elle est fermée ; `l` est un levier. Un tir de feu ou une ruée l'actionne, et il lève d'un bloc la herse la plus proche (le groupe de cases `H` qui se touchent).
+
+Pénombre : un niveau peut s'assombrir en profondeur, avec `obscurite: { debut, plein, max }` dans son entrée de `NIVEAUX` (rangées de la carte, opacité maximale de 0 à 1). La lumière vient du dragon, de son feu, des autels allumés, des explosions, des crânes ardents, et de la lueur des âmes, des spectres et des reliques.
+
 Ennemis : `c` charognard, `a` âme errante, `b` chauve-souris (seulement sous un vrai plafond), `s` spectre, `k` crâne ardent. Chacun a son propre schéma de comportement ; ils se réveillent quand ils entrent dans le champ, et un ennemi vaincu le reste.
 
 Mesures utiles pour dessiner une carte (le dragon est grand) :
