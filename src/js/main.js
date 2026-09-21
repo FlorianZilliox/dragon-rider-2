@@ -97,6 +97,7 @@ if (ESSAI) window.__essai = {
   souffle(v) { J.P.souffle = v; },
   eclair() { J.eclair = 0.24; },
   coup() { J.P.inv = 0; blesser(J.P.x + J.P.face * 30); },     // un coup reçu de face
+  plier(dos, onde) { J.P.dos = dos; J.P.onde = onde; J.P.dosV = 0; J.P.ondeV = 0; },   // force la colonne (études de posture)
   posture: () => JSON.stringify(posture(), (k, v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v)),   // la posture calculée (débogage)                               // déclenche un éclair (niveaux d'orage)
   reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte du niveau
   pv(n) { J.P.pv = n; },

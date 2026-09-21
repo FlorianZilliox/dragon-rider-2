@@ -139,7 +139,8 @@ export function dessinerPattes(d, loin, jeu) {
   const os = [];
   for (const pt of PATTES) {
     if (pt.loin !== loin) continue;
-    const hx = pt.h[0] + cdx, hy = pt.h[1] - 2 + Math.round(cdy) + Math.round(d.flex ? d.flex(pt.h[0]) : 0);   // la hanche, un peu dans le corps, portée par la colonne
+    const [px0, py0] = d.porte ? d.porte(pt.h[0], pt.h[1] - 2) : [pt.h[0], pt.h[1] - 2];
+    const hx = px0 + cdx, hy = py0 + Math.round(cdy);   // la hanche (ou l'épaule), un peu dans le corps, portée par la croupe (ou le poitrail)
     // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
     const appui = mix(JAMBE.appuiPas, JAMBE.appuiGalop, d.vif);
     const p = frac(d.allure - mix(pt.pas, pt.galop, d.vif)), a = d.amp;   // (au pas, l'arrière lève puis l'avant du même côté)
@@ -195,7 +196,7 @@ export function transformer(q, d, loin) {
     case 'jambe': { const [a, h] = (d.jambes && d.jambes[q.nom]) || [0, 0]; autour(q, a, 0, Math.round(h)); break; }
   }
 }
-const MARGE_TRONC = 13, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
+const MARGE_TRONC = 18, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
 export function dessinerPosture(d, jeu) {
   if (d.type === 'planche') {
     ctx.save();
@@ -206,17 +207,25 @@ export function dessinerPosture(d, jeu) {
     return;
   }
   const L = J.PIECES[jeu][d.pose], tete = L.find((q) => q.role === 'tete'), corps = L.find((q) => q.role === 'corps');
-  // la colonne vertébrale : le tronc est dessiné en tranches de 3 px décalées le long d'une courbe
-  // (dos : creusé ou voûté ; onde : l'avant qui se relève pendant que l'arrière s'abaisse), et chaque pièce
-  // accrochée (tête, cavalier, ailes, queue, pattes) suit la courbe à son point d'attache
-  const xA = corps.o[0], xB = corps.o[0] + corps.img.width, xm = (xA + xB) / 2, demi = (xB - xA) / 2, dos = d.dos || 0, onde = d.onde || 0;
-  const flex = (x) => { const u = clamp((x - xm) / demi, -1.2, 1.2); return dos * (1 - u * u) - onde * u * u * u; };
-  const plier = (q) => {
-    if (!dos && !onde) return;
-    const x = q.p[0], a = Math.atan((flex(x + 1) - flex(x - 1)) / 2);
-    ctx.translate(x, q.p[1] + Math.round(flex(x))); ctx.rotate(a); ctx.translate(-x, -q.p[1]);
+  // le tronc articulé : trois segments, comme la queue. La croupe (queue, pattes arrière) et le poitrail (cou, tête,
+  // ailes, cavalier, pattes avant) pivotent autour des reins et du dos ; le milieu reste l'axe.
+  // dos > 0 : il se creuse (les deux bouts remontent) ; < 0 : il se voûte ; onde > 0 : le poitrail se relève, la croupe s'abaisse.
+  const tw = corps.img.width, th = corps.img.height, xA = corps.o[0], yA = corps.o[1], dos = d.dos || 0, onde = d.onde || 0;
+  const reins = [xA + 0.38 * tw, yA + 0.4 * th], garrot = [xA + 0.6 * tw, yA + 0.4 * th], K = 0.05;
+  const aP = clamp(-K * (dos + onde), -0.42, 0.42), aC = clamp(K * (dos - onde), -0.42, 0.42);   // poitrail, croupe (radians, bornés : jamais la tête dans le sol)
+  const segment = (x) => (x >= garrot[0] ? [garrot, aP] : x <= reins[0] ? [reins, aC] : null);
+  const plier = (q) => {                               // une pièce suit le segment où elle s'accroche
+    const sg = segment(q.p[0]);
+    if (!sg || !sg[1]) return;
+    const [[jx, jy], a] = sg;
+    ctx.translate(jx, jy); ctx.rotate(a); ctx.translate(-jx, -jy);
   };
-  d.flex = flex;
+  d.porte = (x, y) => {                                // un point porté par le tronc (hanches, épaules)
+    const sg = segment(x);
+    if (!sg) return [x, y];
+    const [[jx, jy], a] = sg, c = Math.cos(a), s = Math.sin(a);
+    return [jx + (x - jx) * c - (y - jy) * s, jy + (x - jx) * s + (y - jy) * c];
+  };
   // demi-tour : 0 au repos, 1 au milieu ; la tête a déjà tourné, le corps se cabre et s'écrase, la queue traîne
   const tour = Math.sin(Math.PI * clamp((1 - d.fs * J.P.face) / 2, 0, 1));
   d.tourne = Math.sign(d.fs) !== J.P.face && Math.abs(d.fs) < 0.65;   // le corps n'a pas fini de tourner, la tête si
@@ -242,12 +251,21 @@ export function dessinerPosture(d, jeu) {
     if (d.pose === 'sol' && !fond && q.z >= 0) { dessinerPattes(d, true, jeu); fond = true; }     // pattes du fond, derrière le corps
     if (d.pose === 'sol' && !devant && q.z > 0) { dessinerPattes(d, false, jeu); devant = true; } // pattes de devant, sur le corps
     ctx.save();
-    if (q === corps) {                                   // le tronc plié, assemblé droit hors écran puis posé d'un bloc (aucun raccord ne s'ouvre)
-      const w = q.img.width, h = q.img.height, t = TRONC.toile.width < w || TRONC.toile.height < h + 2 * MARGE_TRONC ? (TRONC.toile = toile(w, h + 2 * MARGE_TRONC)) : TRONC.toile;
-      const g = t.getContext('2d');
+    if (q === corps) {                                   // le tronc articulé, assemblé hors écran puis posé d'un bloc
+      const M = MARGE_TRONC, W = tw + 2 * M, H = th + 2 * M;
+      const t = TRONC.toile.width < W || TRONC.toile.height < H ? (TRONC.toile = toile(W, H)) : TRONC.toile, g = t.getContext('2d');
+      g.imageSmoothingEnabled = false;
       g.clearRect(0, 0, t.width, t.height);
-      for (let sx = 0; sx < w; sx += 3) { const bw = Math.min(3, w - sx); g.drawImage(q.img, sx, 0, bw, h, sx, MARGE_TRONC + Math.round(flex(q.o[0] + sx + bw / 2)), bw, h); }
-      ctx.drawImage(t, 0, 0, w, h + 2 * MARGE_TRONC, q.o[0], q.o[1] - MARGE_TRONC, w, h + 2 * MARGE_TRONC);
+      const seg = (x0, x1, joint, a) => {                // une tranche du tronc, tournée autour de son articulation
+        g.save();
+        if (a) { const jx = joint[0] - xA + M, jy = joint[1] - yA + M; g.translate(jx, jy); g.rotate(a); g.translate(-jx, -jy); }
+        g.drawImage(q.img, x0, 0, x1 - x0, th, x0 + M, M, x1 - x0, th);
+        g.restore();
+      };
+      seg(0, Math.round(0.46 * tw), reins, aC);         // la croupe (déborde sous le milieu)
+      seg(Math.round(0.52 * tw), tw, garrot, aP);       // le poitrail
+      seg(Math.round(0.33 * tw), Math.round(0.66 * tw), null, 0);   // le milieu, par-dessus les deux jointures
+      ctx.drawImage(t, 0, 0, W, H, xA - M, yA - M, W, H);
       ctx.restore(); continue;
     }
     const lignee = [];                                   // la pièce suit tous ses parents (la tête, les segments de queue…)
