@@ -1,6 +1,7 @@
-// Service worker : tout le jeu est mis en cache à l'installation, puis se joue sans réseau.
-// La version et la liste des fichiers sont écrites par outils/construire.mjs ; une nouvelle version
-// s'installe en arrière-plan et sert au lancement suivant (jamais de rechargement en pleine partie).
+// Service worker : le jeu se joue sans réseau, et prend toujours la dernière version quand il y en a.
+// - à l'installation, tout le jeu est mis en cache (la version et la liste des fichiers sont écrites par outils/construire.mjs) ;
+// - ensuite, le réseau d'abord : chaque fichier est redemandé (vérification rapide, le serveur répond « inchangé » si
+//   rien n'a bougé) et le cache est rafraîchi ; sans réseau, ou s'il tarde plus de 3 s, le cache répond.
 const VERSION = '__VERSION__';
 const FICHIERS = [/*FICHIERS*/];
 const CACHE = 'dragon-rider-' + VERSION;
@@ -21,10 +22,15 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(servir(r));
 });
 
-// d'abord le cache ; une ouverture de page (même avec #acte=2…) reçoit la page du jeu ; sinon le réseau
+const trop = (ms) => new Promise((_, non) => setTimeout(() => non(new Error('réseau trop lent')), ms));
 async function servir(r) {
   const c = await caches.open(CACHE);
-  return (await c.match(r, { ignoreSearch: true }))
+  try {
+    const reponse = await Promise.race([fetch(r.url, { cache: 'no-cache', credentials: 'same-origin' }), trop(3000)]);
+    if (reponse.ok) { c.put(r.url, reponse.clone()); return reponse; }
+  } catch {}
+  // hors ligne : le cache ; une ouverture de page (même avec #acte=2…) reçoit la page du jeu
+  return (await c.match(r.url, { ignoreSearch: true }))
     || (r.mode === 'navigate' && await c.match('index.html'))
-    || fetch(r);
+    || Response.error();
 }

@@ -11,9 +11,17 @@ J.pause = false;
 const installee = matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches || navigator.standalone === true;
 const portrait = matchMedia('(orientation: portrait) and (pointer: coarse)');
 
-// le cache hors ligne (le serveur de développement n'en fournit pas : l'inscription échoue alors sans bruit)
+// le cache hors ligne (le serveur de développement n'en fournit pas : l'inscription échoue alors sans bruit).
+// Une nouvelle version publiée prend la main dès qu'elle est là : le jeu se recharge tout seul à l'écran titre,
+// jamais en pleine partie. On la cherche au lancement et à chaque retour dans l'application.
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const avaitUnControleur = !!navigator.serviceWorker.controller;
+  let aRecharger = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (avaitUnControleur) aRecharger = true; });
+  setInterval(() => { if (aRecharger && J.etat === 'titre') location.reload(); }, 1000);
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').then((inscription) => {
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') inscription.update().catch(() => {}); });
+  }).catch(() => {}));
 }
 
 // l'écran allumé tant qu'on joue (le navigateur rend le verrou quand la page est cachée : on le redemande au retour)
