@@ -71,12 +71,16 @@ export function vieAuRepos() {                  // ce que le repos ajoute à la 
 }
 export const SOL_Y = -1.5;                      // la marionnette au sol, un peu haut sur pattes : de son repère au sol
 export const foulee = () => mix(24, 36, clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));
-// les quatre pattes, dans le repère de la pose au sol : hanche, côté (près / loin), décalage dans le pas (marche à quatre temps)
+// les quatre pattes, dans le repère de la pose au sol : hanche (ou épaule), côté (près / loin), place dans le pas.
+// Au pas, une marche latérale à quatre temps, comme un grand félin : arrière près, avant près, arrière loin,
+// avant loin ; chaque pied reste posé les trois quarts du temps, une seule patte en l'air à la fois.
+// En courant, les pattes avant glissent d'un quart de temps : trot, par paires diagonales.
+// Les pattes du fond sont presque derrière celles de devant (profil), un peu rentrées par la perspective.
 export const PATTES = [
-  { h: [-6.5, 16.5], loin: true, phase: 0.5 }, { h: [12, 17], loin: true, phase: 0.75 },
-  { h: [-19, 15.5], loin: false, phase: 0 }, { h: [23.5, 17], loin: false, phase: 0.25 },
+  { h: [-15.5, 16.5], loin: true, phase: 0.5, avant: false }, { h: [19.5, 17], loin: true, phase: 0.75, avant: true },
+  { h: [-19, 15.5], loin: false, phase: 0, avant: false }, { h: [23.5, 17], loin: false, phase: 0.25, avant: true },
 ];
-export const JAMBE = { cuisse: 6.5, tibia: 6.5, appui: 0.62 };
+export const JAMBE = { cuisse: 6.5, tibia: 6.5, appuiPas: 0.75, appuiCourse: 0.52 };
 export function membre(p, x0, y0, r0, x1, y1, r1, grossir) {   // un segment de membre effilé, en gros pixels (disques le long du segment)
   const n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.5));
   for (let i = 0; i <= n; i++) {
@@ -97,12 +101,13 @@ export function dessinerPattes(d, loin, jeu) {
     if (pt.loin !== loin) continue;
     const hx = pt.h[0] + cdx, hy = pt.h[1] - 2 + Math.round(cdy);          // la hanche, un peu dans le corps : pas de jointure visible
     // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
-    const p = frac(d.allure + pt.phase), a = d.amp;
+    const appui = mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif);
+    const p = frac(d.allure - pt.phase - (pt.avant ? 0.25 * d.vif : 0)), a = d.amp;   // (la patte arrière lève, puis l'avant du même côté)
     let fx, fy = sol - 1;
-    if (p < JAMBE.appui) fx = pt.h[0] + S * JAMBE.appui * (0.5 - p / JAMBE.appui) * a;
-    else {
-      const u = (p - JAMBE.appui) / (1 - JAMBE.appui), e = u * u * (3 - 2 * u);
-      fx = pt.h[0] + S * JAMBE.appui * (-0.5 + e) * a; fy = sol - 1 - (3 + 2 * d.vif) * Math.sin(Math.PI * u) * a;
+    if (p < appui) fx = pt.h[0] + S * appui * (0.5 - p / appui) * a;
+    else {                                                                 // le pied se lève en arc, file vers l'avant, se repose en douceur
+      const u = (p - appui) / (1 - appui), e = u * u * (3 - 2 * u);
+      fx = pt.h[0] + S * appui * (-0.5 + e) * a; fy = sol - 1 - (3.5 + 2 * d.vif) * Math.sin(Math.PI * Math.pow(u, 0.8)) * a;
     }
     const dessous = caseA(Math.floor((d.x + Math.sign(d.fs || 1) * fx) / TP), Math.floor(J.P.sol / TP));
     if (!bloque(dessous) && dessous !== CORNICHE) { fx = pt.h[0] + 1.5; fy = hy + JAMBE.cuisse + JAMBE.tibia - 2; }   // rien sous la patte : elle pend
