@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { AN, BOUCHE, BRUME, DESCENTE, FPS, G, OS, RUEE_COUT, SOUFFLE, S_BAS, V } from './config.js';
 import { DECOLLAGE, GESTES, RENVERSE, SOL_Y, foulee, posture } from './dragon-rendu.js';
 import { explosionSol } from './monde.js';
-import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, toucheCase } from './niveau.js';
+import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, tirerLevier, toucheCase } from './niveau.js';
 import { approche, clamp, frac, mix, rand } from './outils.js';
 import { particule, popup, poussiere } from './partie.js';
 import { sfx } from './son.js';
@@ -36,6 +36,8 @@ export function cracher() {
   // collé à un mur, la gueule dépasse de l'autre côté : le feu part du corps et s'arrête à la première pierre
   for (let k = 0; k <= 1; k += 1 / 16) {
     const x = mix(J.P.x, bx, k), y = mix(J.P.y, by, k), tx = Math.floor(x / TP), ty = Math.floor(y / TP), t = caseA(tx, ty);
+    const levier = J.NIV.objets.find((o) => o.genre === 'levier' && !o.tire && Math.hypot(o.x - x, o.y - 9 - y) < 12);
+    if (levier) { tirerLevier(levier); explosionSol(x, y); return; }   // un levier tout près : la gueule l'atteint avant la boule
     if (!bloque(t)) continue;
     if (t === FRAGILE) briser(tx, ty);
     explosionSol(x - J.P.face * 4, y);
