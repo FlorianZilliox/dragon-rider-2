@@ -39,6 +39,33 @@
    "regarde": "haut",
    "attendus": 6,
    "ancre": "bas"
+  },
+  "boule-feu": {
+   "source": "boule-feu",
+   "objets": true,
+   "echelle": 0.085,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.3,
+   "regarde": "droite",
+   "attendus": 4,
+   "joindre": 0.003
+  },
+  "explosion": {
+   "source": "explosion",
+   "objets": true,
+   "echelle": 0.16,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.3,
+   "regarde": "droite",
+   "attendus": 6,
+   "joindre": 0.012,
+   "aire_min": 0.002
   }
  }
 }

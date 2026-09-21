@@ -1,0 +1,30 @@
+{
+ "nom": "titre",
+ "palette": [
+  "#050505",
+  "#161616",
+  "#2a2a2a",
+  "#5e1a22",
+  "#3f3f3f",
+  "#b8323a",
+  "#e0702e",
+  "#f0a050",
+  "#ffd9a0",
+  "#fff4d6"
+ ],
+ "elements": {
+  "logo": {
+   "image": "titre/logo.png",
+   "taille": [
+    284,
+    70
+   ],
+   "decalage": [
+    8,
+    51
+   ],
+   "hauteurAvantRognage": 200,
+   "raccord": false
+  }
+ }
+}

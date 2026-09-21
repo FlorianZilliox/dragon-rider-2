@@ -134,6 +134,32 @@
    ],
    "hauteurAvantRognage": 147,
    "raccord": false
+  },
+  "curseur": {
+   "image": "objets/curseur.png",
+   "taille": [
+    27,
+    11
+   ],
+   "cellule": [
+    27,
+    11
+   ],
+   "images": 1,
+   "rects": [
+    [
+     0,
+     0,
+     27,
+     11
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
   }
  }
 }

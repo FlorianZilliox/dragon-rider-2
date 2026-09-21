@@ -624,28 +624,28 @@
   "date": "2026-09-21T14:44:01+00:00"
  },
  "ame": {
-  "fichier": "generes/ame-c26359540962.png",
-  "empreinte": "c26359540962",
+  "fichier": "generes/ame-b99d1f754c79.png",
+  "empreinte": "b99d1f754c79",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 632,
+   "input_tokens": 670,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 309
+    "text_tokens": 347
    },
-   "output_tokens": 6573,
+   "output_tokens": 6642,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 365
+    "text_tokens": 434
    },
-   "total_tokens": 7205
+   "total_tokens": 7312
   },
   "essai": false,
-  "date": "2026-09-21T15:20:46+00:00"
+  "date": "2026-09-21T15:28:57+00:00"
  },
  "crane": {
   "fichier": "generes/crane-628dc1bc8c3c.png",
@@ -672,28 +672,28 @@
   "date": "2026-09-21T15:20:49+00:00"
  },
  "corbeau": {
-  "fichier": "generes/corbeau-4f55d5b70bb3.png",
-  "empreinte": "4f55d5b70bb3",
+  "fichier": "generes/corbeau-d4f98b94d8c6.png",
+  "empreinte": "d4f98b94d8c6",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 658,
+   "input_tokens": 705,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 335
+    "text_tokens": 382
    },
-   "output_tokens": 6536,
+   "output_tokens": 6582,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 328
+    "text_tokens": 374
    },
-   "total_tokens": 7194
+   "total_tokens": 7287
   },
   "essai": false,
-  "date": "2026-09-21T15:20:52+00:00"
+  "date": "2026-09-21T15:29:01+00:00"
  },
  "chauve-souris": {
   "fichier": "generes/chauve-souris-ad33ab69c063.png",
@@ -720,28 +720,28 @@
   "date": "2026-09-21T15:20:40+00:00"
  },
  "spectre": {
-  "fichier": "generes/spectre-a4c1c56e85e9.png",
-  "empreinte": "a4c1c56e85e9",
+  "fichier": "generes/spectre-62527037b31d.png",
+  "empreinte": "62527037b31d",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 630,
+   "input_tokens": 683,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 307
+    "text_tokens": 360
    },
-   "output_tokens": 6547,
+   "output_tokens": 6654,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 339
+    "text_tokens": 446
    },
-   "total_tokens": 7177
+   "total_tokens": 7337
   },
   "essai": false,
-  "date": "2026-09-21T15:21:31+00:00"
+  "date": "2026-09-21T15:29:27+00:00"
  },
  "veilleur": {
   "fichier": "generes/veilleur-1b2a0f291f9a.png",
@@ -852,28 +852,28 @@
   "date": "2026-09-21T15:21:19+00:00"
  },
  "logo": {
-  "fichier": "generes/logo-f0fc82dd542e.png",
-  "empreinte": "f0fc82dd542e",
+  "fichier": "generes/logo-8be528996ed8.png",
+  "empreinte": "8be528996ed8",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": null,
   "usage": {
-   "input_tokens": 180,
+   "input_tokens": 203,
    "input_tokens_details": {
     "image_tokens": 0,
-    "text_tokens": 180
+    "text_tokens": 203
    },
-   "output_tokens": 6460,
+   "output_tokens": 6505,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 252
+    "text_tokens": 297
    },
-   "total_tokens": 6640
+   "total_tokens": 6708
   },
   "essai": false,
-  "date": "2026-09-21T15:23:19+00:00"
+  "date": "2026-09-21T15:28:53+00:00"
  },
  "boule-feu": {
   "fichier": "generes/boule-feu-c5ff94dd1749.png",
@@ -946,5 +946,29 @@
   },
   "essai": false,
   "date": "2026-09-21T15:23:38+00:00"
+ },
+ "curseur": {
+  "fichier": "generes/curseur-620aa07c5b0b.png",
+  "empreinte": "620aa07c5b0b",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 564,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 241
+   },
+   "output_tokens": 4454,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 294
+   },
+   "total_tokens": 5018
+  },
+  "essai": false,
+  "date": "2026-09-21T15:28:42+00:00"
  }
 }

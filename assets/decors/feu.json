@@ -122,6 +122,106 @@
     0,
     0
    ]
+  },
+  "boule-feu": {
+   "image": "feu/boule-feu.png",
+   "taille": [
+    132,
+    10
+   ],
+   "cellule": [
+    33,
+    10
+   ],
+   "images": 4,
+   "rects": [
+    [
+     4,
+     0,
+     24,
+     10
+    ],
+    [
+     37,
+     0,
+     25,
+     10
+    ],
+    [
+     69,
+     0,
+     27,
+     10
+    ],
+    [
+     99,
+     0,
+     33,
+     10
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "explosion": {
+   "image": "feu/explosion.png",
+   "taille": [
+    252,
+    31
+   ],
+   "cellule": [
+    42,
+    31
+   ],
+   "images": 6,
+   "rects": [
+    [
+     4,
+     3,
+     34,
+     25
+    ],
+    [
+     47,
+     1,
+     32,
+     28
+    ],
+    [
+     84,
+     0,
+     42,
+     31
+    ],
+    [
+     134,
+     1,
+     26,
+     28
+    ],
+    [
+     180,
+     6,
+     18,
+     18
+    ],
+    [
+     224,
+     11,
+     13,
+     9
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
   }
  }
 }

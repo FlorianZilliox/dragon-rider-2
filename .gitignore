@@ -8,3 +8,5 @@ __pycache__/
 sillage-ui-pipeline/
 # images générées (lourdes, 2 Mo pièce) : sources locales, régénérables via pixel_artist/generer.py
 art/generes/*.png
+# espaces de travail des agents (outil de développement)
+.claude/

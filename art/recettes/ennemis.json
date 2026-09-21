@@ -14,7 +14,7 @@
   "corbeau": {
    "source": "corbeau",
    "objets": true,
-   "echelle": 0.155,
+   "echelle": 0.14,
    "tons": [
     0,
     12
@@ -22,7 +22,7 @@
    "tramage": 0.3,
    "contour": true,
    "regarde": "droite",
-   "attendus": 5,
+   "attendus": 10,
    "joindre": 0.006,
    "contour_ton": 0
   },
@@ -44,23 +44,23 @@
   "ame": {
    "source": "ame",
    "objets": true,
-   "echelle": 0.17,
+   "echelle": 0.14,
    "tons": [
-    0,
+    1,
     14
    ],
-   "tramage": 0.3,
+   "tramage": 0.35,
    "contour": true,
    "contour_ton": 0,
    "regarde": "droite",
-   "attendus": 4,
+   "attendus": 6,
    "joindre": 0.006,
-   "seuil_alpha": 0.35
+   "seuil_alpha": 0.4
   },
   "spectre": {
    "source": "spectre",
    "objets": true,
-   "echelle": 0.18,
+   "echelle": 0.16,
    "tons": [
     0,
     13
@@ -68,7 +68,7 @@
    "tramage": 0.3,
    "contour": true,
    "regarde": "droite",
-   "attendus": 4,
+   "attendus": 6,
    "joindre": 0.006,
    "contour_ton": 0
   },

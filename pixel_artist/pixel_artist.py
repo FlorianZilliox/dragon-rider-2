@@ -146,6 +146,12 @@ def pixeliser(cellule, rec, centres, protege=None):
     out[1:-1, 1:-1] = idx
     if rec.get('eclats'):
         out = eclats(out, protege if protege is not None else np.zeros(out.shape, bool), n)
+    if rec.get('ilot_min'):                      # îlots de pixels détachés de la silhouette (éclats, poussière) : retirés
+        plein = out >= 0
+        lab, n = ndi.label(plein, np.ones((3, 3), bool))
+        if n > 1:
+            tailles = ndi.sum(plein, lab, range(1, n + 1))
+            out[plein & ~np.isin(lab, 1 + np.flatnonzero(tailles >= rec['ilot_min']))] = -1
     if rec.get('lisere'):                        # liseré de lune : l'arête supérieure de la silhouette s'éclaire
         plein = out >= 0
         arete = plein & ~np.vstack([np.zeros((1, out.shape[1]), bool), plein[:-1]])
@@ -214,7 +220,11 @@ def decouper(idx, pose, rec, planche):
         axe = vers(piece['axe']) if 'axe' in piece else None
         dist = dist_segment(xs, ys, axe, pivot) if axe else np.hypot(xs - pivot[0], ys - pivot[1])
         garde = (appart == k) & (dist <= rec['jointure'])
-        corps[garde] = idx[garde]                     # le corps garde l'articulation
+        if piece.get('parent'):                       # articulation d'une pièce accrochée : elle suit sa pièce parente
+            parent = next(c for c in calques if c['nom'] == piece['parent'])
+            parent['pixels'][garde] = idx[garde]
+        else:
+            corps[garde] = idx[garde]                 # le corps garde l'articulation
         c = dict(nom=piece['nom'], role=piece['role'], z=piece['z'], parent=piece.get('parent'),
                  double=piece.get('double', False), phase=piece.get('phase'), pivot=pivot, axe=axe,
                  pixels=np.where(appart == k, idx, -1))

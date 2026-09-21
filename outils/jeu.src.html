@@ -143,6 +143,7 @@
   ];
   // le souffle du dragon (1 = plein) : ce que coûte une seconde de vol, ce que rendent le sol et les courants
   const SOUFFLE = { montee: 1 / 3.5, palier: 1 / 7, courant: 1.4, sol: 1.2, epuise: 42 };
+  const RUEE_COUT = 0.25;                   // une ruée coûte un quart du souffle
   const EPILOGUE = ["LE VEILLEUR S'EST TU.", "AU FOND DE LA CRYPTE, IL N'Y AVAIT RIEN.",
                     'NI TRÉSOR, NI RÉPONSE. SEULEMENT LA NUIT.', 'LE DRAGONNIER REPRIT SON VOL.'];
   // raccourcis d'entraînement : #calme (sans ennemis), #acte=2, #acte=3, #veilleur ; #essai expose des aides de test
@@ -284,9 +285,22 @@
           return { ...c, img, variantes, loin: teinte ? img : reteinter(base, 0.55), dessous: teinte ? img : reteinter(base, 1.2),
                    o: rel(c.origine), p: c.pivot ? rel(c.pivot) : [0, 0], a: c.axe ? rel(c.axe) : null };
         }).sort((a, b) => a.z - b.z);
+        const tete = out[jeu][nom].find((q) => q.role === 'tete');
+        if (tete && !teinte) tete.oeil = boiteClaire(tete.img);
       }
     }
     return out;
+  }
+  function boiteClaire(img) {             // la boîte des pixels presque blancs (l'œil), pour la paupière
+    const g = toile(img.width, img.height).getContext('2d');
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, img.width, img.height).data;
+    let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
+      const i = (y * img.width + x) * 4;
+      if (d[i + 3] && d[i] > 185) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+    }
+    return x1 >= 0 && x1 - x0 < 10 && y1 - y0 < 10 ? [x0, y0, x1 - x0 + 1, y1 - y0 + 1] : null;
   }
   function construirePlanche(img) {
     const c = toile(img.width, img.height);
@@ -804,8 +818,9 @@
       x, y: sol - G + AN.land.bodyY[AN.land.frames - 1], sol, vx: 0, vy: 0, face: 1, fs: 1, mode: 'ground', at: 0,
       ph: 0, cad: 1.15, amp: 1, plane: 0, replie: 0, haut: 0, pitch: 0, pitchV: 0, queue: 0, queueV: 0, bob: 0,
       croisiere: 0, atk: -1, tire: false, cd: 0, recul: 0, mal: -1, inv: 0, flash: 0, pv: PV_MAX,
-      ruee: -1, rueeDir: [1, 0], rueeCd: 0, charge: 1, envol: false, accroupi: 0, course: 0, pas: 0, ombreT: 0, impact: 0,
+      ruee: -1, rueeDir: [1, 0], rueeCd: 0, rueeDispo: true, refus: 0, charge: 1, envol: false, accroupi: 0, course: 0, pas: 0, ombreT: 0, impact: 0,
       souffle: 1, dernierSol: [x, sol],
+      q2: 0, q2v: 0, q3: 0, q3v: 0, allure: 0, penche: 0, pencheV: 0, vxAvant: 0, ecrase: 0, cligne: 3,
     };
   }
   function vider() { ennemis = []; boules = []; orbes = []; coeurs = []; particules = []; popups = []; ombres = []; }
@@ -882,8 +897,7 @@
     for (let i = 0; i < n; i++) particule({ x: x + rand(-18, 18), y: y - rand(0, 3), vx: rand(-60, 60) * force, vy: rand(-26, -4) * force, vie: rand(0.35, 0.7), max: 0.7, t: Math.floor(rand(2, 4)), genre: 'poussiere' });
   }
   function explosion(x, y, os) {
-    particule({ x, y, vie: 0.07, max: 0.07, genre: 'eclair' });
-    particule({ x, y, vie: 0.28, max: 0.28, genre: 'onde' });
+    particule({ x, y, vie: 0.42, max: 0.42, genre: 'explosion' });
     for (let i = 0; i < 12; i++) { const a = rand(0, 6.28), v = rand(40, 160); particule({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, vie: rand(0.25, 0.55), max: 0.55, t: Math.floor(rand(1, 3)) }); }
     for (let i = 0; i < 6; i++) particule({ x, y, vx: rand(-80, 80), vy: rand(-110, 10), vie: rand(0.7, 1.2), max: 1.2, t: 2, rot: rand(0, 6), genre: os ? 'os' : 'plume' });
     sfx('boum');
@@ -930,7 +944,8 @@
   function demarrerRuee(versLeBas) {
     const depuisLeSol = auSol();
     if (depuisLeSol) { P.mode = 'air'; P.at = 0; P.ph = 0.05; P.amp = 1; P.pitch = -0.2; P.y = P.sol - BAS - 2; poussiere(P.x, P.sol, 8, 1.3); }
-    P.ruee = 0; P.rueeCd = 0.55; P.inv = Math.max(P.inv, 0.35); P.atk = -1;
+    P.ruee = 0; P.rueeCd = 0.6; P.inv = Math.max(P.inv, 0.3); P.atk = -1;
+    if (etat === 'jeu') { P.souffle = Math.max(0, P.souffle - RUEE_COUT); P.rueeDispo = false; }
     P.rueeDir = depuisLeSol ? [P.face * 0.94, -0.36] : versLeBas ? [P.face * 0.7, 0.72] : [P.face, 0];
     popup(versLeBas && !depuisLeSol ? 'PIQUÉ !' : 'RUÉE !', P.x, P.y - 34, OS);
     sfx('ruee');
@@ -953,6 +968,7 @@
   }
   function atterrir(sol) {
     P.impact = P.vy; P.mode = 'land'; P.at = 0; P.vy = 0; P.pitch = 0; P.pitchV = 0; P.sol = sol;
+    P.ecrase = clamp(P.impact / 260, 0.35, 1);                    // l'impact écrase le corps, qui se détend
     const fort = P.impact > 170 || P.ruee >= 0;
     P.ruee = -1;
     poussiere(P.x - P.face * 10, sol, fort ? 14 : 6, fort ? 1.5 : 0.8);
@@ -977,8 +993,10 @@
   }
   function majDragon(dt, E) {
     const dir = (E.R ? 1 : 0) - (E.L ? 1 : 0);
-    P.at += dt; P.cd -= dt; P.inv -= dt; P.flash -= dt; P.rueeCd -= dt;
+    P.at += dt; P.cd -= dt; P.inv -= dt; P.flash -= dt; P.rueeCd -= dt; P.refus -= dt;
+    if (auSol()) P.rueeDispo = true;                                   // toucher le sol recharge la ruée
     P.recul = Math.max(0, P.recul - dt * 5);
+    secondaires(dt);
     if (P.mal >= 0) { P.mal += dt; if (P.mal > 0.45) P.mal = -1; }
     if (P.atk >= 0) {
       P.atk += dt;
@@ -993,9 +1011,13 @@
     let ruee = E.appuis.has('ruee');
     if (E.gestes.has('ruee-left')) { ruee = true; P.face = -1; }
     if (E.gestes.has('ruee-right')) { ruee = true; P.face = 1; }
-    if (libre && ruee && P.ruee < 0 && P.rueeCd <= 0 && (enVol || auSol())) demarrerRuee(E.D);
+    // la ruée : un quart du souffle, une seule par envol (rechargée au sol, dans la cendre, à l'autel), 0,6 s entre deux
+    if (libre && ruee && P.ruee < 0 && P.rueeCd <= 0 && (enVol || auSol())) {
+      if (P.rueeDispo && (P.souffle >= RUEE_COUT || etat !== 'jeu')) demarrerRuee(E.D);
+      else if (P.refus <= 0) { P.refus = 0.5; sfx('touche'); }
+    }
     if (libre && dir && P.ruee < 0 && P.atk < 0) P.face = dir;
-    P.fs += clamp(P.face - P.fs, -dt * 12, dt * 12);   // demi-tour animé
+    P.fs += clamp(P.face - P.fs, -dt * 8, dt * 8);     // demi-tour animé, un quart de seconde
 
     switch (P.mode) {
       case 'air': majVol(dt, E, dir, libre); break;
@@ -1060,7 +1082,7 @@
     }
     if (P.mode === 'ground' || P.mode === 'land' || P.mode === 'dead') {   // au sol, le corps suit l'image
       const d = posture();
-      P.y = P.sol - G + (AN[d.an].grounded ? AN[d.an].bodyY[d.i] : 0);
+      P.y = d.type === 'rig' ? P.sol - G + SOL_Y : P.sol - G + (AN[d.an].grounded ? AN[d.an].bodyY[d.i] : 0);
     }
     // dangers : pics (un cœur et on rebondit), gouffre
     if (P.pv > 0 && P.mode !== 'dead' && P.mode !== 'fall') {
@@ -1086,10 +1108,26 @@
     P.queueV += (80 * (cible - P.queue) - 9 * P.queueV) * dt;
     P.queue += P.queueV * dt;
   }
+  function secondaires(dt) {
+    // la queue en trois segments : chacun suit le précédent avec retard, l'onde descend jusqu'à la nageoire
+    const enVol = P.mode === 'air' || P.mode === 'fall', pas = clamp(Math.abs(P.vx) / V.MARCHE, 0, 1.5);
+    const onde = enVol ? 0.12 * P.amp * Math.sin(2 * Math.PI * P.ph - 1.8) + clamp(P.vy / V.PIQUE, -1, 1) * 0.06
+      : 0.1 * pas * Math.sin(2 * Math.PI * P.allure - 1.6) + 0.05 * Math.sin(temps * 1.3);
+    P.q2v += (34 * (P.queue * 0.5 + onde - P.q2) - 5 * P.q2v) * dt; P.q2 += P.q2v * dt;
+    P.q3v += (26 * (P.q2 * 0.8 + onde * 1.5 - P.q3) - 4 * P.q3v) * dt; P.q3 += P.q3v * dt;
+    // le cavalier se penche contre l'accélération, puis revient
+    const acc = (P.vx - P.vxAvant) / Math.max(dt, 1e-3) * P.face;
+    P.vxAvant = P.vx;
+    P.pencheV += (60 * (clamp(-acc / 900, -0.25, 0.25) - P.penche) - 8 * P.pencheV) * dt; P.penche += P.pencheV * dt;
+    P.ecrase = Math.max(0, P.ecrase - dt * 4);
+    if (P.mode === 'ground') P.allure += dt * Math.abs(P.vx) / foulee();   // un pas complet tous les « foulee » pixels
+    P.cligne -= dt;
+    if (P.cligne < -0.12) P.cligne = rand(2.5, 5.5);
+  }
   function majVol(dt, E, dir, libre) {
     let cAmp = 1, cCad = 1.15, cPlane = 0, cReplie = 0;
     const courant = toucheCase(COURANT, P.x - LARG + 8, P.y - HAUT, P.x + LARG - 8, P.y + BAS);
-    if (courant) P.souffle = Math.min(1, P.souffle + dt * SOUFFLE.courant);
+    if (courant) { P.souffle = Math.min(1, P.souffle + dt * SOUFFLE.courant); P.rueeDispo = true; }
     if (P.ruee >= 0) {
       P.ruee += dt;
       const u = P.ruee / 0.3, v = V.RUEE * (1 - 0.45 * u * u);
@@ -1153,18 +1191,83 @@
         return { type: 'rig', pose: 'vol', x: P.x, y: P.y, fs: P.fs, pitch: P.pitch, corps: { dx: -P.recul * 3, dy: P.bob },
                  aile: poseAile(P), queue: P.queue, tete: { dx: 0, dy: -0.6 * P.amp * Math.sin(2 * Math.PI * (ph - 0.35)), rot: 0 },
                  teteVariante: P.atk >= 0 ? unique('attack', P.atk, FPS.attack) : -1,
-                 cavalier: { dy: 0.7 * P.amp * Math.sin(2 * Math.PI * (ph - 0.05)), rot: P.ruee >= 0 ? 0.3 : clamp(P.vy / V.PIQUE, 0, 1) * 0.2 } };
+                 cavalier: { dy: 0.7 * P.amp * Math.sin(2 * Math.PI * (ph - 0.05)), rot: (P.ruee >= 0 ? 0.3 : clamp(P.vy / V.PIQUE, 0, 1) * 0.2) + P.penche },
+                 queues: { 'queue-2': P.q2, 'queue-3': P.q3 }, cligne: P.cligne < 0 };
       }
       case 'jump': { const i = unique('jump', P.at, FPS.jump); return cadre('jump', i, P.y - AN.jump.bodyY[i]); }
       case 'land': return cadre('land', unique('land', P.at, FPS.land), P.sol - G);
       case 'dead': return cadre('dead', unique('dead', P.at, FPS.dead), P.sol - G);
-      default:
-        if (P.atk >= 0) return cadre('attack', unique('attack', P.atk, FPS.attack), P.sol - G);
-        if (P.accroupi > 0.05 && tenuBas) return cadre('jump', 0, P.sol - G);
-        if (Math.abs(P.vx) > 12) return cadre('walk', Math.floor(P.pas) % AN.walk.frames, P.sol - G);
-        return cadre('land', AN.land.frames - 1, P.sol - G);
+      default: {
+        if (P.accroupi > 0.05 && tenuBas && P.atk < 0) return cadre('jump', 0, P.sol - G);
+        // la marche : le corps descend à chaque appui, tête et cavalier suivent avec un léger retard ;
+        // les pattes (dessinées et animées par dessinerPattes) gardent leurs pieds plantés au sol ; à l'arrêt, une respiration
+        const g = P.allure, amp = clamp(Math.abs(P.vx) / V.MARCHE, 0, 1), vif = clamp((Math.abs(P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1);
+        const souffle = Math.sin(temps * 2.2) * (1 - amp);
+        return { type: 'rig', pose: 'sol', x: P.x, y: P.sol - G + SOL_Y, fs: P.fs, pitch: -0.03 * vif + 0.02 * vif * Math.sin(4 * Math.PI * g),
+                 corps: { dx: 0, dy: amp * (0.6 + 0.9 * vif) * Math.cos(4 * Math.PI * g) + 0.6 * souffle },
+                 aile: { s: 1 - 0.04 * (souffle + 1) - 0.03 * amp * Math.sin(4 * Math.PI * g), sx: 1, rot: -0.02 * amp * Math.sin(4 * Math.PI * g) },
+                 queue: P.queue + 0.14 * amp * Math.sin(2 * Math.PI * g - 1) + 0.05 * souffle, allure: g, amp, vif,
+                 tete: { dx: -2 * P.recul, dy: amp * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle, rot: -0.06 * P.recul },
+                 teteVariante: P.atk >= 0 ? unique('attack', P.atk, FPS.attack) : -1,
+                 cavalier: { dy: amp * 0.7 * Math.cos(4 * Math.PI * g - 0.5) + 0.4 * souffle, rot: P.penche },
+                 queues: { 'queue-2': P.q2, 'queue-3': P.q3 }, cligne: P.cligne < 0, ecrase: P.ecrase };
+      }
     }
   }
+  const SOL_Y = -1.5;                      // la marionnette au sol, un peu haut sur pattes : de son repère au sol
+  const foulee = () => mix(24, 36, clamp((Math.abs(P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));
+  // les quatre pattes, dans le repère de la pose au sol : hanche, côté (près / loin), décalage dans le pas (marche à quatre temps)
+  const PATTES = [
+    { h: [-6.5, 16.5], loin: true, phase: 0.5 }, { h: [12, 17], loin: true, phase: 0.75 },
+    { h: [-19, 15.5], loin: false, phase: 0 }, { h: [23.5, 17], loin: false, phase: 0.25 },
+  ];
+  const JAMBE = { cuisse: 6.5, tibia: 6.5, appui: 0.62 };
+  function membre(x0, y0, r0, x1, y1, r1, grossir) {   // un segment de membre effilé, en gros pixels (disques le long du segment)
+    const n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.5));
+    for (let i = 0; i <= n; i++) {
+      const u = i / n, x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * u, r = r0 + (r1 - r0) * u + grossir;
+      for (let dy = -Math.ceil(r); dy <= Math.ceil(r); dy++) {
+        const w = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
+        if (w > 0 || r >= 0.5) ctx.fillRect(Math.round(x) - w, Math.round(y) + dy, w * 2 + 1, 1);
+      }
+    }
+  }
+  function dessinerPattes(d, loin, jeu) {
+    const sol = G - SOL_Y, S = foulee(), [cdx, cdy] = [d.corps.dx, d.corps.dy];
+    const teinte = jeu === 'blanc' ? ['#ffffff', '#ffffff', '#ffffff', '#ffffff'] : jeu === 'fantome' ? ['#646464', '#646464', '#646464', '#646464']
+      : loin ? ['#050505', '#0d0d0d', '#1d1d1d', '#3a3a3a'] : ['#050505', '#262626', '#676767', '#b9b9b9'];   // contour, chair, liseré, griffes
+    const os = [];
+    for (const pt of PATTES) {
+      if (pt.loin !== loin) continue;
+      const hx = pt.h[0] + cdx, hy = pt.h[1] - 2 + Math.round(cdy);          // la hanche, un peu dans le corps : pas de jointure visible
+      // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
+      const p = frac(d.allure + pt.phase), a = d.amp;
+      let fx, fy = sol - 1;
+      if (p < JAMBE.appui) fx = pt.h[0] + S * JAMBE.appui * (0.5 - p / JAMBE.appui) * a;
+      else {
+        const u = (p - JAMBE.appui) / (1 - JAMBE.appui), e = u * u * (3 - 2 * u);
+        fx = pt.h[0] + S * JAMBE.appui * (-0.5 + e) * a; fy = sol - 1 - (3 + 2 * d.vif) * Math.sin(Math.PI * u) * a;
+      }
+      // cinématique inverse : cuisse et tibia, le genou (ou le jarret) vers l'arrière
+      const dx = fx - hx, dy = fy - hy, dist = Math.min(Math.hypot(dx, dy), JAMBE.cuisse + JAMBE.tibia - 0.01);
+      const ang = Math.atan2(dy, dx), b = Math.acos(clamp((JAMBE.cuisse ** 2 + dist ** 2 - JAMBE.tibia ** 2) / (2 * JAMBE.cuisse * dist), -1, 1));
+      const kx = hx + JAMBE.cuisse * Math.cos(ang + b), ky = hy + JAMBE.cuisse * Math.sin(ang + b);
+      const t = Math.atan2(fy - ky, fx - kx), px = kx + JAMBE.tibia * Math.cos(t), py = ky + JAMBE.tibia * Math.sin(t);
+      os.push({ hx, hy, kx, ky, px, py });
+    }
+    // trois passes pour toutes les pattes du côté : contour, chair, puis lumière (les pattes se recouvrent proprement)
+    ctx.fillStyle = teinte[0];
+    for (const o of os) { membre(o.hx, o.hy, 2.2, o.kx, o.ky, 1.2, 1); membre(o.kx, o.ky, 1.2, o.px, o.py, 0.8, 1); membre(o.px - 1, o.py, 1, o.px + 3, o.py + 0.5, 0.6, 1); }
+    ctx.fillStyle = teinte[1];
+    for (const o of os) { membre(o.hx, o.hy, 2.2, o.kx, o.ky, 1.2, 0); membre(o.kx, o.ky, 1.2, o.px, o.py, 0.8, 0); membre(o.px - 1, o.py, 1, o.px + 3, o.py + 0.5, 0.6, 0); }
+    for (const o of os) {
+      ctx.fillStyle = teinte[2];                                             // le liseré de lune sur l'avant du membre
+      ctx.fillRect(Math.round(o.kx) + 1, Math.round(o.ky) - 1, 1, 2); ctx.fillRect(Math.round((o.kx + o.px) / 2) + 1, Math.round((o.ky + o.py) / 2), 1, 1);
+      ctx.fillStyle = teinte[3];                                             // deux griffes au bout de la patte
+      ctx.fillRect(Math.round(o.px) + 4, Math.round(o.py) + 1, 1, 1); ctx.fillRect(Math.round(o.px) + 2, Math.round(o.py) + 2, 1, 1);
+    }
+  }
+
   function autour(q, rot, dx = 0, dy = 0) { ctx.translate(q.p[0] + dx, q.p[1] + dy); ctx.rotate(rot); ctx.translate(-q.p[0], -q.p[1]); }
   function transformer(q, d, loin) {
     switch (q.role) {
@@ -1176,8 +1279,9 @@
         break;
       }
       case 'tete': autour(q, d.tete.rot, Math.round(d.tete.dx), Math.round(d.tete.dy)); break;
-      case 'queue': autour(q, d.queue); break;
+      case 'queue': autour(q, d.queues && d.queues[q.nom] !== undefined ? d.queues[q.nom] : d.queue); break;
       case 'cavalier': autour(q, d.cavalier.rot, 0, Math.round(d.cavalier.dy)); break;
+      case 'jambe': { const [a, h] = (d.jambes && d.jambes[q.nom]) || [0, 0]; autour(q, a, 0, Math.round(h)); break; }
     }
   }
   function dessinerPosture(d, jeu) {
@@ -1190,21 +1294,39 @@
       return;
     }
     const L = PIECES[jeu][d.pose], tete = L.find((q) => q.role === 'tete');
+    // demi-tour : 0 au repos, 1 au milieu ; la tête a déjà tourné, le corps se cabre et s'écrase, la queue traîne
+    const tour = Math.sin(Math.PI * clamp((1 - d.fs * P.face) / 2, 0, 1));
+    d.tourne = Math.sign(d.fs) !== P.face && Math.abs(d.fs) < 0.65;   // le corps n'a pas fini de tourner, la tête si
+    d.queue = (d.queue || 0) + 0.45 * tour;
     ctx.save();
-    ctx.translate(Math.round(d.x), Math.round(d.y));
-    ctx.scale(largeurDemiTour(d.fs), 1);
-    if (d.pitch) ctx.rotate(d.pitch);
+    const auSolPose = d.pose === 'sol', e = d.ecrase || 0;
+    ctx.translate(Math.round(d.x), Math.round(d.y - (auSolPose ? 1 : 3) * tour));
+    if (e) { ctx.translate(0, G); ctx.scale(1 + 0.1 * e, 1 - 0.12 * e); ctx.translate(0, -G); }   // écrasé par l'impact, pattes au sol
+    ctx.scale(largeurDemiTour(d.fs), 1 + (auSolPose ? 0.02 : 0.08) * tour);
+    if (d.pitch || tour) ctx.rotate((d.pitch || 0) - (auSolPose ? 0.08 : 0.3) * tour);
     ctx.translate(Math.round(d.corps.dx), Math.round(d.corps.dy));
     for (const q of L) if (q.double) {                  // l'aile opposée, plus sombre, derrière tout
       ctx.save(); ctx.translate(LOIN.dx, LOIN.dy); transformer(q, d, true); ctx.drawImage(q.loin, q.o[0], q.o[1]); ctx.restore();
     }
+    let fond = false, devant = false;
     for (const q of L) {
+      if (d.pose === 'sol' && !fond && q.z >= 0) { dessinerPattes(d, true, jeu); fond = true; }     // pattes du fond, derrière le corps
+      if (d.pose === 'sol' && !devant && q.z > 0) { dessinerPattes(d, false, jeu); devant = true; } // pattes de devant, sur le corps
       ctx.save();
-      if (q.parent === 'tete' && tete) transformer(tete, d, false);
-      transformer(q, d, false);
+      const lignee = [];                                   // la pièce suit tous ses parents (la tête, les segments de queue…)
+      for (let a = q; a; a = a.parent ? L.find((x) => x.nom === a.parent) : null) lignee.unshift(a);
+      // demi-tour : la tête se retourne la première et regarde déjà de l'autre côté
+      if (d.tourne && (q === tete || q.parent === 'tete')) { ctx.translate(tete.p[0], tete.p[1]); ctx.scale(-1, 1); ctx.translate(-tete.p[0], -tete.p[1]); }
+      for (const a of lignee) transformer(a, d, false);
       const v = q.role === 'tete' && d.teteVariante >= 0 && q.variantes[d.teteVariante];
+      if (q === tete && !v && d.cligne && tete.oeil && jeu === 'normal') {  // clignement : la paupière couvre l'œil
+        ctx.drawImage(q.img, q.o[0], q.o[1]);
+        const [ox, oy, ow, oh] = tete.oeil;
+        ctx.fillStyle = '#161616'; ctx.fillRect(q.o[0] + ox, q.o[1] + oy, ow, oh); ctx.fillStyle = '#5c5c5c'; ctx.fillRect(q.o[0] + ox, q.o[1] + oy + oh - 1, ow, 1);
+        ctx.restore(); continue;
+      }
       if (v) ctx.drawImage(v.img, v.o[0], v.o[1]);                      // la vraie tête d'attaque, gueule ouverte
-      else ctx.drawImage(q.role === 'aile' && d.aile.s < 0 ? q.dessous : q.img, q.o[0], q.o[1]);
+      else ctx.drawImage(q.role === 'aile' && d.aile.s < 0 ? q.dessous : q.role === 'jambe' && q.z < 0 ? q.loin : q.img, q.o[0], q.o[1]);   // pattes du fond, plus sombres
       ctx.restore();
     }
     ctx.restore();
@@ -1231,8 +1353,6 @@
     const clignote = P.inv > 0 && P.pv > 0 && P.ruee < 0 && P.mal < 0 && Math.floor(temps * 30) % 2;
     if (clignote) return;
     if (P.flash > 0) { dessinerPosture(d, 'blanc'); return; }
-    // liseré clair : le dragon noir reste lisible sur la nuit
-    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { ctx.save(); ctx.translate(dx, dy); dessinerPosture(d, 'contour'); ctx.restore(); }
     dessinerPosture(d, 'normal');
     if (reperes) {
       ctx.fillStyle = '#ff3b3b';
@@ -1251,10 +1371,10 @@
   //   spectre : dérive vers le dragon, s'efface, réapparaît dans son dos (on ne le touche que visible) ;
   //   crâne ardent : tremble en visant, charge en ligne droite, vise de nouveau ; au troisième assaut, il se brise.
   const TYPES = {
-    charognard: { pv: 1, r: 13, pts: 100, sprite: 'corbeau', vol: 4, pose: 4 },    // vol : images du battement ; pose : perché
-    ame: { pv: 1, r: 12, pts: 80, sprite: 'ame', vol: 4 },
+    charognard: { pv: 1, r: 13, pts: 100, sprite: 'corbeau', vol: 7, pique: 7, pose: 8 },   // vol : images du battement ; pique ; pose : perché (8, 9)
+    ame: { pv: 1, r: 12, pts: 80, sprite: 'ame', vol: 6 },
     chauve: { pv: 1, r: 11, pts: 120, sprite: 'chauve', vol: 4, pose: 4 },          // pose : pendue, repliée
-    spectre: { pv: 2, r: 14, pts: 200, sprite: 'spectre', vol: 4 },
+    spectre: { pv: 2, r: 14, pts: 200, sprite: 'spectre', vol: 6 },
     crane: { pv: 2, r: 13, pts: 150, sprite: 'crane', vol: 4 },
   };
   const TRAVERSE = { ame: true, spectre: true };        // les âmes et les spectres passent à travers la pierre
@@ -1267,7 +1387,8 @@
       for (let ty = Math.floor(y / TP); ty < Math.floor(y / TP) + 6; ty++) if (bloque(caseA(Math.floor(x / TP), ty)) || caseA(Math.floor(x / TP), ty) === CORNICHE) { e.y = e.hy = ty * TP - 16; e.perche = true; break; }
     } else if (type === 'chauve') {        // cherche un plafond où se pendre
       e.etat = 'vole';
-      for (let ty = Math.floor(y / TP); ty > Math.floor(y / TP) - 8; ty--) if (bloque(caseA(Math.floor(x / TP), ty))) { e.y = e.hy = (ty + 1) * TP + 14; e.etat = 'dort'; break; }
+      // un vrai plafond de la carte, pas le bord du ciel
+      for (let ty = Math.floor(y / TP); ty >= Math.max(0, Math.floor(y / TP) - 8); ty--) if (bloque(caseA(Math.floor(x / TP), ty))) { e.y = e.hy = (ty + 1) * TP + 14; e.etat = 'dort'; break; }
       e.chg = 0;
     } else if (type === 'ame') e.etat = 'orbite';
     else if (type === 'spectre') { e.etat = 'visible'; e.et = rand(0, 1); }
@@ -1282,7 +1403,8 @@
     switch (e.type) {
       case 'charognard':
         if (e.etat === 'guet') {
-          e.y = e.hy + (e.perche ? 0 : Math.sin(e.t * 2) * 2); e.image = e.perche ? repos : Math.floor(e.t * 10) % nb; e.face = Math.sign(dx) || 1;
+          e.y = e.hy + (e.perche ? 0 : Math.sin(e.t * 2) * 2); e.face = Math.sign(dx) || 1;
+          e.image = e.perche ? repos + (Math.sin(e.t * 1.7 + e.ph) > 0.6 ? 1 : 0) : Math.floor(e.t * 12) % nb;   // perché, il tourne la tête
           if (Math.abs(dx) < 160 && Math.abs(dy) < 130) { changer(e, 'envol'); sfx('touche'); }
         } else if (e.etat === 'envol') {   // s'arrache du perchoir
           e.y -= 60 * dt; e.image = Math.floor(e.t * 14) % nb;
@@ -1290,7 +1412,7 @@
         } else if (e.etat === 'pique') {   // un arc en U qui passe par où était le dragon
           const u = Math.min(1, e.et / (1.25 / d)), px = e.x;
           e.x = e.x0 + (e.cx - e.x0) * 2 * u; e.y = e.y0 + (e.cy - e.y0) * Math.sin(Math.PI * u);
-          e.face = Math.sign(e.x - px) || e.face; e.image = u < 0.5 ? 2 : Math.floor(e.t * 14) % nb;
+          e.face = Math.sign(e.x - px) || e.face; e.image = u < 0.55 ? TYPES.charognard.pique : Math.floor(e.t * 14) % nb;   // serres en avant, puis il rebat
           if (u >= 1) changer(e, 'remonte');
         } else if (e.etat === 'remonte') {
           e.x += e.face * 50 * dt; e.y -= 70 * dt; e.image = Math.floor(e.t * 14) % nb;
@@ -1316,12 +1438,13 @@
         const w = 2 * Math.PI / 5.5 * d;
         const nx = e.hx + 44 * Math.sin(w * e.t + e.ph), ny = e.hy + 20 * Math.sin(2 * (w * e.t + e.ph));
         e.face = Math.sign(nx - e.x) || e.face; e.x = nx; e.y = ny;
-        e.image = Math.floor(e.t * 6) % nb; e.alpha = 0.75 + 0.2 * Math.sin(e.t * 9);
+        e.image = Math.floor(e.t * 8) % nb; e.alpha = 0.8 + 0.15 * Math.sin(e.t * 9);
         if (Math.random() < 0.25) particule({ x: e.x - e.face * 6 + rand(-2, 2), y: e.y + rand(-3, 3), vx: -e.face * rand(5, 15), vy: rand(-12, -4), vie: 0.5, max: 0.5, t: 1, genre: 'ecto' });
         break;
       }
       case 'spectre':
-        e.image = Math.floor(e.t * 6) % nb; e.face = Math.sign(dx) || 1;
+        e.image = Math.floor(e.t * 7) % nb; e.face = Math.sign(dx) || 1;
+        if (e.visible && Math.random() < 0.4) particule({ x: e.x + rand(-10, 6), y: e.y + rand(14, 24), vx: rand(-8, 8), vy: rand(-14, -4), vie: 0.6, max: 0.6, t: 1, genre: 'ecto' });
         if (e.etat === 'visible') {
           e.visible = true; e.alpha = 0.85;
           e.x += (dx / (dist || 1) * 20 * d) * dt; e.y += (dy / (dist || 1) * 15 * d + Math.sin(e.t * 2) * 6) * dt;
@@ -1536,13 +1659,13 @@
       } else if (o.genre === 'autel' && !o.allume && auSol() && Math.abs(o.x - P.x) < 26 && Math.abs(o.y - P.sol) < 6) {
         NIV.objets.forEach((a) => { if (a.genre === 'autel') a.allume = false; });
         o.allume = true; NIV.reprise = [o.x, o.y];
-        P.pv = PV_MAX; P.souffle = 1;
+        P.pv = PV_MAX; P.souffle = 1; P.rueeDispo = true;
         popup("L'AUTEL S'ALLUME", o.x, o.y - 40, FEU[1]); sfx('soin'); sfx('glas', 0.1);
       }
     }
   }
   function explosionSol(x, y) {
-    particule({ x, y, vie: 0.25, max: 0.25, genre: 'onde' });
+    particule({ x, y, vie: 0.32, max: 0.32, genre: 'explosion' });
     for (let i = 0; i < 8; i++) particule({ x, y: y + 1, vx: rand(-70, 70), vy: rand(-90, -20), vie: rand(0.2, 0.45), max: 0.45, t: Math.floor(rand(1, 3)) });
   }
 
@@ -1566,6 +1689,7 @@
       ctx.globalAlpha = e.alpha;
       ctx.save(); ctx.translate(Math.round(e.x), Math.round(e.y));
       if ((e.face < 0) === S.droite) ctx.scale(-1, 1);          // la planche regarde d'un côté : on la retourne au besoin
+      if (e.type === 'ame' || e.type === 'spectre') ctx.rotate(0.07 * Math.sin(e.t * 1.8 + e.ph));   // les spectres se balancent
       ctx.drawImage(img, -Math.floor(img.width / 2), -Math.floor(img.height / 2));
       ctx.restore();
       ctx.globalAlpha = 1;
@@ -1586,17 +1710,14 @@
     }
   }
   function dessinerEffets() {
-    for (const b of boules) {
-      b.trace.forEach(([tx, ty], k) => { if (k) disque(tx, ty, Math.max(1, 5 - k), FEU[Math.min(6, 2 + k)]); });
-      const f = Math.floor(temps * 20) % 2;
-      disque(b.x, b.y, 7 + f, FEU[4]); disque(b.x, b.y, 5 + f, FEU[2]); disque(b.x, b.y, 3, FEU[0]);
+    for (const b of boules) {                       // la boule de feu peinte, tournée dans le sens de sa course
+      const sens = b.vx < 0 ? -1 : 1;
+      imagePlanche('feu/boule-feu', Math.floor(temps * 16 + b.x * 0.01), b.x - sens * 6, b.y, sens, 'centre', Math.atan2(b.vy, Math.abs(b.vx)) * sens);
     }
-    for (const o of orbes) {
-      const f = Math.floor(temps * 12) % 2;
-      disque(o.x, o.y, 5, ENCRE); disque(o.x, o.y, 4, SANG); disque(o.x, o.y, 2 + f, SANG_VIF); ctx.fillStyle = '#ffb09a'; ctx.fillRect(Math.round(o.x), Math.round(o.y), 1, 1);
-    }
+    for (const o of orbes) imagePlanche('sang/orbe', Math.floor(temps * 10 + o.x * 0.05), o.x, o.y);
     for (const p of particules) {
       const x = Math.round(p.x), y = Math.round(p.y), k = clamp(p.vie / p.max, 0, 1);
+      if (p.genre === 'explosion') { imagePlanche('feu/explosion', Math.floor((1 - k) * ART['feu/explosion'].images), x, y); continue; }
       if (p.genre === 'braise') { ctx.fillStyle = FEU[Math.min(6, Math.floor((1 - k) * 7))]; ctx.fillRect(x, y, p.t, p.t); }
       else if (p.genre === 'plume' || p.genre === 'os') {
         ctx.fillStyle = p.genre === 'os' ? (k > 0.3 ? OS2 : CENDRE) : (k > 0.3 ? '#333333' : '#4d4d4d');
@@ -1632,7 +1753,8 @@
     for (let i = 0; i < PV_MAX; i++) coeur(6 + i * 9, 6, i < P.pv);
     // le souffle, sous les cœurs : il pâlit quand il s'épuise, clignote quand il est vide
     const s = P.souffle, vide = s <= 0.02;
-    if (!vide || Math.floor(temps * 6) % 2) barre(6, 15, 43, s, s < 0.3 ? SANG_VIF : '#949494');
+    if ((!vide && P.refus <= 0) || Math.floor(temps * 12) % 2) barre(6, 15, 43, s, s < RUEE_COUT ? SANG_VIF : '#9a9a96');
+    ctx.fillStyle = P.rueeDispo ? OS : '#2a2a29'; ctx.fillRect(52, 15, 3, 3);   // le témoin de la ruée
     texte('SCORE ' + pad(score, 6), W - 6, 6, OS, 1, 'ombre', 'droite');
     texte('RECORD ' + pad(record, 6), W - 6, 16, BRUME, 1, 'ombre', 'droite');
     hautParleur(W - 16, 26);
@@ -1671,6 +1793,12 @@
   let choix = 0, pageTitre = 'menu';                       // pageTitre : 'menu' ou 'commandes'
   const menuY = (i) => Math.round(H * 0.6) + i * 22;
   function voile(a) { ctx.globalAlpha = a; ctx.fillStyle = '#060606'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  function imagePlanche(el, k, x, y, sx = 1, ancre = 'centre', rot = 0) {   // la k-ième case d'une planche, centrée (ou posée) en (x, y)
+    const a = ART[el], img = IMAGES_ART[el], [cw, ch] = a.cellule, i = ((k % a.images) + a.images) % a.images;
+    ctx.save(); ctx.translate(Math.round(x), Math.round(y)); if (rot) ctx.rotate(rot); if (sx !== 1) ctx.scale(sx, 1);
+    ctx.drawImage(img, i * cw, 0, cw, ch, -Math.floor(cw / 2), ancre === 'bas' ? -ch : -Math.floor(ch / 2), cw, ch);
+    ctx.restore();
+  }
   function flamme(x, y, graine = 0, el = 'feu/flamme') {     // une flamme peinte qui vacille, posée par sa base en (x, y)
     const a = ART[el], img = IMAGES_ART[el], [cw, ch] = a.cellule, k = Math.floor(temps * 9 + graine * 3.7) % a.images;
     ctx.drawImage(img, k * cw, 0, cw, ch, Math.round(x - cw / 2), Math.round(y - ch), cw, ch);
@@ -1678,12 +1806,17 @@
   function ecranTitre() {
     if (pageTitre === 'commandes') { ecranCommandes(); return; }
     const k = W >= 310 ? 4 : 3, y = Math.max(18, Math.round(H * 0.12));
-    texte('DRAGON RIDER', W / 2, y, LOGO, k, 'contour', 'centre');
-    texte("LE MONDE S'EST ÉTEINT. IL RESTE LE VOL.", W / 2, y + 9 * k + 4, OS2, 1, 'contour', 'centre');
+    const logo = IMAGES_ART['titre/logo'], lx = Math.round(W / 2 - logo.width / 2), ly = Math.max(4, Math.round(H * 0.06));
+    ctx.drawImage(logo, lx, ly + Math.round(Math.sin(temps * 1.2) * 1.5));
+    texte("LE MONDE S'EST ÉTEINT. IL RESTE LE VOL.", W / 2, ly + logo.height + 6, OS2, 1, 'contour', 'centre');
     MENU.forEach((m, i) => {
       const yy = menuY(i), actif = i === choix, espace = m.split('').join(' '), demi = espace.length * 3;   // lettres espacées
       texte(espace, W / 2, yy, actif ? OS : '#7c7b77', 1, 'contour', 'centre');
-      if (actif) { flamme(Math.round(W / 2) - demi - 10, yy + 6, 0, 'feu/flamme-petite'); flamme(Math.round(W / 2) + demi + 9, yy + 6, 1, 'feu/flamme-petite'); }
+      if (actif) {                                           // le curseur : un fer de lance forgé de chaque côté, qui palpite
+        const o = Math.round(Math.sin(temps * 6) * 1.5), c = IMAGES_ART['objets/curseur'];
+        ctx.drawImage(c, Math.round(W / 2) - demi - c.width - 8 + o, yy - 2);
+        ctx.save(); ctx.translate(Math.round(W / 2) + demi + c.width + 8 - o, yy - 2); ctx.scale(-1, 1); ctx.drawImage(c, 0, 0); ctx.restore();
+      }
     });
     texte('↑ ↓ CHOISIR     X VALIDER', W / 2, H - 16, '#8c8b87', 1, 'contour', 'centre');
     hautParleur(W - 16, 26);
@@ -1850,7 +1983,7 @@
     return { etat, acte: acte + 1, decor: acteVisuel + 1, arene, veilleur: veilleur ? veilleur.pv : null, veilleurY: veilleur ? Math.round(veilleur.y) : null, mode: P.mode,
              pv: P.pv, score, ennemis: ennemis.length, x: Math.round(P.x), y: Math.round(P.y), sol: P.sol, souffle: +P.souffle.toFixed(2),
              sx: Math.round(P.x - cam), sy: Math.round(P.y - camY), cam: Math.round(cam), camY: Math.round(camY),
-             reliques: NIV.prises + '/' + NIV.reliques, reprise: NIV.reprise, largeur: NIV.largeur,
+             reliques: NIV.prises + '/' + NIV.reliques, reprise: NIV.reprise, largeur: NIV.largeur, rueeDispo: P.rueeDispo, ruee: P.ruee,
              visuel: (() => { const d = posture(); return d.type === 'rig' ? 'marionnette' : d.an + ' ' + (d.i + 1); })() };
   };
   // #essai : poser le dragon où l'on veut pour tester un passage (outils de vérification)

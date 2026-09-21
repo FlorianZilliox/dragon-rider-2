@@ -1,0 +1,59 @@
+{
+ "nom": "sang",
+ "palette": [
+  "#0a0203",
+  "#2a0608",
+  "#5e1a22",
+  "#7a1c26",
+  "#b8323a",
+  "#e0505a",
+  "#ff9a8a",
+  "#ffe0d8"
+ ],
+ "elements": {
+  "orbe": {
+   "image": "sang/orbe.png",
+   "taille": [
+    68,
+    15
+   ],
+   "cellule": [
+    17,
+    15
+   ],
+   "images": 4,
+   "rects": [
+    [
+     0,
+     0,
+     16,
+     15
+    ],
+    [
+     17,
+     0,
+     17,
+     15
+    ],
+    [
+     35,
+     0,
+     15,
+     14
+    ],
+    [
+     52,
+     0,
+     15,
+     14
+    ]
+   ],
+   "regarde": "face",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  }
+ }
+}

@@ -1,0 +1,33 @@
+{
+ "nom": "titre",
+ "_doc": "Le logo (gris des ailes + feu des lettres, rangés par clarté) et le curseur du menu (noir et blanc).",
+ "palette": [
+  "#050505",
+  "#161616",
+  "#2a2a2a",
+  "#3f3f3f",
+  "#5e1a22",
+  "#b8323a",
+  "#e0702e",
+  "#f0a050",
+  "#ffd9a0",
+  "#fff4d6"
+ ],
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "logo": {
+   "source": "logo",
+   "largeur": 300,
+   "alpha": true,
+   "tons": [
+    0,
+    9
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true,
+   "contour_ton": 0
+  }
+ }
+}
