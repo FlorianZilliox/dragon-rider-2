@@ -69,9 +69,13 @@ OPTIONS = [
     ('raccord_v', '0', "même chose en hauteur (texture qui se répète aussi verticalement)"),
     ('recadrer', 'aucun', "[x0, y0, x1, y1] en fractions de la source (0 à 1), appliqué avant tout le reste"),
     ('etirer', 'true', "étire les valeurs de la source (centiles 1 à 99) sur toute la plage de tons"),
+    ('valeurs', 'centiles', "[bas, haut] (0 à 1) : les valeurs de la source étirées sur la plage de tons, fixées au lieu des "
+                            "centiles de l'élément : plusieurs pièces découpées dans une même source gardent les mêmes teintes"),
     ('gamma', '1.0', "courbe des valeurs avant projection : > 1 assombrit, < 1 éclaircit"),
     ('contour', 'false', "liseré d'un pixel sur le bord du motif : lisible même minuscule"),
     ('contour_ton', 't0', "indice de palette du liseré"),
+    ('lumiere', 'aucune', "liseré de lumière sur les bords tournés vers une source : { \"ton\": 11, \"dx\": 1, \"dy\": -1 } "
+                          "(dx = 1 : bords de droite, dy = -1 : bords du haut) ; les bords coupés de l'image ne s'éclairent pas"),
     ('objets', 'false', "planche : découpe la source en objets (images d'animation), rangés dans des cases identiques"),
     ('echelle', 'requis si objets', "planche : facteur de réduction (ex. 0.15 : un objet de 1000 px en fait 150)"),
     ('attendus', 'aucun', "planche : nombre d'objets attendus ; s'il n'est pas trouvé, découpe en colonnes égales"),
@@ -284,6 +288,17 @@ def verifier_element(nom, el, n, ou):
     if (not isinstance(tons, list) or len(tons) != 2 or any(isinstance(t, bool) or not isinstance(t, int) for t in tons)
             or not 0 <= tons[0] <= tons[1] <= n - 1):
         err(f"« tons » doit être [t0, t1] avec 0 ≤ t0 ≤ t1 ≤ {n - 1} (la palette a {n} teintes), reçu : {json.dumps(tons)}.")
+    if 'valeurs' in el:
+        v = el['valeurs']
+        if not isinstance(v, list) or len(v) != 2 or not all(est_nombre(x) and 0 <= x <= 1 for x in v) or not v[0] < v[1]:
+            err(f"« valeurs » doit être [bas, haut] avec 0 ≤ bas < haut ≤ 1, reçu : {json.dumps(v)}.", 'ex. "valeurs": [0.08, 0.62]')
+    if 'lumiere' in el:
+        l = el['lumiere']
+        if (not isinstance(l, dict) or isinstance(l.get('ton'), bool) or not isinstance(l.get('ton'), int)
+                or not 0 <= l['ton'] <= n - 1 or l.get('dx', 0) not in (-1, 0, 1) or l.get('dy', 0) not in (-1, 0, 1)
+                or not (l.get('dx', 0) or l.get('dy', 0))):
+            err(f"« lumiere » doit être {{ \"ton\": 0 à {n - 1}, \"dx\": -1, 0 ou 1, \"dy\": -1, 0 ou 1 }} (au moins un des deux non nul), "
+                f"reçu : {json.dumps(l, ensure_ascii=False)}.", 'ex. "lumiere": { "ton": 11, "dx": 1, "dy": -1 } : lune en haut à droite.')
     if 'contour_ton' in el:
         c = el['contour_ton']
         if isinstance(c, bool) or not isinstance(c, int) or not 0 <= c <= n - 1:
@@ -397,8 +412,8 @@ def traiter(img, el, cols, bornes=None):
             opaque |= bouches
     # valeur -> plage de teintes, tramage ordonné
     L = clarte(a[..., :3])
-    if el.get('etirer', True) and (opaque.any() or bornes):
-        bas, haut = bornes if bornes else np.percentile(L[opaque], [1, 99])
+    if el.get('etirer', True) and (opaque.any() or bornes or 'valeurs' in el):
+        bas, haut = bornes if bornes else el['valeurs'] if 'valeurs' in el else np.percentile(L[opaque], [1, 99])
         L = np.clip((L - bas) / max(1e-6, haut - bas), 0, 1)
     L = L ** el.get('gamma', 1.0)
     t0, t1 = el.get('tons', [0, len(cols) - 1])
@@ -409,6 +424,20 @@ def traiter(img, el, cols, bornes=None):
     if el.get('contour') and opaque.any():      # liseré sombre sur le bord du motif : lisible même minuscule
         bord = opaque & ~ndi.binary_erosion(opaque, np.ones((3, 3), bool), border_value=0)
         idx = np.where(bord, el.get('contour_ton', t0), idx)
+    if el.get('lumiere') and opaque.any():      # liseré de lumière : les bords tournés vers la source (lune, feu)
+        l = el['lumiere']
+        # voisins hors de l'image : on prolonge le bord (une coupe n'est pas une silhouette) ; en boucle si raccordable
+        ext = np.pad(opaque, 1, mode='edge')
+        if el.get('raccord'):
+            ext[1:-1, 0], ext[1:-1, -1] = opaque[:, -1], opaque[:, 0]
+        if el.get('raccord_v'):
+            ext[0, 1:-1], ext[-1, 1:-1] = opaque[-1], opaque[0]
+        eclaire = np.zeros_like(opaque)
+        if l.get('dx'):
+            eclaire |= opaque & ~ext[1:-1, 1 + l['dx']:ext.shape[1] - 1 + l['dx']]
+        if l.get('dy'):
+            eclaire |= opaque & ~ext[1 + l['dy']:ext.shape[0] - 1 + l['dy'], 1:-1]
+        idx = np.where(eclaire, l['ton'], idx)
     transparent = len(cols)                      # index réservé à la transparence
     ind = np.where(opaque, idx, transparent).astype(np.uint8)
     decalage = [0, 0]

@@ -59,7 +59,7 @@ CHAMPS = {
     'nom': "(requis) identifiant de l'image : lettres, chiffres, - ou _ ; nomme le fichier produit",
     'sujet': "(requis) ce que montre l'image ; le style est ajouté automatiquement devant",
     'style': "autre fichier de style du projet à utiliser à la place de style.txt (ex. \"style-perso.txt\")",
-    'reference': "image du projet à ÉDITER (ex. \"references/ambiance.png\") : garde toute la série dans la même main",
+    'reference': "image du projet à ÉDITER (ex. \"references/ambiance.png\") : garde toute la série dans la même main ; ou une liste d'images (la première donne la main, les suivantes des formes à reprendre)",
     'taille': "1536x1024 (défaut), 1024x1024, 1024x1536 ou auto",
     'qualite': "high (défaut), medium, low ou auto",
     'fond': "opaque (défaut) ou transparent",
@@ -203,8 +203,11 @@ def lire_briefs(projet):
                 avertir(f"champ inconnu « {k} » dans briefs/{f.name}{proche(k, CHAMPS)} : "
                         "ignoré par l'outil, mais compté dans l'empreinte (le renommer « _… » pour un commentaire).")
         for k in ('style', 'reference', 'taille', 'qualite', 'fond', 'modele'):
+            if k == 'reference' and isinstance(b.get(k), list) and b[k] and all(isinstance(v, str) for v in b[k]):
+                continue                                # plusieurs références : une liste de chemins
             if k in b and not isinstance(b[k], str):
-                echec(f"brief {f.name} : « {k} » doit être un texte entre guillemets.")
+                echec(f"brief {f.name} : « {k} » doit être un texte entre guillemets"
+                      f"{' (ou, pour « reference », une liste de chemins)' if k == 'reference' else ''}.")
         if b.get('style'):
             b['_style'] = lire_style(projet / b['style'], f"pour « {b['nom']} » ")
         b.setdefault('taille', '1536x1024')
@@ -217,14 +220,20 @@ def lire_briefs(projet):
         if b['fond'] not in FONDS:
             echec(f"fond inconnu dans {f.name} : {b['fond']}", "écrire \"opaque\" ou \"transparent\".")
         ref = b.get('reference')
-        if ref:
-            chemin = projet / ref
+        chemins = []
+        for r in ([ref] if isinstance(ref, str) else ref or []):
+            chemin = projet / r
             if not chemin.is_file():
-                echec(f"référence introuvable pour « {b['nom']} » : {chemin}", "vérifier le chemin (relatif au dossier du projet).")
+                echec(f"référence introuvable pour « {b['nom']} » : {chemin}",
+                      "vérifier le chemin (relatif au dossier du projet) ; une référence locale non versionnée "
+                      "(ex. references/externes/) doit être recopiée sur cette machine.")
             if chemin.suffix.lower() not in TYPES_IMAGE:
                 echec(f"référence de « {b['nom']} » dans un format non pris en charge : {chemin.name}",
                       "fournir une image PNG, JPEG ou WebP.")
-            b['_ref'] = chemin
+            chemins.append(chemin)
+        if chemins:
+            b['_ref'] = chemins[0]                      # la première : la main de la série
+            b['_refs_autres'] = chemins[1:]             # les suivantes : formes, motifs à reprendre
         # fond transparent ou édition d'une référence : MODELE_EDITION ; image opaque sans référence : MODELE_GENERATION
         b.setdefault('modele', MODELE_EDITION if (b['fond'] == 'transparent' or ref) else MODELE_GENERATION)
         briefs.append(b)
@@ -239,6 +248,8 @@ def empreinte(style, b):
     h.update(json.dumps({'style': b.get('_style', style), **{k: v for k, v in b.items() if not k.startswith('_')}}, sort_keys=True).encode())
     if b.get('_ref'):
         h.update(b['_ref'].read_bytes())
+    for autre in b.get('_refs_autres', []):          # (plusieurs références : les briefs à une seule n'en ont pas)
+        h.update(autre.read_bytes())
     return h.hexdigest()[:12]
 
 
@@ -253,11 +264,12 @@ def style_modifie(b, connu):
 
 
 def multipart(champs, fichiers):
+    """fichiers : { champ: (nom, données, type) }, ou une liste de (champ, (nom, données, type)) pour répéter un champ."""
     borne = uuid.uuid4().hex
     corps = bytearray()
     for k, v in champs.items():
         corps += f'--{borne}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
-    for k, (nom, donnees, type_) in fichiers.items():
+    for k, (nom, donnees, type_) in (fichiers.items() if isinstance(fichiers, dict) else fichiers):
         corps += (f'--{borne}\r\nContent-Disposition: form-data; name="{k}"; filename="{nom}"\r\n'
                   f'Content-Type: {type_}\r\n\r\n').encode() + donnees + b'\r\n'
     corps += f'--{borne}--\r\n'.encode()
@@ -297,7 +309,11 @@ def appeler(cle, style, b):
     commun = {'model': b['modele'], 'prompt': prompt, 'size': b['taille'], 'quality': b['qualite'], 'n': 1}
     if b['fond'] == 'transparent':
         commun['background'] = 'transparent'
-    if b.get('_ref'):
+    if b.get('_ref') and b.get('_refs_autres'):         # plusieurs références : le champ image[] répété
+        fichiers = [('image[]', (f.name, f.read_bytes(), TYPES_IMAGE[f.suffix.lower()])) for f in [b['_ref'], *b['_refs_autres']]]
+        corps, type_ = multipart({k: str(v) for k, v in commun.items()}, fichiers)
+        url = f'{API}/edits'
+    elif b.get('_ref'):
         type_ = TYPES_IMAGE[b['_ref'].suffix.lower()]
         corps, type_ = multipart({k: str(v) for k, v in commun.items()}, {'image': (b['_ref'].name, b['_ref'].read_bytes(), type_)})
         url = f'{API}/edits'
@@ -498,7 +514,7 @@ def main():
     try:
         for t in a_faire:
             print(f"  {'essai ' if essai else 'demande'} {t[0]['nom']} ({t[0]['modele']}, {t[0]['taille']}, {t[0]['qualite']}"
-                  f"{', édition de ' + t[0]['reference'] if t[0].get('reference') else ''})")
+                  f"{', édition de ' + (t[0]['reference'] if isinstance(t[0]['reference'], str) else ' + '.join(t[0]['reference'])) if t[0].get('reference') else ''})")
         for t in a_faire:
             f = pool.submit(produire, t)
             noms_futurs[f] = t[0]['nom']
