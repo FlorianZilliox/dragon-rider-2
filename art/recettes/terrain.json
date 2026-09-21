@@ -62,6 +62,23 @@
    ],
    "tramage": 0.5
   },
+  "roc-tours": {
+   "source": "tours-roc",
+   "largeur": 128,
+   "recadrer": [
+    0.1,
+    0,
+    0.7667,
+    1
+   ],
+   "raccord": 0.12,
+   "raccord_v": 0.12,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.5
+  },
   "crete-terres": {
    "source": "terres-crete",
    "largeur": 256,
@@ -86,6 +103,24 @@
    "tramage": 0.4,
    "rogner": true
   },
+  "crete-tours": {
+   "_doc": "six merlons exactement (d'un créneau au même créneau six périodes plus loin) : le motif boucle sans fondu",
+   "source": "tours-crete",
+   "largeur": 160,
+   "alpha": true,
+   "recadrer": [
+    0.1038,
+    0,
+    0.9082,
+    0.64
+   ],
+   "tons": [
+    2,
+    10
+   ],
+   "tramage": 0.4,
+   "rogner": true
+  },
   "dessous": {
    "source": "terres-dessous",
    "largeur": 256,
@@ -103,6 +138,25 @@
     1,
     1
    ]
+  },
+  "dessous-tours": {
+   "_doc": "mâchicoulis et culs-de-lampe sous les encorbellements des tours",
+   "source": "tours-dessous",
+   "largeur": 128,
+   "alpha": true,
+   "recadrer": [
+    0.044,
+    0.221,
+    0.955,
+    0.93
+   ],
+   "raccord": 0.1,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.4,
+   "rogner": true
   },
   "passerelle": {
    "source": "passerelle",

@@ -48,7 +48,7 @@ export function modeTitre() {
 // « ACTE II · NIVEAU 3 », au-dessus du nom du niveau
 export const titreNiveau = (n) => `ACTE ${romain(J.acte)} · NIVEAU ${n + 1}`;
 export function lancerNiveau(n, depuisLeNoir) {
-  J.carte = { titre: titreNiveau(n), nom: NIVEAUX[n].nom, plaque: NIVEAUX[n].plaque, sous: NIVEAUX[n].sous, t: depuisLeNoir ? 0.45 : 0, fondu: true, bascule: depuisLeNoir, acte: n };
+  J.carte = { titre: titreNiveau(n), nom: NIVEAUX[n].nom, plaque: NIVEAUX[n].plaque, sous: NIVEAUX[n].sous, t: depuisLeNoir ? 0.45 : 0, fondu: true, bascule: depuisLeNoir, niveau: n };
   if (depuisLeNoir) entrerNiveau(n, false);
   sfx('glas');
 }
@@ -62,7 +62,7 @@ export function nouvellePartie() {
 }
 export function reprendre() {
   J.etat = 'jeu'; J.combo = 0;
-  J.carte = { titre: titreNiveau(J.niveau), nom: NIVEAUX[J.niveau].nom, plaque: NIVEAUX[J.niveau].plaque, sous: J.NIV.reprise ? "L'AUTEL VOUS RAPPELLE." : NIVEAUX[J.niveau].sous, t: 0.45, fondu: true, bascule: true, acte: J.niveau };
+  J.carte = { titre: titreNiveau(J.niveau), nom: NIVEAUX[J.niveau].nom, plaque: NIVEAUX[J.niveau].plaque, sous: J.NIV.reprise ? "L'AUTEL VOUS RAPPELLE." : NIVEAUX[J.niveau].sous, t: 0.45, fondu: true, bascule: true, niveau: J.niveau };
   entrerNiveau(J.niveau, true); sfx('glas');
 }
 export function nouvelActe() { J.etat = 'jeu'; J.acte++; J.combo = 0; J.P = null; lancerNiveau(0, true); }

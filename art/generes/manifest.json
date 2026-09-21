@@ -1096,5 +1096,213 @@
   },
   "essai": false,
   "date": "2026-09-21T18:01:53+00:00"
+ },
+ "gargouille": {
+  "fichier": "generes/gargouille-f0b6088f0c98.png",
+  "empreinte": "f0b6088f0c98",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 640,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 317
+   },
+   "output_tokens": 4480,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 320
+   },
+   "total_tokens": 5120
+  },
+  "essai": false,
+  "date": "2026-09-21T18:51:34+00:00"
+ },
+ "etendard": {
+  "fichier": "generes/etendard-9a0ebe8515ed.png",
+  "empreinte": "9a0ebe8515ed",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1536",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 650,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 327
+   },
+   "output_tokens": 6509,
+   "output_tokens_details": {
+    "image_tokens": 6240,
+    "text_tokens": 269
+   },
+   "total_tokens": 7159
+  },
+  "essai": false,
+  "date": "2026-09-21T18:51:46+00:00"
+ },
+ "titre-tours": {
+  "fichier": "generes/titre-tours-de517da2a714.png",
+  "empreinte": "de517da2a714",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/titre.png",
+  "usage": {
+   "input_tokens": 681,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 358
+   },
+   "output_tokens": 6507,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 299
+   },
+   "total_tokens": 7188
+  },
+  "essai": false,
+  "date": "2026-09-21T19:00:06+00:00",
+  "empreinte_style": "324c626286da"
+ },
+ "tours-crete": {
+  "fichier": "generes/tours-crete-91732ee4cb9e.png",
+  "empreinte": "91732ee4cb9e",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": null,
+  "essai": false,
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
+ },
+ "tours-dessous": {
+  "fichier": "generes/tours-dessous-b92a6c7d7299.png",
+  "empreinte": "b92a6c7d7299",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": null,
+  "essai": false,
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
+ },
+ "tours-lointain": {
+  "fichier": "generes/tours-lointain-2ab56de3d0a8.png",
+  "empreinte": "2ab56de3d0a8",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 689,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 366
+   },
+   "output_tokens": 6551,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 343
+   },
+   "total_tokens": 7240
+  },
+  "essai": false,
+  "date": "2026-09-21T18:52:30+00:00"
+ },
+ "tours-milieu": {
+  "fichier": "generes/tours-milieu-e0fbd1c7db17.png",
+  "empreinte": "e0fbd1c7db17",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 696,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 373
+   },
+   "output_tokens": 6620,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 412
+   },
+   "total_tokens": 7316
+  },
+  "essai": false,
+  "date": "2026-09-21T18:52:41+00:00"
+ },
+ "tours-proche": {
+  "fichier": "generes/tours-proche-bf7d5de60218.png",
+  "empreinte": "bf7d5de60218",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 706,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 383
+   },
+   "output_tokens": 6576,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 368
+   },
+   "total_tokens": 7282
+  },
+  "essai": false,
+  "date": "2026-09-21T19:17:59+00:00"
+ },
+ "tours-roc": {
+  "fichier": "generes/tours-roc-9069676e2ae2.png",
+  "empreinte": "9069676e2ae2",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": null,
+  "essai": false,
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
+ },
+ "fleche": {
+  "fichier": "generes/fleche-232e06a243f9.png",
+  "empreinte": "232e06a243f9",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1536",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 641,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 318
+   },
+   "output_tokens": 6595,
+   "output_tokens_details": {
+    "image_tokens": 6240,
+    "text_tokens": 355
+   },
+   "total_tokens": 7236
+  },
+  "essai": false,
+  "date": "2026-09-21T20:15:34+00:00"
  }
 }

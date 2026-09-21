@@ -9,10 +9,12 @@ import { flamme } from './titre.js';
 
 // ---------- terrain et objets : textures et objets peints par Pixel Artist (art/recettes/terrain.json, objets.json) ----------
 // roc : texture raccordable (128 px), crete : bordure posée sur les sols, dessous : roche qui pend sous les îles
-// par clé de niveau (voir NIVEAUX)
+// par clé de niveau (voir NIVEAUX) ; sousLeCiel : la crête seulement à l'air libre, et au plafond d'une alcôve le dessous
+// n'est qu'une corniche (pas de créneaux sur le sol d'une alcôve, pas de culs-de-lampe qui la remplissent)
 export const TERRAIN = {
   terres: { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
   cimetiere: { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
+  tours: { roc: 'terrain/roc-tours', crete: 'terrain/crete-tours', dessous: 'terrain/dessous-tours', sousLeCiel: true },
   cryptes: { roc: 'terrain/roc-cryptes', crete: null, dessous: null },
 };
 J.TUILES = null; J.ACCESSOIRES = null;
@@ -40,12 +42,16 @@ export function construireTuiles() {
   [[4, 2], [5, 3], [6, 5], [7, 6], [9, 6], [10, 7], [11, 9], [5, 8], [4, 9], [3, 11], [11, 11], [7, 12]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
   return Object.fromEntries(Object.entries(TERRAIN).map(([cle, t]) => [cle, {
     roc: IMAGES_ART[t.roc], dessous: t.dessous && IMAGES_ART[t.dessous],
-    crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0,
+    crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0, sousLeCiel: !!t.sousLeCiel,
     passerelle: IMAGES_ART['terrain/passerelle'], tablier: ligneOpaque(IMAGES_ART['terrain/passerelle']), pointes: IMAGES_ART['terrain/pointes'], fissures,
   }]));
 }
+// les objets de décor posés sur la carte, par lettre (voir DECOR dans niveau.js) ; g : la gargouille tournée vers la gauche
 export function construireAccessoires() {
-  return { T: IMAGES_ART['objets/arbre'], t: IMAGES_ART['objets/tombe'], '+': IMAGES_ART['objets/croix'] };
+  const gargouille = IMAGES_ART['objets/gargouille'], miroir = toile(gargouille.width, gargouille.height), g = miroir.getContext('2d');
+  g.translate(gargouille.width, 0); g.scale(-1, 1); g.drawImage(gargouille, 0, 0);
+  return { T: IMAGES_ART['objets/arbre'], t: IMAGES_ART['objets/tombe'], '+': IMAGES_ART['objets/croix'],
+           G: gargouille, g: miroir, B: IMAGES_ART['objets/etendard'], I: IMAGES_ART['objets/fleche'] };
 }
 // ---------- le terrain, peint une fois par niveau en bandes verticales ----------
 // Le terrain ne bouge pas (sauf un mur fissuré qui s'effondre) : le repeindre à chaque image coûtait des centaines
@@ -99,6 +105,10 @@ function peindreTerrain(g, x0, x1) {
       tx = fin + 1;
     }
   };
+  // sousLeCiel : un sol est abrité (le sol d'une alcôve) s'il a un plafond dans la carte à 4 rangées au plus au-dessus ;
+  // un plafond couvre une alcôve s'il y a un sol à 5 rangées au plus en dessous (le bas de la carte est le vide).
+  const abrite = (tx, ty) => { for (let k = 2; k <= 5 && ty - k >= 0; k++) if (plein(tx, ty - k)) return true; return false; };
+  const salle = (tx, ty) => { for (let k = 4; k <= 5 && ty + k < H; k++) if (plein(tx, ty + k)) return true; return false; };
   // 1. la roche qui pend sous les îles (derrière la roche elle-même) : pleine profondeur au milieu,
   //    elle s'effile vers les bords de chaque île au lieu d'être coupée net
   if (T.dessous) {
@@ -106,7 +116,8 @@ function peindreTerrain(g, x0, x1) {
     for (let ty = 0; ty < H; ty++) suites(ty, pend, 0, (X0, X1) => {
       const y = ty * TP + TP - 4;
       for (let x = Math.max(X0, x0); x < Math.min(X1, x1); x++) {
-        const h = effile(Math.min(x - X0, X1 - 1 - x), 3, d.height, x);
+        // sousLeCiel : au plafond d'une salle, seulement le haut des consoles (une corniche), pas les culs-de-lampe
+        const h = effile(Math.min(x - X0, X1 - 1 - x), 3, T.sousLeCiel && salle(Math.floor(x / TP), ty) ? 7 : d.height, x);
         g.drawImage(d, mod(x, d.width), 0, 1, h, x, y, 1, h);
       }
     });
@@ -138,11 +149,15 @@ function peindreTerrain(g, x0, x1) {
     }
     g.fillStyle = '#060606'; g.fillRect(X0, y + 1, 1, tablier - 2); g.fillRect(X1 - 1, y + 1, 1, tablier - 2);   // bouts du tablier nets
   });
-  // 4. la crête posée sur chaque sol à l'air libre (herbe morte, gravats, dalles)
+  // 4. la crête posée sur chaque sol à l'air libre (herbe morte, gravats, dalles, créneaux)
   if (T.crete) {
     const c = T.crete;
-    for (let ty = 1; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++)
-      if (plein(tx, ty) && !plein(tx, ty - 1)) g.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
+    for (let ty = 1; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++) {
+      if (!plein(tx, ty) || plein(tx, ty - 1)) continue;
+      if (T.sousLeCiel && abrite(tx, ty)) {            // le sol d'une salle : l'arête claire d'une dalle, pas de créneaux
+        g.fillStyle = '#9a9a96'; g.fillRect(tx * TP, ty * TP, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(tx * TP, ty * TP + 1, TP, 1);
+      } else g.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
+    }
   }
 }
 export function dessinerCourants() {           // colonnes de cendre qui montent : on voit où le vent porte

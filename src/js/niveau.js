@@ -12,6 +12,9 @@ export const TP = 16;                                           // une case = 16
 export const VIDE = 0, ROC = 1, CORNICHE = 2, PICS = 3, FRAGILE = 4, COURANT = 5;
 export const CASES = { '#': ROC, '=': CORNICHE, '^': PICS, 'x': FRAGILE, '~': COURANT };
 export const ENNEMIS_CARTE = { c: 'charognard', a: 'ame', b: 'chauve', s: 'spectre', k: 'crane' };
+// objets de décor, posés sur le sol, sans collision (images : construireAccessoires dans terrain.js) :
+// arbre mort, tombe, croix, gargouille tournée vers la droite (G) ou vers la gauche (g), étendard en lambeaux (B), clocheton (I)
+export const DECOR = 'Tt+GgBI';
 // zone de collision du dragon, autour de son corps ; en vol, le bas s'arrête là où l'atterrissage commence
 export const LARG = 24, HAUT = 12, BAS = G - AN.land.bodyY[0], CORPS_SOL = 44;
 J.NIV = null;
@@ -28,7 +31,7 @@ export function lireNiveau(n) {
     else if (ch === 'h') niv.objets.push({ genre: 'coeur', x, y });
     else if (ch === 'r') { niv.objets.push({ genre: 'relique', x, y }); niv.reliques++; }
     else if (ch === 'f') niv.objets.push({ genre: 'autel', x, y: sol });
-    else if (ch === 'T' || ch === 't' || ch === '+') niv.objets.push({ genre: 'decor', type: ch, x, y: sol });
+    else if (DECOR.includes(ch)) niv.objets.push({ genre: 'decor', type: ch, x, y: sol });
     else if (ch === 'P') niv.depart = [x, sol];
     else if (ch === 'E') niv.sortie = { x, y: sol };
     else if (ch === 'V') niv.veilleur = { x, y };

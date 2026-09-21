@@ -69,6 +69,19 @@
    ],
    "hauteurAvantRognage": 220,
    "raccord": false
+  },
+  "tours": {
+   "image": "inscriptions/tours.png",
+   "taille": [
+    220,
+    118
+   ],
+   "decalage": [
+    57,
+    52
+   ],
+   "hauteurAvantRognage": 220,
+   "raccord": false
   }
  }
 }

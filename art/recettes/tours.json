@@ -1,0 +1,55 @@
+{
+ "nom": "tours",
+ "_doc": "Acte III · les Tours Foudroyées : les tours du château qui plongent dans la brume, du plus lointain au plus proche.",
+ "palette": {
+  "rampe": [
+   "#060606",
+   "#ecebe6"
+  ],
+  "teintes": 15
+ },
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "lointain": {
+   "source": "tours-lointain",
+   "largeur": 480,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    10,
+    14
+   ],
+   "tramage": 0.5,
+   "rogner": true,
+   "garder": "bas"
+  },
+  "milieu": {
+   "source": "tours-milieu",
+   "largeur": 400,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    6,
+    11
+   ],
+   "tramage": 0.45,
+   "rogner": true,
+   "garder": "bas"
+  },
+  "proche": {
+   "source": "tours-proche",
+   "largeur": 360,
+   "alpha": true,
+   "raccord": 0.1,
+   "ilot_min": 10,
+   "tons": [
+    5,
+    9
+   ],
+   "tramage": 0.35,
+   "rogner": true,
+   "garder": "bas"
+  }
+ }
+}
