@@ -15,10 +15,10 @@ export function posture() {
   const vol = () => {                    // la marionnette en vol : battements, tangage, queue, cavalier
     const ph = frac(J.P.ph);
     return { type: 'rig', pose: 'vol', x: J.P.x, y: J.P.y, fs: J.P.fs, pitch: J.P.pitch, corps: { dx: -J.P.recul * 3, dy: J.P.bob },
-             aile: poseAile(J.P), queue: J.P.queue, tete: { dx: 0, dy: -0.6 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.35)), rot: 0 },
+             aile: poseAile(J.P), queue: J.P.queue, tete: { dx: 0, dy: -0.6 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.35)) + J.P.teteY, rot: -0.04 * J.P.teteY },
              teteVariante: J.P.atk >= 0 ? unique('attack', J.P.atk, FPS.attack) : -1,
-             cavalier: { dy: 0.7 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.05)), rot: (J.P.ruee >= 0 ? 0.3 : clamp(J.P.vy / V.PIQUE, 0, 1) * 0.2) + J.P.penche },
-             queues: { 'queue-2': J.P.q2, 'queue-3': J.P.q3 }, cligne: J.P.cligne < 0 };
+             cavalier: { dy: 0.7 * J.P.amp * Math.sin(2 * Math.PI * (ph - 0.05)) + J.P.cavY, rot: (J.P.ruee >= 0 ? 0.3 : clamp(J.P.vy / V.PIQUE, 0, 1) * 0.2) + J.P.penche },
+             queues: { 'queue-2': J.P.q2, 'queue-3': J.P.q3 }, cligne: J.P.cligne < 0, dos: J.P.dos, onde: J.P.onde };
   };
   // la marionnette au sol ; o : ce qui s'y ajoute (s'accroupir, ailes levées, tête basse, s'affaisser…)
   const sol = (o = {}) => {
@@ -30,10 +30,11 @@ export function posture() {
              corps: { dx: 0.8 * amp * Math.sin(4 * Math.PI * g), dy: amp * (0.9 + 1.1 * vif) * Math.cos(4 * Math.PI * g) + 0.6 * souffle + bas },
              aile: { s: (1 - 0.04 * (souffle + 1) - 0.03 * amp * Math.sin(4 * Math.PI * g)) * (o.aile || 1), sx: 1, rot: -0.02 * amp * Math.sin(4 * Math.PI * g) + (o.aileRot || 0) },
              queue: J.P.queue + 0.14 * amp * Math.sin(2 * Math.PI * g - 1) + 0.05 * souffle + (o.queue || 0), allure: g, amp, vif,
-             tete: { dx: -2 * J.P.recul, dy: amp * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle + (o.tete || 0), rot: -0.06 * J.P.recul + (o.teteRot || 0) },
+             tete: { dx: -2 * J.P.recul, dy: amp * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle + (o.tete || 0) + J.P.teteY, rot: -0.06 * J.P.recul + (o.teteRot || 0) - 0.04 * J.P.teteY },
              teteVariante: J.P.atk >= 0 ? unique('attack', J.P.atk, FPS.attack) : -1,
-             cavalier: { dy: amp * 0.7 * Math.cos(4 * Math.PI * g - 0.5) + 0.4 * souffle + (o.cavalier || 0), rot: J.P.penche + (o.cavalierRot || 0) },
-             queues: { 'queue-2': J.P.q2 + (o.queue || 0) * 0.6, 'queue-3': J.P.q3 + (o.queue || 0) * 0.4 }, cligne: o.mort ? true : J.P.cligne < 0, ecrase: J.P.ecrase };
+             cavalier: { dy: amp * 0.7 * Math.cos(4 * Math.PI * g - 0.5) + 0.4 * souffle + (o.cavalier || 0) + J.P.cavY, rot: J.P.penche + (o.cavalierRot || 0) },
+             queues: { 'queue-2': J.P.q2 + (o.queue || 0) * 0.6, 'queue-3': J.P.q3 + (o.queue || 0) * 0.4 }, cligne: o.mort ? true : J.P.cligne < 0, ecrase: J.P.ecrase,
+             dos: J.P.dos + (o.dos || 0), onde: J.P.onde + (o.onde || 0) };
   };
   switch (J.P.mode) {
     case 'air': case 'fall': return vol();
@@ -99,7 +100,7 @@ export function dessinerPattes(d, loin, jeu) {
   const os = [];
   for (const pt of PATTES) {
     if (pt.loin !== loin) continue;
-    const hx = pt.h[0] + cdx, hy = pt.h[1] - 2 + Math.round(cdy);          // la hanche, un peu dans le corps : pas de jointure visible
+    const hx = pt.h[0] + cdx, hy = pt.h[1] - 2 + Math.round(cdy) + Math.round(d.flex ? d.flex(pt.h[0]) : 0);   // la hanche, un peu dans le corps, portée par la colonne
     // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
     const appui = mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif);
     const p = frac(d.allure - pt.phase - (pt.avant ? 0.25 * d.vif : 0)), a = d.amp;   // (la patte arrière lève, puis l'avant du même côté)
@@ -150,6 +151,7 @@ export function transformer(q, d, loin) {
     case 'jambe': { const [a, h] = (d.jambes && d.jambes[q.nom]) || [0, 0]; autour(q, a, 0, Math.round(h)); break; }
   }
 }
+const MARGE_TRONC = 7, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
 export function dessinerPosture(d, jeu) {
   if (d.type === 'planche') {
     ctx.save();
@@ -159,7 +161,18 @@ export function dessinerPosture(d, jeu) {
     ctx.restore();
     return;
   }
-  const L = J.PIECES[jeu][d.pose], tete = L.find((q) => q.role === 'tete');
+  const L = J.PIECES[jeu][d.pose], tete = L.find((q) => q.role === 'tete'), corps = L.find((q) => q.role === 'corps');
+  // la colonne vertébrale : le tronc est dessiné en tranches de 3 px décalées le long d'une courbe
+  // (dos : creusé ou voûté ; onde : l'avant qui se relève pendant que l'arrière s'abaisse), et chaque pièce
+  // accrochée (tête, cavalier, ailes, queue, pattes) suit la courbe à son point d'attache
+  const xA = corps.o[0], xB = corps.o[0] + corps.img.width, xm = (xA + xB) / 2, demi = (xB - xA) / 2, dos = d.dos || 0, onde = d.onde || 0;
+  const flex = (x) => { const u = clamp((x - xm) / demi, -1.2, 1.2); return dos * (1 - u * u) - onde * u * u * u; };
+  const plier = (q) => {
+    if (!dos && !onde) return;
+    const x = q.p[0], a = Math.atan((flex(x + 1) - flex(x - 1)) / 2);
+    ctx.translate(x, q.p[1] + Math.round(flex(x))); ctx.rotate(a); ctx.translate(-x, -q.p[1]);
+  };
+  d.flex = flex;
   // demi-tour : 0 au repos, 1 au milieu ; la tête a déjà tourné, le corps se cabre et s'écrase, la queue traîne
   const tour = Math.sin(Math.PI * clamp((1 - d.fs * J.P.face) / 2, 0, 1));
   d.tourne = Math.sign(d.fs) !== J.P.face && Math.abs(d.fs) < 0.65;   // le corps n'a pas fini de tourner, la tête si
@@ -177,15 +190,24 @@ export function dessinerPosture(d, jeu) {
   ctx.translate(Math.round(d.corps.dx), Math.round(d.corps.dy));
   for (const q of L) if (q.double) {                  // l'aile opposée, plus sombre, derrière tout (écartée pendant la volte-face)
     const k = d.ecart || 1;
-    ctx.save(); ctx.translate(LOIN.dx * k, LOIN.dy * k); transformer(q, d, true); ctx.drawImage(q.loin, q.o[0], q.o[1]); ctx.restore();
+    ctx.save(); ctx.translate(LOIN.dx * k, LOIN.dy * k); plier(q); transformer(q, d, true); ctx.drawImage(q.loin, q.o[0], q.o[1]); ctx.restore();
   }
   let fond = false, devant = false;
   for (const q of L) {
     if (d.pose === 'sol' && !fond && q.z >= 0) { dessinerPattes(d, true, jeu); fond = true; }     // pattes du fond, derrière le corps
     if (d.pose === 'sol' && !devant && q.z > 0) { dessinerPattes(d, false, jeu); devant = true; } // pattes de devant, sur le corps
     ctx.save();
+    if (q === corps) {                                   // le tronc plié, assemblé droit hors écran puis posé d'un bloc (aucun raccord ne s'ouvre)
+      const w = q.img.width, h = q.img.height, t = TRONC.toile.width < w || TRONC.toile.height < h + 2 * MARGE_TRONC ? (TRONC.toile = toile(w, h + 2 * MARGE_TRONC)) : TRONC.toile;
+      const g = t.getContext('2d');
+      g.clearRect(0, 0, t.width, t.height);
+      for (let sx = 0; sx < w; sx += 3) { const bw = Math.min(3, w - sx); g.drawImage(q.img, sx, 0, bw, h, sx, MARGE_TRONC + Math.round(flex(q.o[0] + sx + bw / 2)), bw, h); }
+      ctx.drawImage(t, 0, 0, w, h + 2 * MARGE_TRONC, q.o[0], q.o[1] - MARGE_TRONC, w, h + 2 * MARGE_TRONC);
+      ctx.restore(); continue;
+    }
     const lignee = [];                                   // la pièce suit tous ses parents (la tête, les segments de queue…)
     for (let a = q; a; a = a.parent ? L.find((x) => x.nom === a.parent) : null) lignee.unshift(a);
+    plier(lignee[0]);                                    // et la colonne, là où elle s'y accroche
     // demi-tour : la tête se retourne la première et regarde déjà de l'autre côté
     if (d.tourne && (q === tete || q.parent === 'tete')) { ctx.translate(tete.p[0], tete.p[1]); ctx.scale(-1, 1); ctx.translate(-tete.p[0], -tete.p[1]); }
     for (const a of lignee) transformer(a, d, false);

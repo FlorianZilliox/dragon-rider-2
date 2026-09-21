@@ -32,6 +32,7 @@ export function cracher() {
   const mx = BOUCHE.x, my = BOUCHE.y + (vole ? J.P.bob : 0);
   const bx = J.P.x + J.P.face * (mx * c - my * s), by = J.P.y + (mx * s + my * c);
   J.P.recul = 1; sfx('feu');
+  J.P.ondeV += 7; J.P.dosV -= 5;                         // le recul du jet : le poitrail se relève, le dos se tend
   // collé à un mur, la gueule dépasse de l'autre côté : le feu part du corps et s'arrête à la première pierre
   for (let k = 0; k <= 1; k += 1 / 16) {
     const x = mix(J.P.x, bx, k), y = mix(J.P.y, by, k), tx = Math.floor(x / TP), ty = Math.floor(y / TP), t = caseA(tx, ty);
@@ -49,6 +50,7 @@ export function demarrerRuee(versLeBas) {
   const depuisLeSol = auSol();
   if (depuisLeSol) { J.P.mode = 'air'; J.P.at = 0; J.P.ph = 0.05; J.P.amp = 1; J.P.pitch = -0.2; J.P.y = J.P.sol - BAS - 2; poussiere(J.P.x, J.P.sol, 8, 1.3); }
   J.P.ruee = 0; J.P.rueeCd = 0.6; J.P.inv = Math.max(J.P.inv, 0.3); J.P.atk = -1;
+  J.P.dosV -= 14;                                        // l'élan : tout le corps se tend comme un arc
   if (J.etat === 'jeu') { J.P.souffle = Math.max(0, J.P.souffle - RUEE_COUT); J.P.rueeDispo = false; }
   J.P.rueeDir = depuisLeSol ? [J.P.face * 0.94, -0.36] : versLeBas ? [J.P.face * 0.7, 0.72] : [J.P.face, 0];
   popup(versLeBas && !depuisLeSol ? 'PIQUÉ !' : 'RUÉE !', J.P.x, J.P.y - 34, OS);
@@ -58,6 +60,7 @@ export function blesser(depuisX) {
   if (J.P.inv > 0 || J.P.pv <= 0 || J.etat !== 'jeu') return;
   J.P.pv--; J.P.inv = 2.2; J.P.flash = 0.12; J.P.atk = -1; J.P.ruee = -1;
   J.gel = 0.1; J.secousse = 0.28; sfx('aie');
+  J.P.dosV -= 44; J.P.ondeV += 22; J.P.teteYV -= 26; J.P.cavYV -= 12;                       // le coup : il se voûte, l'avant se rejette en arrière
   J.P.vx = Math.sign(J.P.x - depuisX || -J.P.face) * 170;
   if (J.P.pv <= 0) {
     J.P.mal = -1;
@@ -86,6 +89,8 @@ function bordSeul(sol) {
 export function atterrir(sol) {
   J.P.impact = J.P.vy; J.P.mode = 'land'; J.P.at = 0; J.P.vy = 0; J.P.pitch = 0; J.P.pitchV = 0; J.P.sol = sol;
   J.P.ecrase = clamp(J.P.impact / 260, 0.35, 1);                    // l'impact écrase le corps, qui se détend
+  J.P.dosV += clamp(J.P.impact, 40, 420) * 0.17; J.P.ondeV -= clamp(J.P.impact, 0, 420) * 0.045;
+  J.P.cavYV += clamp(J.P.impact, 40, 420) * 0.12; J.P.teteYV += clamp(J.P.impact, 40, 420) * 0.1;   // le cavalier se tasse, la tête hoche   // le dos plie sous le poids, la tête plonge
   const fort = J.P.impact > 170 || J.P.ruee >= 0;
   J.P.ruee = -1;
   poussiere(J.P.x - J.P.face * 10, sol, fort ? 14 : 6, fort ? 1.5 : 0.8);
@@ -97,6 +102,8 @@ export function atterrir(sol) {
 export function tomber() {                    // le sol s'arrête : le dragon ouvre les ailes et reprend l'air
   J.P.mode = 'air'; J.P.at = 0; J.P.y = J.P.sol - BAS - 1; J.P.vy = 30; J.P.ph = 0.2; J.P.amp = 1; J.P.cad = 1.6;
   J.P.pitch = 0.1; J.P.pitchV = 0; J.P.replie = 0; J.P.plane = 0; J.P.haut = 0; J.P.croisiere = 0;
+  J.P.dosV -= 16; J.P.ondeV += 10;                       // la surprise du vide : il se cambre, relève le poitrail
+  J.P.cavYV -= 14; J.P.teteYV -= 10; J.P.queueV += 5; J.P.amp = 1.25;   // cavalier soulevé, tête haute, coup de queue, ailes grandes ouvertes
 }
 export function chuteAbime() {                // tombé dans le gouffre : un cœur en moins, retour au dernier sol sûr
   const mourant = J.P.mode === 'fall' || J.P.pv <= 0;
@@ -237,6 +244,24 @@ export function secondaires(dt) {
   J.P.vxAvant = J.P.vx;
   J.P.pencheV += (60 * (clamp(-acc / 900, -0.25, 0.25) - J.P.penche) - 8 * J.P.pencheV) * dt; J.P.penche += J.P.pencheV * dt;
   J.P.ecrase = Math.max(0, J.P.ecrase - dt * 4);
+  // la colonne vertébrale : le tronc n'est pas une planche. dos > 0 : il se creuse (le milieu descend), < 0 : il se voûte ;
+  // onde > 0 : l'avant se relève et l'arrière s'abaisse (en pixels). Deux ressorts peu amortis : les chocs (atterrissage,
+  // coup, jet de feu, ruée, vide) les lancent et ils rebondissent ; en fond, le rythme des ailes ou des pas.
+  let dosC = 0, ondeC = 0;
+  if (enVol) {
+    const ph = 2 * Math.PI * J.P.ph, chute = clamp((J.P.vy - 60) / 200, 0, 1) * (1 - J.P.amp * 0.5);
+    dosC = 1.1 * J.P.amp * Math.cos(ph - 0.7) - (J.P.ruee >= 0 ? 1.2 : 0) - 1.6 * chute + (J.P.mode === 'fall' ? -1.5 : 0);
+    ondeC = 1.2 * J.P.amp * Math.sin(ph - 1.3) - clamp(J.P.vy / V.VERT, -1.2, 1.2) * 0.9 + 1.2 * chute * Math.sin(J.temps * 11);   // la chute : il se débat
+  } else if (J.P.mode === 'jump' && !J.P.envol) dosC = 2.8;          // l'élan, ramassé sur lui-même
+  else {
+    const vif = clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1);
+    dosC = pas * (0.5 + 1.1 * vif) * Math.sin(4 * Math.PI * J.P.allure - 0.4) + (J.P.accroupi || 0) * 2.2;
+    ondeC = pas * (0.3 + 0.9 * vif) * Math.sin(2 * Math.PI * J.P.allure);
+  }
+  J.P.dosV += (75 * (dosC - J.P.dos) - 6.5 * J.P.dosV) * dt; J.P.dos = clamp(J.P.dos + J.P.dosV * dt, -5, 6);
+  J.P.ondeV += (65 * (ondeC - J.P.onde) - 7 * J.P.ondeV) * dt; J.P.onde = clamp(J.P.onde + J.P.ondeV * dt, -5, 5);
+  J.P.cavYV += (-110 * J.P.cavY - 9 * J.P.cavYV) * dt; J.P.cavY = clamp(J.P.cavY + J.P.cavYV * dt, -4, 4);
+  J.P.teteYV += (-80 * J.P.teteY - 7 * J.P.teteYV) * dt; J.P.teteY = clamp(J.P.teteY + J.P.teteYV * dt, -4, 4);
   // au repos, il vit : de temps en temps un geste (regarder autour, étirer ou secouer les ailes, un coup de queue)
   if (J.P.mode === 'ground' && Math.abs(J.P.vx) < 5 && J.P.atk < 0 && !(J.P.accroupi > 0.05)) J.P.oisif += dt; else { J.P.oisif = 0; J.P.geste = null; J.P.prochainGeste = rand(2.5, 4); }
   if (J.P.geste) { J.P.gesteT += dt; if (J.P.gesteT > GESTES[J.P.geste]) { J.P.geste = null; J.P.prochainGeste = J.P.oisif + rand(3.5, 7); } }
@@ -296,8 +321,8 @@ export function majVol(dt, E, dir, libre) {
   J.P.ph += J.P.cad * dt;
   if (avant > 0.9 && frac(J.P.ph) < 0.1 && J.P.amp > 0.6) sfx('battement');
   J.P.bob = -1.3 * J.P.amp * Math.sin(2 * Math.PI * (frac(J.P.ph) - 0.2));
-  ressortQueue(dt, J.P.amp * 0.09 * Math.sin(2 * Math.PI * J.P.ph - 1.3) + clamp(J.P.vy / V.VERT, -1.5, 1.8) * 0.1
-    + (J.P.ruee >= 0 ? 0.14 : 0) - J.P.pitchV * 0.03);
+  ressortQueue(dt, J.P.amp * 0.09 * Math.sin(2 * Math.PI * J.P.ph - 1.3) + clamp(J.P.vy / V.VERT, -1.5, 1.8) * 0.12
+    + clamp((J.P.vy - 60) / 180, 0, 1) * 0.3 + (J.P.ruee >= 0 ? 0.14 : 0) - J.P.pitchV * 0.03);   // en chute, l'air soulève la queue
   if (choc.sol !== null) {
     const glisse = bordSeul(choc.sol);
     if (glisse) J.P.vx = glisse * Math.max(Math.abs(J.P.vx), 60);   // seul le bord du corps touche : il glisse du rebord

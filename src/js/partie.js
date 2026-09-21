@@ -20,6 +20,8 @@ export function joueurNeuf(x, sol) {
     ruee: -1, rueeDir: [1, 0], rueeCd: 0, rueeDispo: true, refus: 0, charge: 1, envol: false, accroupi: 0, course: 0, pas: 0, ombreT: 0, impact: 0,
     souffle: 1, dernierSol: [x, sol],
     q2: 0, q2v: 0, q3: 0, q3v: 0, allure: 0, oisif: 0, geste: null, gesteT: 0, prochainGeste: 3, penche: 0, pencheV: 0, vxAvant: 0, ecrase: 0, cligne: 3,
+    dos: 0, dosV: 0, onde: 0, ondeV: 0,               // la colonne vertébrale (voir secondaires)
+    cavY: 0, cavYV: 0, teteY: 0, teteYV: 0,           // le cavalier et la tête encaissent les à-coups avec retard
   };
 }
 export function vider() { J.ennemis = []; J.boules = []; J.orbes = []; J.coeurs = []; J.particules = []; J.popups = []; J.ombres = []; }

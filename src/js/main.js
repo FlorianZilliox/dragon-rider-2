@@ -4,7 +4,7 @@ import { NIVEAUX, ENCRE, ESSAI, G, OS, PV_MAX, SANG_VIF, reduit } from './config
 import { IMAGES_ART, PLANS, construireHalo, decor, dessinerMeteo, majMeteo } from './decor.js';
 import { entreesDemo } from './demo.js';
 import { ART, ATLAS, CARTES, PLANCHE } from './donnees.js';
-import { majDragon } from './dragon.js';
+import { blesser, majDragon } from './dragon.js';
 import { construirePieces, construirePlanche } from './dragon-pieces.js';
 import { dessinerDragon, posture } from './dragon-rendu.js';
 import { ctx, disposer } from './ecran.js';
@@ -94,7 +94,8 @@ if (ESSAI) window.__essai = {
   voler(tx, ty) { J.P.x = tx * TP + TP / 2; J.P.y = ty * TP + TP / 2; J.P.mode = 'air'; J.P.vx = J.P.vy = 0; cadrer(); },
   niveau: () => ({ l: J.NIV.l, h: J.NIV.h, objets: J.NIV.objets.length, reliques: J.NIV.reliques }),
   souffle(v) { J.P.souffle = v; },
-  eclair() { J.eclair = 0.24; },                               // déclenche un éclair (niveaux d'orage)
+  eclair() { J.eclair = 0.24; },
+  coup() { J.P.inv = 0; blesser(J.P.x + J.P.face * 30); },     // un coup reçu de face                               // déclenche un éclair (niveaux d'orage)
   reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte du niveau
   pv(n) { J.P.pv = n; },
   caseA: (tx, ty) => caseA(tx, ty),

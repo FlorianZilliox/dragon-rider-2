@@ -1,5 +1,5 @@
 // Bande d'animation : pose le dragon (#essai), tient des touches, capture N images zoomées sur lui à intervalle régulier.
-// node outils/tests/bande.mjs <url> <sortie.png> <acte> <sol|vol> <tx> <ty> <touches|-> <n> <intervalle_ms> [attente_ms] [avant:touches:ms]
+// node outils/tests/bande.mjs <url> <sortie.png> <acte> <sol|vol> <tx> <ty> <touches|-> <n> <intervalle_ms> [attente_ms] [avant:touches:ms | eval:expression]
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
 import { adresseDuJeu } from './serveur.mjs';
@@ -24,7 +24,8 @@ await cmd('Runtime.enable'); await cmd('Page.enable');
 await cmd('Page.navigate', { url: url + '#essai#calme#niveau=' + acte }); await sleep(1400);
 await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(4300);
 await ev(`window.__essai.${mode === 'vol' ? 'voler' : 'poser'}(${tx}, ${ty})`); await sleep(+attente);
-if (avant) { const [, ks, ms] = avant.split(':'); for (const k of ks.split('+')) await key('keyDown', k); await sleep(+ms); for (const k of ks.split('+')) await key('keyUp', k); }
+if (avant.startsWith('eval:')) await cmd('Runtime.evaluate', { expression: avant.slice(5) });   // eval:<expression> : un événement juste avant la capture
+else if (avant) { const [, ks, ms] = avant.split(':'); for (const k of ks.split('+')) await key('keyDown', k); await sleep(+ms); for (const k of ks.split('+')) await key('keyUp', k); }
 const ts = touches === '-' ? [] : touches.split('+');
 for (const k of ts) await key('keyDown', k);
 const images = [];
