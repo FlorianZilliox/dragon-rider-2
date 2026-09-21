@@ -1407,7 +1407,7 @@
   const TYPES = {
     charognard: { pv: 1, r: 13, pts: 100, sprite: 'corbeau', vol: 7, pique: 7, pose: 8 },   // vol : images du battement ; pique ; pose : perché (8, 9)
     ame: { pv: 1, r: 12, pts: 80, sprite: 'ame', vol: 6 },
-    chauve: { pv: 1, r: 11, pts: 120, sprite: 'chauve', vol: 4, pose: 4 },          // pose : pendue, repliée
+    chauve: { pv: 1, r: 11, pts: 120, sprite: 'chauve', vol: 6, pose: 6 },          // vol : 6 images du battement ; pose : pendue, repliée
     spectre: { pv: 2, r: 14, pts: 200, sprite: 'spectre', vol: 6 },
     crane: { pv: 2, r: 13, pts: 150, sprite: 'crane', vol: 4 },
   };
@@ -1457,7 +1457,7 @@
             const secoue = frac(e.t * 0.23 + e.ph) > 0.93;
             e.image = secoue ? [3, 4, 3][Math.floor(frac(e.t * 0.23 + e.ph) * 40) % 3] : T.pose + (Math.sin(e.t * 1.7 + e.ph) > 0.6 ? 1 : 0);
           } else { e.y = e.hy + Math.sin(e.t * 2) * 2; e.image = battre(e, dt, 9, nb); }
-          if (Math.abs(dx) < 160 && Math.abs(dy) < 130) changer(e, e.perche ? 'accroupi' : 'envol');
+          if (Math.abs(dx) < 280 && Math.abs(dy) < 190) changer(e, e.perche ? 'accroupi' : 'envol');   // il repère le dragon de loin
         } else if (e.etat === 'accroupi') { // l'élan : il se ramasse, tête basse
           e.image = T.pose + 1; e.y = e.hy + 1;
           if (e.et > 0.14) { changer(e, 'envol'); e.vy = -150; plume(e, 2); sfx('touche'); }

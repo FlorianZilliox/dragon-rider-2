@@ -36,8 +36,8 @@
    ],
    "tramage": 0.3,
    "contour": true,
-   "regarde": "gauche",
-   "attendus": 5,
+   "regarde": "droite",
+   "attendus": 7,
    "joindre": 0.006,
    "contour_ton": 0
   },

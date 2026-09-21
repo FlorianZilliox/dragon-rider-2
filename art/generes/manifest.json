@@ -697,28 +697,29 @@
   "date": "2026-09-21T15:29:01+00:00"
  },
  "chauve-souris": {
-  "fichier": "generes/chauve-souris-ad33ab69c063.png",
-  "empreinte": "ad33ab69c063",
+  "fichier": "generes/chauve-souris-b4fe55e0b02a.png",
+  "empreinte": "b4fe55e0b02a",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
   "usage": {
-   "input_tokens": 636,
+   "input_tokens": 731,
    "input_tokens_details": {
     "image_tokens": 323,
-    "text_tokens": 313
+    "text_tokens": 408
    },
-   "output_tokens": 6573,
+   "output_tokens": 6588,
    "output_tokens_details": {
     "image_tokens": 6208,
-    "text_tokens": 365
+    "text_tokens": 380
    },
-   "total_tokens": 7209
+   "total_tokens": 7319
   },
   "essai": false,
-  "date": "2026-09-21T15:20:40+00:00"
+  "date": "2026-09-21T18:10:36+00:00",
+  "empreinte_style": "a195292f82de"
  },
  "spectre": {
   "fichier": "generes/spectre-62527037b31d.png",
