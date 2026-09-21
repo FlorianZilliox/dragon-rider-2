@@ -15,3 +15,6 @@ art/generes/*.png
 node_modules/
 dist/
 essais/
+
+# références de style venant d'œuvres d'autrui : utilisées en local pour la génération, jamais publiées
+art/references/externes/
