@@ -101,7 +101,9 @@ Chaque niveau est un fichier texte, `niveaux/<cle>.txt`, dont la clé est décla
 | `^` | pics | `h` / `r` | cœur / relique |
 | `x` | mur fissuré (feu ou ruée ; tout le mur cède d'un coup) | `V` | le Veilleur (son arène) |
 | `~` | colonne de cendre (porte vers le haut, rend le souffle) | `T` `t` `+` | arbre mort, tombe, croix (décor) |
-| | | `G` `g` `B` `I` | gargouille tournée vers la droite, vers la gauche ; étendard en lambeaux ; clocheton (décor) |
+| `\|` | tour peinte (bloque comme le roc) | `G` `g` `B` `I` | gargouille tournée vers la droite, vers la gauche ; étendard en lambeaux ; clocheton (décor) |
+
+Tours peintes : chaque groupe de cases `|` qui se touchent se dessine avec les pièces de `TERRAIN[…].pieces` pour sa largeur (dans les Tours : 4 cases, une tour à flèche ; 5, une terrasse à échauguettes ; 6, un donjon), sommet sur sa première rangée, fût répété en hauteur, pied de brume en bas. Des `^` posés sur une tour sont sa flèche : c'est la pointe peinte qui les montre, et ils blessent. Les corniches `=` se dessinent avec la galerie du niveau (`TERRAIN[…].galerie`). Une largeur sans pièces se dessine en roc.
 
 Herses et leviers (raccourcis à la Castlevania) : `H` est une case de herse, qui bloque tant qu'elle est fermée ; `l` est un levier. Un tir de feu ou une ruée l'actionne, et il lève d'un bloc la herse la plus proche (le groupe de cases `H` qui se touchent).
 
@@ -116,7 +118,7 @@ Mesures utiles pour dessiner une carte (le dragon est grand) :
 - Son feu part à hauteur de gueule : un mur fissuré doit être atteignable de face.
 - Le souffle plein permet environ 7 s de vol à plat (≈ 1 200 px, 75 cases) ou 3,5 s de montée : au-delà, prévoir un sol ou une colonne de cendre.
 - Hors de la carte : roc sur les côtés et en haut, gouffre en bas.
-- La roche qui pend (`dessous`) garnit toute cavité de 3 rangées ou plus sous du roc, et la crête se pose sur tout sol découvert. Dans les tours (`sousLeCiel` dans `TERRAIN`), les créneaux ne se posent qu'à l'air libre et, au plafond d'une alcôve, les mâchicoulis se réduisent à une corniche (une alcôve : un sol et un plafond à 5 rangées au plus l'un de l'autre).
+- La roche qui pend (`dessous`) garnit toute cavité de 3 rangées ou plus sous du roc, et la crête se pose sur tout sol découvert. Dans les tours (`sousLeCiel` dans `TERRAIN`), les créneaux ne se posent que sous le ciel (aucune pierre au-dessus) et les mâchicoulis ne pendent en entier qu'au-dessus du vide ; sous une voûte, ce n'est qu'une corniche.
 
 ## Les images
 

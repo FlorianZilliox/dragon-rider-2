@@ -1408,5 +1408,29 @@
   },
   "essai": false,
   "date": "2026-09-21T21:17:41+00:00"
+ },
+ "tours-soubassements": {
+  "fichier": "generes/tours-soubassements-dce3fa3e433f.png",
+  "empreinte": "dce3fa3e433f",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 658,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 335
+   },
+   "output_tokens": 6537,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 329
+   },
+   "total_tokens": 7195
+  },
+  "essai": false,
+  "date": "2026-09-21T21:58:55+00:00"
  }
 }

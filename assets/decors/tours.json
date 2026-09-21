@@ -56,6 +56,19 @@
    ],
    "hauteurAvantRognage": 267,
    "raccord": true
+  },
+  "soubassements": {
+   "image": "tours/soubassements.png",
+   "taille": [
+    560,
+    424
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 424,
+   "raccord": true
   }
  }
 }

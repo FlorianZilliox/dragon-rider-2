@@ -3,7 +3,7 @@ import { FEU, NIVEAUX } from './config.js';
 import { IMAGES_ART, eclairVisible } from './decor.js';
 import { silhouette } from './dragon-pieces.js';
 import { ctx } from './ecran.js';
-import { CORNICHE, FRAGILE, MONTEE_HERSE, PICS, ROC, TP, bloque, caseA, porteOuverte } from './niveau.js';
+import { CORNICHE, FRAGILE, MONTEE_HERSE, PICS, ROC, TOUR, TP, bloque, caseA, porteOuverte } from './niveau.js';
 import { clamp, hash, toile } from './outils.js';
 import { coeur } from './rendu-monde.js';
 import { flamme } from './titre.js';
@@ -12,10 +12,20 @@ import { flamme } from './titre.js';
 // roc : texture raccordable (128 px), crete : bordure posée sur les sols, dessous : roche qui pend sous les îles
 // par clé de niveau (voir NIVEAUX) ; sousLeCiel : la crête seulement à l'air libre, et au plafond d'une alcôve le dessous
 // n'est qu'une corniche (pas de créneaux sur le sol d'une alcôve, pas de culs-de-lampe qui la remplissent)
+// galerie : l'image des corniches (=) à la place de la passerelle commune, et la ligne où l'on se pose (sol, en px) ;
+// pieces : les tours peintes (cases |), par largeur de tour en cases : sommet, fût (répété en hauteur), pied dans la brume ;
+//   coeur : où commence la maçonnerie dans l'image (px) ; sol : la ligne du sommet de la tour dans l'image du sommet ;
+//   un ^ posé sur une tour est sa flèche : la pointe peinte le remplace. piedSous : la brume du pied déborde d'autant.
 export const TERRAIN = {
   terres: { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
   cimetiere: { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
-  tours: { roc: 'terrain/roc-tours', crete: 'terrain/crete-tours', dessous: 'terrain/dessous-tours', sousLeCiel: true },
+  tours: { roc: 'terrain/roc-tours', crete: 'terrain/crete-tours', dessous: 'terrain/dessous-tours', sousLeCiel: true,
+           galerie: { image: 'tours-pieces/balcon', sol: 25 }, piedSous: 24,
+           pieces: {
+             4: { sommet: 'tours-pieces/a-sommet', fut: 'tours-pieces/a-fut', pied: 'tours-pieces/a-pied', coeur: 26, sol: 138 },   // à flèche
+             5: { sommet: 'tours-pieces/b-sommet', fut: 'tours-pieces/b-fut', pied: 'tours-pieces/b-pied', coeur: 45, sol: 124 },   // terrasse
+             6: { sommet: 'tours-pieces/c-sommet', fut: 'tours-pieces/c-fut', pied: 'tours-pieces/c-pied', coeur: 32, sol: 124 },   // donjon
+           } },
   cryptes: { roc: 'terrain/roc-cryptes', crete: null, dessous: null },
 };
 J.TUILES = null; J.ACCESSOIRES = null;
@@ -41,11 +51,17 @@ export function construireTuiles() {
   [[3, 2], [4, 3], [5, 4], [5, 5], [6, 6], [7, 7], [8, 6], [9, 7], [10, 8], [10, 9], [11, 10], [6, 8], [5, 9], [4, 10], [4, 11], [12, 11], [12, 12], [8, 12], [7, 13]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
   g.fillStyle = '#060606';
   [[4, 2], [5, 3], [6, 5], [7, 6], [9, 6], [10, 7], [11, 9], [5, 8], [4, 9], [3, 11], [11, 11], [7, 12]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
-  return Object.fromEntries(Object.entries(TERRAIN).map(([cle, t]) => [cle, {
-    roc: IMAGES_ART[t.roc], dessous: t.dessous && IMAGES_ART[t.dessous],
-    crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0, sousLeCiel: !!t.sousLeCiel,
-    passerelle: IMAGES_ART['terrain/passerelle'], tablier: ligneOpaque(IMAGES_ART['terrain/passerelle']), pointes: IMAGES_ART['terrain/pointes'], fissures,
-  }]));
+  return Object.fromEntries(Object.entries(TERRAIN).map(([cle, t]) => {
+    const passerelle = IMAGES_ART[t.galerie ? t.galerie.image : 'terrain/passerelle'];
+    const pieces = t.pieces && Object.fromEntries(Object.entries(t.pieces).map(([larg, p]) =>
+      [larg, { ...p, sommet: IMAGES_ART[p.sommet], fut: IMAGES_ART[p.fut], pied: IMAGES_ART[p.pied] }]));
+    return [cle, {
+      roc: IMAGES_ART[t.roc], dessous: t.dessous && IMAGES_ART[t.dessous],
+      crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0, sousLeCiel: !!t.sousLeCiel,
+      passerelle, tablier: t.galerie ? t.galerie.sol : ligneOpaque(passerelle), pointes: IMAGES_ART['terrain/pointes'], fissures,
+      pieces, piedSous: t.piedSous || 0,
+    }];
+  }));
 }
 // les objets de décor posés sur la carte, par lettre (voir DECOR dans niveau.js) ; g : la gargouille tournée vers la gauche
 export function construireAccessoires() {
@@ -61,7 +77,42 @@ export function construireAccessoires() {
 // d'appels de dessin (roche qui pend et arches, colonne de pixels par colonne). Il est peint dans des bandes de
 // BANDE px de large à l'entrée du niveau ; chaque image n'en recopie que les deux ou trois visibles.
 const BANDE = 256, MARGE_HAUT = 32, MARGE_BAS = 64;   // marges : pinacles et crêtes au-dessus, roche qui pend en dessous
-const cache = { niv: null, visuel: -1, bandes: [] };
+const cache = { niv: null, visuel: -1, bandes: [], tours: [], peintes: null };
+// les tours de la carte : chaque groupe de cases | qui se touchent ; peinte si le niveau a des pièces pour sa largeur
+// (sinon, maçonnerie de roche ordinaire)
+function trouverTours(T) {
+  const L = J.NIV.l, H = J.NIV.h, vues = new Uint8Array(L * H), peintes = new Uint8Array(L * H), tours = [];
+  for (let i = 0; i < L * H; i++) {
+    if (J.NIV.cases[i] !== TOUR || vues[i]) continue;
+    const g = { x0: 1e9, x1: -1, y0: 1e9, y1: -1, cases: [] }, pile = [i];
+    vues[i] = 1;
+    while (pile.length) {
+      const k = pile.pop(), tx = k % L, ty = Math.floor(k / L);
+      g.cases.push(k); g.x0 = Math.min(g.x0, tx); g.x1 = Math.max(g.x1, tx); g.y0 = Math.min(g.y0, ty); g.y1 = Math.max(g.y1, ty);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const x = tx + dx, y = ty + dy, j = y * L + x;
+        if (x >= 0 && x < L && y >= 0 && y < H && J.NIV.cases[j] === TOUR && !vues[j]) { vues[j] = 1; pile.push(j); }
+      }
+    }
+    g.pieces = T.pieces && T.pieces[g.x1 - g.x0 + 1];
+    if (g.pieces) for (const k of g.cases) peintes[k] = 1;
+    tours.push(g);
+  }
+  return { tours, peintes };
+}
+// une tour peinte : le sommet sur sa première rangée, le fût répété jusqu'au pied, le pied qui déborde dans la brume
+function peindreTour(g, T, t) {
+  const p = t.pieces, X = t.x0 * TP - p.coeur, haut = t.y0 * TP - p.sol, base = (t.y1 + 1) * TP + T.piedSous;
+  const s = p.sommet, f = p.fut, pd = p.pied, basSommet = Math.min(base, haut + s.height);
+  const place = base - basSommet, hPied = Math.min(pd.height, place);          // une tour courte : le pied, rogné par le haut
+  let y = basSommet;
+  for (const fin = base - hPied; y < fin; y += f.height) {
+    const h = Math.min(f.height, fin - y);
+    g.drawImage(f, 0, 0, f.width, h, X, y, f.width, h);
+  }
+  if (hPied > 0) g.drawImage(pd, 0, pd.height - hPied, pd.width, hPied, X, base - hPied, pd.width, hPied);
+  g.drawImage(s, 0, 0, s.width, basSommet - haut, X, haut, s.width, basSommet - haut);
+}
 function peindreBande(i) {
   const b = cache.bandes[i];
   if (!b.toile) b.toile = toile(BANDE, J.NIV.hauteur + MARGE_HAUT + MARGE_BAS);
@@ -82,6 +133,7 @@ export function dessinerTuiles() {
   if (cache.niv !== J.NIV || cache.visuel !== J.niveauVisuel) {            // nouveau niveau : tout repeindre
     for (const b of cache.bandes) if (b.toile) b.toile.width = 0;         // libère la mémoire tout de suite (Safari)
     cache.niv = J.NIV; cache.visuel = J.niveauVisuel;
+    Object.assign(cache, trouverTours(J.TUILES[NIVEAUX[J.niveauVisuel].cle]));
     cache.bandes = Array.from({ length: Math.ceil(J.NIV.largeur / BANDE) }, () => ({ toile: null, propre: false }));
     cache.bandes.forEach((_, i) => peindreBande(i));
   }
@@ -95,7 +147,13 @@ export function dessinerTuiles() {
 // peint tout le terrain des colonnes [x0, x1[ (coordonnées de la carte), sur toute la hauteur du niveau
 function peindreTerrain(g, x0, x1) {
   const T = J.TUILES[NIVEAUX[J.niveauVisuel].cle], L = J.NIV.l, H = J.NIV.h;
-  const plein = (tx, ty) => { const t = caseA(tx, ty); return t === ROC || t === FRAGILE; };   // (une herse n'est pas de la pierre : elle se dessine à part)
+  // la pierre qu'on peint en roche (une herse n'est pas de la pierre : elle se dessine à part ; une tour peinte non plus)
+  const peinte = (tx, ty) => tx >= 0 && tx < L && ty >= 0 && ty < H && cache.peintes && cache.peintes[ty * L + tx] === 1;
+  const roche = (tx, ty) => { const t = caseA(tx, ty); return t === ROC || t === FRAGILE || (t === TOUR && !peinte(tx, ty)); };
+  // ce qui est massif, pour les bords : une roche contre une tour n'a ni liseré, ni crête, ni roche qui pend
+  const plein = (tx, ty) => roche(tx, ty) || caseA(tx, ty) === TOUR;
+  // des pics posés sur une tour peinte sont sa flèche : c'est la pointe peinte du sommet qui les montre
+  const flecheDeTour = (tx, ty) => { let y = ty; while (caseA(tx, y) === PICS) y++; return caseA(tx, y) === TOUR && peinte(tx, y); };
   const tx0 = Math.max(0, Math.floor(x0 / TP) - 1), tx1 = Math.min(L - 1, Math.floor(x1 / TP) + 1);
   // une suite de cases (même rangée) qui vérifient « est », prise en entier même si elle déborde de la bande
   const suites = (ty, est, marge, faire) => {
@@ -109,14 +167,15 @@ function peindreTerrain(g, x0, x1) {
       tx = fin + 1;
     }
   };
-  // sousLeCiel : un sol est abrité (le sol d'une alcôve) s'il a un plafond dans la carte à 4 rangées au plus au-dessus ;
-  // un plafond couvre une alcôve s'il y a un sol à 5 rangées au plus en dessous (le bas de la carte est le vide).
-  const abrite = (tx, ty) => { for (let k = 2; k <= 5 && ty - k >= 0; k++) if (plein(tx, ty - k)) return true; return false; };
-  const salle = (tx, ty) => { for (let k = 4; k <= 5 && ty + k < H; k++) if (plein(tx, ty + k)) return true; return false; };
+  // sousLeCiel : un sol est abrité (galerie, citerne, alcôve) s'il a de la pierre au-dessus de lui, si haut soit-elle :
+  // la crête ne se pose que sous le ciel ; un plafond couvre une salle s'il y a un sol sous lui, si bas soit-il :
+  // la roche ne pend en entier qu'au-dessus du vide (le bas de la carte est le vide)
+  const abrite = (tx, ty) => { for (let y = ty - 2; y >= 0; y--) if (plein(tx, y)) return true; return false; };
+  const salle = (tx, ty) => { for (let y = ty + 4; y < H; y++) if (plein(tx, y)) return true; return false; };
   // 1. la roche qui pend sous les îles (derrière la roche elle-même) : pleine profondeur au milieu,
   //    elle s'effile vers les bords de chaque île au lieu d'être coupée net
   if (T.dessous) {
-    const d = T.dessous, pend = (tx, ty) => plein(tx, ty) && !plein(tx, ty + 1) && !plein(tx, ty + 2) && !plein(tx, ty + 3);
+    const d = T.dessous, pend = (tx, ty) => roche(tx, ty) && !plein(tx, ty + 1) && !plein(tx, ty + 2) && !plein(tx, ty + 3);
     for (let ty = 0; ty < H; ty++) suites(ty, pend, 0, (X0, X1) => {
       const y = ty * TP + TP - 4;
       for (let x = Math.max(X0, x0); x < Math.min(X1, x1); x++) {
@@ -129,7 +188,7 @@ function peindreTerrain(g, x0, x1) {
   // 2. la roche, les murs fissurés, les pointes
   for (let ty = 0; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++) {
     const t = caseA(tx, ty), x = tx * TP, y = ty * TP;
-    if (t === ROC || t === FRAGILE) {
+    if (roche(tx, ty)) {
       g.drawImage(T.roc, mod(x, T.roc.width), mod(y, T.roc.height), TP, TP, x, y, TP, TP);
       if (t === FRAGILE) g.drawImage(T.fissures, x, y);
       g.fillStyle = '#060606';
@@ -137,7 +196,7 @@ function peindreTerrain(g, x0, x1) {
       if (!plein(tx + 1, ty)) g.fillRect(x + TP - 1, y, 1, TP);
       if (!plein(tx, ty + 1) && ty < H - 1) g.fillRect(x, y + TP - 1, TP, 1);
       if (!T.crete && ty > 0 && !plein(tx, ty - 1)) { g.fillStyle = '#9a9a96'; g.fillRect(x, y, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(x, y + 1, TP, 1); }
-    } else if (t === PICS) {
+    } else if (t === PICS && !flecheDeTour(tx, ty)) {
       const p = T.pointes;
       g.drawImage(p, mod(x, p.width), 0, TP, p.height, x, y + TP - p.height, TP, p.height);
     }
@@ -157,11 +216,18 @@ function peindreTerrain(g, x0, x1) {
   if (T.crete) {
     const c = T.crete;
     for (let ty = 1; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++) {
-      if (!plein(tx, ty) || plein(tx, ty - 1)) continue;
+      if (!roche(tx, ty) || plein(tx, ty - 1)) continue;
       if (T.sousLeCiel && abrite(tx, ty)) {            // le sol d'une salle : l'arête claire d'une dalle, pas de créneaux
         g.fillStyle = '#9a9a96'; g.fillRect(tx * TP, ty * TP, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(tx * TP, ty * TP + 1, TP, 1);
       } else g.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
     }
+  }
+  // 5. les tours peintes, par-dessus tout le reste du terrain (leur pied de brume couvre le haut des fondations,
+  //    leurs saillies couvrent le bout des galeries qui s'y accrochent)
+  for (const t of cache.tours) {
+    if (!t.pieces) continue;
+    const X = t.x0 * TP - t.pieces.coeur;
+    if (X < x1 && X + t.pieces.sommet.width > x0) peindreTour(g, T, t);
   }
 }
 // ---------- herses et leviers ----------
