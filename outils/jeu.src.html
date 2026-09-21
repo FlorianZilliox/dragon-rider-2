@@ -5,14 +5,14 @@
   /* Un seul monde visuel : un crépuscule gothique en 16 bits. Pas de variante claire/sombre. */
   [hidden] { display: none !important; }
   :root {
-    --fond: #07060b;
-    --croix: #1f1b25;
-    --croix-creux: #141118;
+    --fond: #070707;
+    --croix: #1d1d1d;
+    --croix-creux: #131313;
     --sang: #8e2230;
-    --bronze: #8f7a52;
-    --panneau: #25212b;
-    --panneau-ombre: #19161e;
-    --etiquette: #8c7c83;
+    --bronze: #7d7d7d;
+    --panneau: #232323;
+    --panneau-ombre: #181818;
+    --etiquette: #818181;
     --b: clamp(44px, 8vmin, 60px);
   }
   html, body { height: 100%; }
@@ -37,7 +37,7 @@
   #jeu.portrait .manette {
     position: relative; flex: 1; align-items: center; width: 100%; box-sizing: border-box;
     background: linear-gradient(var(--panneau), var(--panneau-ombre));
-    border-top: 3px solid #3a3440; padding-top: 10px;
+    border-top: 3px solid #373737; padding-top: 10px;
   }
   .croix {
     pointer-events: auto; display: grid;
@@ -48,10 +48,10 @@
   .croix button, .moyeu { background: var(--croix); border: 0; padding: 0; }
   .croix button {
     -webkit-tap-highlight-color: transparent; touch-action: none; cursor: pointer;
-    color: #6f6679; display: grid; place-items: center;
+    color: #6a6a6a; display: grid; place-items: center;
   }
   .croix button svg { width: 38%; height: 38%; fill: currentColor; }
-  .croix button.on { background: var(--croix-creux); color: #b5aab0; }
+  .croix button.on { background: var(--croix-creux); color: #adadad; }
   #btn-haut { grid-area: haut; border-radius: 7px 7px 0 0; }
   #btn-bas { grid-area: bas; border-radius: 0 0 7px 7px; }
   #btn-gauche { grid-area: gauche; border-radius: 7px 0 0 7px; }
@@ -70,11 +70,11 @@
     transition: transform .06s;
   }
   .rond.on { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .28), 0 1px 0 rgba(0, 0, 0, .5); }
-  #btn-ruee { background: var(--bronze); color: #231a0e; }
-  #btn-feu { background: var(--sang); color: #efe6da; }
-  .action span { font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #cfc6ba; text-shadow: 0 1px 0 #000; }
+  #btn-ruee { background: var(--bronze); color: #1c1c1c; }
+  #btn-feu { background: var(--sang); color: #e7e7e7; }
+  .action span { font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #c7c7c7; text-shadow: 0 1px 0 #000; }
   #jeu.portrait .action span { color: var(--etiquette); text-shadow: none; }
-  button:focus-visible { outline: 2px solid #d8d0c4; outline-offset: 2px; }
+  button:focus-visible { outline: 2px solid #d1d1d1; outline-offset: 2px; }
 </style>
 
 <div id="jeu" class="paysage">
@@ -130,13 +130,10 @@
   const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // palette gothique : nuit violette, os, cendre, sang. Le feu est la seule lumière chaude.
-  const ENCRE = '#07060b', OS = '#d8d0c4', OS2 = '#a89f95', CENDRE = '#6b5a64', BRUME = '#8c7c83';
+  const ENCRE = '#070707', OS = '#d1d1d1', OS2 = '#a0a0a0', CENDRE = '#606060', BRUME = '#818181';
   const SANG = '#7a1c26', SANG_VIF = '#b8323a';
-  const CIEL_NUIT = ['#07060b', '#0a080f', '#0e0b14', '#130f1a', '#181320', '#1e1726', '#251b2c', '#2e2032',
-                     '#382436', '#442839', '#522c3b', '#5e2f3c'];
-  const CIEL_ECLAIR = CIEL_NUIT.map((c) => melange(c, '#9a8fa6', 0.55));
-  const LOGO = ['#efe8dc', '#d8d0c4', '#b9ada2', '#9a7f7c', '#8a4a4c', '#7a2a30', '#5e1a22'];
-  const FEU = ['#fff4d6', '#ffd9a0', '#f0a050', '#e0702e', '#b8323a', '#7a1c26', '#2e2032'];
+  const LOGO = ['#f4f3ee', '#e2e1dc', '#c9c8c3', '#abaaa5', '#8c8b87', '#6e6d69', '#4f4e4b'];
+  const FEU = ['#f4f4f4', '#ffd9a0', '#f0a050', '#e0702e', '#b8323a', '#7a1c26', '#262626'];
 
   // l'histoire : trois actes vers la droite, puis le Veilleur au fond des cryptes
   const ACTES = [
@@ -156,8 +153,7 @@
   const cvs = document.getElementById('ecran');
   const ctx = cvs.getContext('2d');
   const jeu = document.getElementById('jeu');
-  let W = 400, H = 224, SOL = 200, HORIZON = 140, ECHELLE = 3;   // SOL : ligne du sol à l'écran quand le dragon est posé
-  let VIGNETTES = null, CIELS = null;
+  let W = 400, H = 224, SOL = 200, ECHELLE = 3;   // SOL : ligne du sol à l'écran quand le dragon est posé
   function disposer() {
     const vw = innerWidth, vh = innerHeight;
     const portrait = vh > vw * 1.05;
@@ -169,36 +165,11 @@
     cvs.width = W; cvs.height = H;
     cvs.style.width = W * ECHELLE + 'px'; cvs.style.height = H * ECHELLE + 'px';
     ctx.imageSmoothingEnabled = false;
-    SOL = H - 24; HORIZON = SOL - 60;
-    VIGNETTES = [construireVignette(0.62), construireVignette(0.44)];
-    CIELS = [construireCiel(CIEL_NUIT), construireCiel(CIEL_ECLAIR)];
+    SOL = H - 24;
   }
   addEventListener('resize', disposer);
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-  function construireVignette(debut) {
-    const c = toile(W, H), g = c.getContext('2d'), d = g.createImageData(W, H), p = d.data;
-    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-      const dx = Math.abs(x - W / 2) / (W / 2), dy = Math.abs(y - H / 2) / (H / 2);
-      const v = clamp((Math.hypot(dx * 0.85, dy) - debut) / (1.3 - debut), 0, 1);
-      if (v * 17 > BAYER[(y & 3) * 4 + (x & 3)] + 1) { const i = (y * W + x) * 4; p[i] = 7; p[i + 1] = 6; p[i + 2] = 11; p[i + 3] = 230; }
-    }
-    g.putImageData(d, 0, 0);
-    return c;
-  }
-  function construireCiel(pal) {
-    const c = toile(W, H), g = c.getContext('2d'), n = pal.length, bande = Math.ceil(HORIZON / n);
-    for (let i = 0; i < n; i++) { g.fillStyle = pal[i]; g.fillRect(0, i * bande, W, bande); }
-    g.fillStyle = pal[n - 1]; g.fillRect(0, n * bande, W, H);
-    for (let i = 0; i < n - 1; i++) {        // transitions tramées entre les bandes
-      const y = (i + 1) * bande;
-      g.fillStyle = pal[i + 1];
-      for (let x = 0; x < W; x += 2) g.fillRect(x + (i & 1), y - 1, 1, 1);
-      for (let x = 0; x < W; x += 4) g.fillRect(x + 1, y - 2, 1, 1);
-      g.fillStyle = pal[i];
-      for (let x = 0; x < W; x += 4) g.fillRect(x + 3, y, 1, 1);
-    }
-    return c;
-  }
+
 
   // ================= Police bitmap 5×7 =================
   const GLYPHES = {
@@ -296,7 +267,7 @@
     return c;
   }
   function construirePieces(atlas) {
-    const jeux = { normal: null, blanc: '#ffffff', fantome: '#6a5a8a', contour: '#46384f' }, out = {};
+    const jeux = { normal: null, blanc: '#ffffff', fantome: '#646464', contour: '#3e3e3e' }, out = {};
     for (const [jeu, teinte] of Object.entries(jeux)) {
       out[jeu] = {};
       for (const [nom, pose] of Object.entries(POSES)) {
@@ -320,15 +291,26 @@
   function construirePlanche(img) {
     const c = toile(img.width, img.height);
     c.getContext('2d').drawImage(img, 0, 0);
-    return { normal: c, blanc: silhouette(c, '#ffffff'), fantome: silhouette(c, '#6a5a8a'), contour: silhouette(c, '#46384f') };
+    return { normal: c, blanc: silhouette(c, '#ffffff'), fantome: silhouette(c, '#646464'), contour: silhouette(c, '#3e3e3e') };
   }
 
-  // ================= Décors : tuiles pixel pré-calculées, un décor par acte =================
+  // ================= Décors : plans peints par Pixel Artist, en parallaxe =================
+  // Les images viennent de art/ : pixel_artist/generer.py (d'après la référence d'ambiance) puis pixeliser.py
+  // (recettes art/recettes/*.json). Chaque plan tourne en boucle ; plus il est loin, moins il défile.
+  const ART = /*DECORS_ART*/null;
   const T = 512;
-  const tri = (u) => 1 - 2 * Math.abs(frac(u) - 0.5);
-  const onde = (k, p) => (x) => Math.sin(2 * Math.PI * (k * x / T + p));
-  let DECORS = null, LUNE = null, BRUME_T = null, HALOS = null;
-  // halo de bougie tramé (pas de transparence floue : des pixels chauds de plus en plus rares)
+  let IMAGES_ART = {}, HALOS = null;
+  // f / v : part du défilement horizontal / vertical de la caméra ; haut : y du haut du plan (px) ;
+  // bas : le bas du plan tombe à tant de pixels sous la ligne de sol ; x : plan fixe, centré à cette fraction de l'écran
+  const CIEL = [{ el: 'commun/ciel', f: 0.03, v: 0.05, haut: -70 }, { el: 'commun/lune', f: 0.01, v: 0.04, haut: 34, x: 0.72 },
+                { el: 'objets/ile', f: 0.06, v: 0.08, haut: 58, pas: 620 }];
+  const PLANS = [
+    { dehors: true, plans: [...CIEL, { el: 'terres/lointain', f: 0.1, v: 0.12, bas: -14 }, { el: 'commun/nuages', f: 0.16, v: 0.3, bas: 150 },
+                            { el: 'terres/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'terres/proche', f: 0.55, v: 0.55, bas: 34 }] },
+    { dehors: true, orage: true, plans: [...CIEL, { el: 'cimetiere/lointain', f: 0.1, v: 0.12, bas: -10 }, { el: 'commun/nuages', f: 0.16, v: 0.3, bas: 150 },
+                            { el: 'cimetiere/milieu', f: 0.3, v: 0.3, bas: 12 }, { el: 'cimetiere/proche', f: 0.55, v: 0.55, bas: 34 }] },
+    { dehors: false, plans: [{ el: 'cryptes/fond', f: 0.15, v: 0.2, haut: -40 }, { el: 'cryptes/arcades', f: 0.45, v: 0.45, haut: -30 }] },
+  ];
   function construireHalo(r, graine) {
     const c = toile(r * 2 + 1, r * 2 + 1), g = c.getContext('2d');
     for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
@@ -336,28 +318,14 @@
       if (d > 1) continue;
       const seuil = BAYER[((y + r) & 3) * 4 + ((x + r) & 3)] / 16;
       if ((1 - d) * 0.9 > seuil + (hash(x * 7 + y * 13 + graine) - 0.5) * 0.15) {
-        g.fillStyle = d < 0.35 ? FEU[2] : d < 0.65 ? FEU[3] : '#5e2f3c';
+        g.fillStyle = d < 0.35 ? FEU[2] : d < 0.65 ? FEU[3] : '#404040';
         g.fillRect(x + r, y + r, 1, 1);
       }
     }
     return c;
   }
-  function tuileRelief(h, hauteur, peindre) {
-    const c = toile(T, hauteur), g = c.getContext('2d');
-    for (let x = 0; x < T; x++) {
-      const hx = Math.round(h(x)), pente = h((x + 1) % T) - h(x);
-      for (let y = hauteur - hx; y < hauteur; y++) { g.fillStyle = peindre(x, y, y - (hauteur - hx), pente); g.fillRect(x, y, 1, 1); }
-    }
-    return c;
-  }
-  function relief(g, h, hauteur, couleur, bord) {
-    for (let x = 0; x < T; x++) {
-      const hx = Math.round(h(x));
-      g.fillStyle = couleur; g.fillRect(x, hauteur - hx, 1, hx);
-      if (bord) { g.fillStyle = bord; g.fillRect(x, hauteur - hx, 1, 1); }
-    }
-  }
-  const partout = (x, dessin) => { for (const dx of [0, -T, T]) dessin(x + dx); };   // tuile sans couture
+  const partout = (x, dessin) => { for (const dx of [0, -T, T]) dessin(x + dx); };   // motif sans couture
+
   function trait(g, x0, y0, x1, y1, ep, couleur) {
     g.fillStyle = couleur;
     const n = Math.max(1, Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))));
@@ -377,21 +345,6 @@
       branche(X, base - h * 0.42, Math.PI / 2 + (hash(graine + 1) - 0.5) * 0.5, h * 0.28, 4);
     });
   }
-  function fleche(g, x, base, w, h, c, bord, cassee) {
-    partout(x, (X) => {
-      g.fillStyle = c; g.fillRect(X - (w >> 1), base - h, w, h);
-      const toit = Math.round(w * 1.8);
-      for (let r = 0; r < toit; r++) {
-        if (cassee && r > toit * 0.3 && hash(r * 1.7 + x) > 0.45) continue;
-        const lw = Math.round((w >> 1) * (1 - r / toit));
-        g.fillRect(X - lw, base - h - r, lw * 2 + 1, 1);
-      }
-      if (!cassee) { g.fillRect(X, base - h - toit - 5, 1, 5); g.fillRect(X - 2, base - h - toit - 3, 5, 1); }
-      g.fillStyle = '#3a1820';                 // fenêtre ogivale à la lueur rouge
-      g.fillRect(X - 1, base - h + 7, 3, 7); g.fillRect(X, base - h + 6, 1, 1);
-      if (bord) { g.fillStyle = bord; g.fillRect(X + (w >> 1) - 1, base - h, 1, h); }
-    });
-  }
   function croix(g, x, base, h, c, penche) {
     partout(x, (X) => {
       trait(g, X, base, X + penche, base - h, 2, c);
@@ -405,130 +358,6 @@
       for (let r = 0; r < h; r++) { const retrait = r >= h - 2 ? (h - r) : 0; g.fillRect(X + retrait, base - r, w - retrait * 2, 1); }
     });
   }
-  function grille(g, base, h, c) {
-    g.fillStyle = c;
-    for (let x = 0; x < T; x += 4) { g.fillRect(x, base - h, 1, h); g.fillRect(x - 1, base - h, 3, 1); g.fillRect(x, base - h - 2, 1, 2); }
-    g.fillRect(0, base - h + 4, T, 1); g.fillRect(0, base - 3, T, 1);
-  }
-  function mausolee(g, x, base, w, h, c, bord) {
-    partout(x, (X) => {
-      g.fillStyle = c;
-      g.fillRect(X, base - h, w, h); g.fillRect(X - 3, base - 4, w + 6, 4);
-      for (let r = 0; r < 10; r++) g.fillRect(X - 2 + r, base - h - r, w + 4 - 2 * r, 1);
-      g.fillRect(X + (w >> 1), base - h - 17, 1, 7); g.fillRect(X + (w >> 1) - 2, base - h - 15, 5, 1);
-      g.fillStyle = '#030205'; g.fillRect(X + (w >> 1) - 4, base - 16, 8, 12);
-      for (let cx = X + 3; cx < X + w - 2; cx += 6) if (Math.abs(cx - (X + w / 2)) > 6) g.fillRect(cx, base - h + 4, 1, h - 8);
-      if (bord) { g.fillStyle = bord; g.fillRect(X + w - 1, base - h, 1, h); for (let r = 0; r < 10; r++) g.fillRect(X + w + 1 - r, base - h - r, 1, 1); }
-    });
-  }
-  function ange(g, x, base, c) {
-    partout(x, (X) => {
-      g.fillStyle = c;
-      g.fillRect(X - 3, base - 6, 7, 6); g.fillRect(X - 1, base - 20, 3, 14); g.fillRect(X - 1, base - 23, 3, 3);
-      for (let r = 0; r < 9; r++) { g.fillRect(X - 2 - r, base - 19 + r, 1 + r, 1); g.fillRect(X + 2, base - 19 + r, 1 + r, 1); }
-    });
-  }
-  function decorTerres() {
-    const lointain = tuileRelief((x) => 22 + 30 * tri(4 * x / T + 0.2) + 16 * tri(9 * x / T + 0.6) + 5 * onde(29, 0)(x), 84,
-      (x, y, prof, pente) => (prof < 1 ? (pente < 0 ? '#3a2d45' : '#2a2233') : '#1b1524'));
-    const milieu = toile(T, 96), gm = milieu.getContext('2d');
-    relief(gm, (x) => 14 + 7 * onde(3, 0.3)(x) + 4 * onde(7, 0.1)(x), 96, '#140f1a', '#241c2e');
-    [[60, 12, 52, false], [190, 16, 64, true], [300, 10, 40, false], [420, 14, 58, true]].forEach(([x, w, h, c]) => fleche(gm, x, 84, w, h, '#140f1a', '#241c2e', c));
-    for (let i = 0; i < 8; i++) arbreMort(gm, Math.floor(hash(i + 5) * T), 86, 24 + hash(i * 3) * 18, '#140f1a', i);
-    const proche = toile(T, 110), gp = proche.getContext('2d');
-    for (let i = 0; i < 3; i++) arbreMort(gp, 70 + i * 170 + Math.floor(hash(i * 7) * 50), 110, 58 + hash(i) * 36, '#0a080e', i + 20);
-    for (let i = 0; i < 6; i++) croix(gp, Math.floor(hash(i + 40) * T), 110, 9 + Math.floor(hash(i) * 6), '#0a080e', Math.round((hash(i * 9) - 0.5) * 4));
-    return { lointain, milieu, proche, exterieur: true };
-  }
-  function decorCimetiere() {
-    const lointain = toile(T, 90), gl = lointain.getContext('2d');
-    relief(gl, (x) => 10 + 3 * onde(5, 0)(x), 90, '#1b1524');
-    for (let i = 0; i < 11; i++) {
-      const x = Math.floor(i * 47 + hash(i) * 20), h = 18 + Math.floor(hash(i * 3) * 22), w = 14 + Math.floor(hash(i * 5) * 10);
-      if (i % 3 === 0) partout(x, (X) => {            // dôme
-        gl.fillStyle = '#1b1524'; gl.fillRect(X - (w >> 1), 80 - h, w, h);
-        const r = w >> 1;
-        for (let y = -r; y <= 0; y++) { const hw = Math.floor(Math.sqrt(r * r - y * y)); gl.fillRect(X - hw, 80 - h + y, hw * 2 + 1, 1); }
-        gl.fillRect(X, 80 - h - r - 6, 1, 6); gl.fillStyle = '#2e2439'; gl.fillRect(X + (w >> 1) - 1, 80 - h, 1, h);
-      });
-      else fleche(gl, x, 80, 8 + (i % 2) * 4, h + 10, '#1b1524', '#2e2439', false);
-    }
-    const milieu = toile(T, 50), gm = milieu.getContext('2d');
-    grille(gm, 50, 20, '#110d16');
-    for (let i = 0; i < 16; i++) {
-      const x = Math.floor(hash(i * 11) * T);
-      if (i % 3 === 0) croix(gm, x, 50, 12, '#15101b', 0); else tombe(gm, x, 50, 7 + (i % 3) * 2, 9 + Math.floor(hash(i) * 7), '#15101b');
-    }
-    const proche = toile(T, 110), gp = proche.getContext('2d');
-    mausolee(gp, 40, 110, 52, 50, '#09070c', '#1b1524');
-    mausolee(gp, 300, 110, 40, 38, '#09070c', '#1b1524');
-    ange(gp, 200, 110, '#09070c'); ange(gp, 460, 110, '#09070c');
-    for (let i = 0; i < 5; i++) tombe(gp, Math.floor(hash(i * 31) * T), 110, 9, 12 + Math.floor(hash(i) * 5), '#09070c');
-    return { lointain, milieu, proche, exterieur: true };
-  }
-  function decorCryptes() {
-    // mur de pierre avec niches d'ossuaire
-    const mur = toile(T, 340), gw = mur.getContext('2d');
-    gw.fillStyle = '#0a080e'; gw.fillRect(0, 0, T, 340);
-    for (let r = 0; r * 8 < 340; r++) for (let x = -(r % 2) * 8; x < T; x += 16) {
-      const s = hash(r * 31 + x * 0.7);
-      gw.fillStyle = s > 0.86 ? '#18131f' : s < 0.14 ? '#0d0a12' : '#120e18';
-      gw.fillRect(x + 1, r * 8 + 1, 15, 7);
-    }
-    for (let j = 0; j < 4; j++) {
-      const nx = 20 + j * 128, ny = 96;
-      gw.fillStyle = '#07060b'; gw.fillRect(nx, ny, 34, 44);
-      for (let r = 0; r < 8; r++) gw.fillRect(nx + r, ny - r, 34 - 2 * r, 1);
-      for (let row = 0; row < 3; row++) for (let k = 0; k < 4; k++) {
-        const sx = nx + 3 + k * 8, sy = ny + 6 + row * 12;
-        gw.fillStyle = '#3e3549'; gw.fillRect(sx, sy, 6, 5); gw.fillRect(sx + 1, sy + 5, 4, 2);
-        gw.fillStyle = '#07060b'; gw.fillRect(sx + 1, sy + 2, 1, 2); gw.fillRect(sx + 4, sy + 2, 1, 2);
-      }
-    }
-    // arcades : piliers, chapiteaux, voûtes
-    const arcades = toile(T, 340), ga = arcades.getContext('2d');
-    for (let j = 0; j < 4; j++) {
-      const cx = 64 + j * 128, nx = cx + 128;
-      for (let x = cx; x < nx; x++) {
-        const u = (x - cx) / 128 - 0.5, yv = Math.round(46 - Math.sqrt(Math.max(0, 0.25 - u * u)) * 70);
-        ga.fillStyle = '#07060b'; ga.fillRect(x % T, 0, 1, yv);
-        ga.fillStyle = '#100c15'; ga.fillRect(x % T, yv, 1, 6);
-        ga.fillStyle = '#2a2233'; ga.fillRect(x % T, yv + 6, 1, 1);
-      }
-    }
-    for (let j = 0; j < 4; j++) {
-      const cx = 64 + j * 128;
-      ga.fillStyle = '#100c15'; ga.fillRect(cx - 9, 40, 18, 300); ga.fillRect(cx - 12, 40, 24, 5);
-      ga.fillStyle = '#2a2233'; ga.fillRect(cx - 9, 45, 1, 295); ga.fillRect(cx - 12, 40, 24, 1);
-      ga.fillStyle = '#0a080e'; ga.fillRect(cx + 4, 45, 1, 295);
-    }
-    return { mur, arcades, exterieur: false };
-  }
-  function construireLune() {
-    const r = 17, o = r + 7, c = toile(o * 2, o * 2), g = c.getContext('2d');
-    for (let y = -o; y < o; y++) for (let x = -o; x < o; x++) {
-      const d = Math.hypot(x, y);
-      if (d <= r) { g.fillStyle = (x * 0.8 + y * 0.4) > r * 0.45 ? OS2 : OS; g.fillRect(o + x, o + y, 1, 1); }
-      else if (d < r + 7 && ((x + y) & 1) === 0 && hash(x * 3.1 + y * 7.7) < 0.75 - (d - r) / 8) { g.fillStyle = '#2a2233'; g.fillRect(o + x, o + y, 1, 1); }
-    }
-    for (const [cx, cy, cr] of [[-5, -4, 3], [4, 3, 2], [-2, 7, 2], [6, -6, 1]])
-      for (let y = -cr; y <= cr; y++) for (let x = -cr; x <= cr; x++) if (x * x + y * y <= cr * cr) { g.fillStyle = '#b3aa9f'; g.fillRect(o + cx + x, o + cy + y, 1, 1); }
-    return c;
-  }
-  function tuileBrume() {
-    const c = toile(T, 18), g = c.getContext('2d');
-    g.fillStyle = CENDRE;
-    for (let y = 0; y < 18; y++) {
-      const densite = Math.sin(y / 17 * Math.PI) * 0.6;
-      for (let x = 0; x < T; x++) if (((x + y) & 1) === 0 && hash(Math.floor(x / 23) * 1.3 + y * 0.9) * 0.5 + hash(x * 0.071) * 0.5 < densite) g.fillRect(x, y, 1, 1);
-    }
-    return c;
-  }
-
-  function tuile(img, facteur, y, derive = 0) {
-    const off = ((cam * facteur + derive) % T + T) % T;
-    for (let x = -Math.floor(off); x < W; x += T) ctx.drawImage(img, x, Math.round(y));
-  }
   function disque(cx, cy, r, teinte) {
     ctx.fillStyle = teinte;
     for (let y = -r; y <= r; y++) {
@@ -536,70 +365,33 @@
       ctx.fillRect(Math.round(cx) - hw, Math.round(cy) + y, hw * 2 + 1, 1);
     }
   }
+
   let eclair = 0, prochainEclair = 8;
   // la caméra monte et descend : chaque plan du décor suit d'autant moins qu'il est loin
   const monte = (f) => Math.round((NIV.depart[1] - camY - SOL) * f);
   function decor() {
-    const D = DECORS[acteVisuel];
-    if (D.exterieur) {
-      const flash = eclair > 0.16 || (eclair > 0.04 && eclair < 0.1);
-      ctx.drawImage(CIELS[flash ? 1 : 0], 0, 0);
-      for (let i = 0; i < 26; i++) {
-        const x = Math.round(((hash(i * 3.7) * 900 - cam * 0.02) % 900 + 900) % 900 - 200), y = 4 + Math.floor(hash(i * 9.1) * HORIZON * 0.45);
-        if (x >= 0 && x < W && Math.sin(temps * 1.5 + i) > -0.2) { ctx.fillStyle = Math.sin(temps * 2.3 + i * 2) > 0.7 ? OS2 : '#4a3a55'; ctx.fillRect(x, y, 1, 1); }
+    const A = PLANS[acteVisuel];
+    ctx.fillStyle = '#060606'; ctx.fillRect(0, 0, W, H);
+    let fond = 0;
+    A.plans.forEach((p, k) => {
+      const img = IMAGES_ART[p.el];
+      const y = p.haut !== undefined ? p.haut + monte(p.v) : SOL + p.bas + monte(p.v) - img.height;
+      if (p.x !== undefined) ctx.drawImage(img, Math.round(W * p.x - img.width / 2 - cam * p.f), y);
+      else {
+        const w = p.pas || img.width, x0 = -((Math.round(cam * p.f) % w) + w) % w;
+        for (let x = x0; x < W; x += w) ctx.drawImage(img, x, y);
       }
-      const yl = Math.round(HORIZON * 0.36) + monte(0.04);
-      ctx.drawImage(LUNE, Math.round(W * 0.86) - (LUNE.width >> 1), yl);
-      if (acteVisuel === 1) { ctx.fillStyle = '#100d17'; ctx.fillRect(Math.round(W * 0.86) - 30, yl + 20, 64, 2); ctx.fillRect(Math.round(W * 0.86) - 20, yl + 24, 50, 1); }
-      tuile(D.lointain, 0.08, SOL - 26 - D.lointain.height + monte(0.12));
-      ctx.globalAlpha = 0.5; tuile(BRUME_T, 0.12, HORIZON + 8 + monte(0.16), temps * 5); ctx.globalAlpha = 1;
-      tuile(D.milieu, 0.3, SOL - 10 - D.milieu.height + monte(0.3));
-      ctx.globalAlpha = 0.55; tuile(BRUME_T, 0.45, SOL - 30 + monte(0.45), -temps * 8); ctx.globalAlpha = 1;
-      const yp = SOL + 2 + monte(0.6);
-      tuile(D.proche, 0.62, yp - D.proche.height);
-      if (yp < H) { ctx.fillStyle = '#0a080e'; ctx.fillRect(0, yp, W, H - yp); }   // sous l'horizon : la nuit du gouffre
-    } else {
-      const ym = monte(0.2), ya = monte(0.5);
-      ctx.fillStyle = '#0d0a12'; ctx.fillRect(0, 0, W, H);
-      tuile(D.mur, 0.2, ym);
-      if (ya > 0) { ctx.fillStyle = '#07060b'; ctx.fillRect(0, 0, W, ya); }
-      tuile(D.arcades, 0.5, ya);
-      bougies(ya);
-    }
-  }
-  function bougies(oy) {
-    const off = ((cam * 0.5) % T + T) % T;
-    for (let base = -Math.floor(off); base < W + T; base += T) for (let j = 0; j < 4; j++) {
-      const x = base + 64 + j * 128, y = SOL - 78 + oy;
-      if (x < -24 || x > W + 24) continue;
-      const f = Math.sin(temps * 11 + j * 3 + base * 0.1) * 0.5 + 0.5;
-      const halo = HALOS[f > 0.5 ? 1 : 0];
-      ctx.drawImage(halo, x - (halo.width >> 1), y - 3 - (halo.height >> 1));
-      ctx.fillStyle = '#2a2233'; ctx.fillRect(x - 5, y + 4, 11, 2); ctx.fillRect(x, y + 6, 1, 6);
-      for (const dx of [-4, 0, 4]) {
-        ctx.fillStyle = '#9c93a1'; ctx.fillRect(x + dx, y, 1, 4);
-        ctx.fillStyle = (f + dx * 0.1) > 0.5 ? FEU[1] : FEU[3]; ctx.fillRect(x + dx, y - 2 - (f > 0.75 ? 1 : 0), 1, 2);
-      }
-    }
-  }
-  function premierPlan() {
-    if (DECORS[acteVisuel].exterieur || arene) return;       // dans l'arène, la caméra est fixe : rien devant le combat
-    const pas = 460, off = cam * 1.3, o = monte(1.3);
-    for (let k = Math.floor((off - 60) / pas); k * pas - off < W + 60; k++) {
-      const x = Math.round(k * pas - off + hash(k) * 80);
-      ctx.fillStyle = '#040306'; ctx.fillRect(x, 0, 22, H);
-      ctx.fillRect(x - 4, SOL - 6 + o, 30, 8); ctx.fillRect(x - 4, 38 + o, 30, 6);
-      ctx.fillStyle = '#1b1524'; ctx.fillRect(x + 21, 0, 1, H);
-      const cx = Math.round((k + 0.5) * pas - off), long = 30 + Math.floor(hash(k * 3) * 40) + o;
-      ctx.fillStyle = '#2a2233';
-      for (let y = 0; y < long; y += 4) ctx.fillRect(cx + ((y >> 2) & 1), y, 1, 3);
-    }
+      if (p.bas !== undefined) fond = Math.max(fond, y + img.height);
+      // l'orage : l'éclair blanchit le ciel, les silhouettes restent noires devant
+      if (A.orage && k === 2 && (eclair > 0.16 || (eclair > 0.04 && eclair < 0.1))) { ctx.fillStyle = 'rgba(236,235,230,0.32)'; ctx.fillRect(0, 0, W, H); }
+    });
+    if (A.dehors && fond < H) { ctx.fillStyle = '#b3b2ad'; ctx.fillRect(0, fond, W, H - fond); }   // sous les îles : la mer de nuages
   }
   // cendres qui tombent dehors, poussière qui flotte dans les cryptes
   let flocons = [];
   function majMeteo(dt) {
     if (!flocons.length) flocons = Array.from({ length: 28 }, () => ({ x: rand(0, 600), y: rand(0, 300), v: rand(5, 14), d: rand(-10, -3), t: rand(0, 6) }));
-    const dedans = !DECORS[acteVisuel].exterieur;
+    const dedans = !PLANS[acteVisuel].dehors;
     for (const f of flocons) {
       f.t += dt;
       f.y += (dedans ? -0.35 : 1) * f.v * dt;
@@ -607,82 +399,31 @@
       if (f.y > H) f.y -= H; if (f.y < 0) f.y += H;
       if (f.x < 0) f.x += W; if (f.x > W) f.x -= W;
     }
-    if (acteVisuel === 1 && etat !== 'titre') {
+    if (PLANS[acteVisuel].orage && etat !== 'titre') {
       eclair -= dt; prochainEclair -= dt;
       if (prochainEclair <= 0) { eclair = 0.24; prochainEclair = rand(8, 15); sfx('tonnerre', 0.45); }
     }
   }
   function dessinerMeteo() {
-    const dedans = !DECORS[acteVisuel].exterieur;
-    flocons.forEach((f, i) => { ctx.fillStyle = dedans ? '#3e3549' : (i % 3 ? CENDRE : BRUME); ctx.fillRect(Math.round(f.x), Math.round(f.y), 1, 1); });
+    const dedans = !PLANS[acteVisuel].dehors;
+    flocons.forEach((f, i) => { ctx.fillStyle = dedans ? '#3a3a3a' : (i % 3 ? CENDRE : BRUME); ctx.fillRect(Math.round(f.x), Math.round(f.y), 1, 1); });
   }
 
-  // ================= Ennemis : sprites pixel =================
-  const SPRITES = {
-    corbeau: { pal: { X: ['#3a2d45', '#5a4656'], e: '#e0505a', b: BRUME }, frames: [
-      ['....XX..........', '.....XXX........', '......XXX.......', '.......XXX......', 'XX.......XXX..Xe', '.XXXXXXXXXXXXXXb', '...XXXXXXXXXXX..', '.....X..X.......', '................', '................'],
-      ['................', '................', '...XXXX.........', '..XXXXXXXXX.....', 'XX.......XXX..Xe', '.XXXXXXXXXXXXXXb', '...XXXXXXXXXXX..', '.....X..X.......', '................', '................'],
-      ['................', '................', '................', '.......XX.......', 'XX.......XXX..Xe', '.XXXXXXXXXXXXXXb', '...XXXXXXXXXXX..', '.....XXXXX......', '......XXX.......', '.......XX.......'],
-    ] },
-    chauve: { pal: { X: ['#352a40', '#54445f'], r: '#ff5a5a' }, frames: [
-      ['X.....X..X.....X', 'XX....XXXX....XX', '.XX..XXXXXX..XX.', '.XXXXXrXXrXXXXX.', '..XXXXXXXXXXXX..', '...XX.XXXX.XX...', '......XXXX......', '.......XX.......'],
-      ['................', '......X..X......', '......XXXX......', 'XXXXXXrXXrXXXXXX', '.XXXXXXXXXXXXXX.', '..X..XXXXXX..X..', '......XXXX......', '.......XX.......'],
-      ['................', '......X..X......', '......XXXX......', '....XXrXXrXX....', '...XXXXXXXXXX...', '..XXX.XXXX.XXX..', '.XX...XXXX...XX.', 'XX.....XX.....XX'],
-    ] },
-    spectre: { pal: { X: [BRUME, '#b5aab0'], o: ENCRE }, frames: [
-      ['....XXXX....', '..XXXXXXXX..', '.XXXXXXXXXX.', '.XXooXXooXX.', 'XXXooXXooXXX', 'XXXXXXXXXXXX', 'XXXXXooXXXXX', 'XXXXXooXXXXX', 'XXXXXXXXXXXX', 'XXXXXXXXXXXX', 'XXXXXXXXXXXX', 'XXX.XXXX.XXX', 'XX...XX...XX', 'X..........X'],
-      ['....XXXX....', '..XXXXXXXX..', '.XXXXXXXXXX.', '.XXooXXooXX.', 'XXXooXXooXXX', 'XXXXXXXXXXXX', 'XXXXXooXXXXX', 'XXXXXooXXXXX', 'XXXXXXXXXXXX', 'XXXXXXXXXXXX', 'XXXXXXXXXXXX', 'XXXX.XXXX.XX', '.XX...XX...X', '..X.........'],
-    ] },
-    crane: { pal: { X: [OS2, OS], o: ENCRE, r: '#ff6a3a' }, frames: [
-      ['...XXXXX...', '.XXXXXXXXX.', 'XXXXXXXXXXX', 'XXooXXXooXX', 'XXorXXXorXX', 'XXooXXXooXX', '.XXXXoXXXX.', '..XXXXXXX..', '..X.X.X.X..', '..XXXXXXX..'],
-    ] },
-  };
+  // ================= Ennemis : planches peintes par Pixel Artist (art/recettes/ennemis.json) =================
   let SPR = {}, VEILLEUR_IMG = null, MACHOIRE_IMG = null;
-  function spriteDepuis(lignes, pal) {
-    const h = lignes.length, w = lignes[0].length, c = toile(w + 2, h + 2), g = c.getContext('2d');
-    const plein = (x, y) => y >= 0 && y < h && x >= 0 && x < w && lignes[y][x] !== '.';
-    for (let y = -1; y <= h; y++) for (let x = -1; x <= w; x++) {
-      if (plein(x, y)) continue;
-      if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => plein(x + dx, y + dy))) { g.fillStyle = ENCRE; g.fillRect(x + 1, y + 1, 1, 1); }
+  function decouperPlanche(el) {          // une case par image ; n : l'image, b : sa silhouette blanche (touché)
+    const a = ART[el], img = IMAGES_ART[el], [cw, ch] = a.cellule, images = [];
+    for (let k = 0; k < a.images; k++) {
+      const c = toile(cw, ch); c.getContext('2d').drawImage(img, k * cw, 0, cw, ch, 0, 0, cw, ch);
+      images.push({ n: c, b: silhouette(c, '#ffffff') });
     }
-    lignes.forEach((l, y) => [...l].forEach((ch, x) => {
-      if (ch === '.') return;
-      g.fillStyle = ch === 'X' ? pal.X[plein(x, y - 1) ? 0 : 1] : pal[ch];
-      g.fillRect(x + 1, y + 1, 1, 1);
-    }));
-    return { n: c, b: silhouette(c, '#ffffff') };
-  }
-  function grillePixels(w, h, peindre) {
-    const couleurs = new Array(w * h).fill(null);
-    peindre((x, y, c) => { if (x >= 1 && y >= 1 && x < w - 1 && y < h - 1) couleurs[y * w + x] = c; }, (x, y) => couleurs[y * w + x]);
-    const c = toile(w, h), g = c.getContext('2d');
-    const plein = (x, y) => x >= 0 && y >= 0 && x < w && y < h && couleurs[y * w + x];
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      if (plein(x, y)) { g.fillStyle = couleurs[y * w + x]; g.fillRect(x, y, 1, 1); }
-      else if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => plein(x + dx, y + dy))) { g.fillStyle = ENCRE; g.fillRect(x, y, 1, 1); }
-    }
-    return { n: c, b: silhouette(c, '#ffffff') };
+    return { images, droite: a.regarde === 'droite' };
   }
   function construireEnnemis() {
-    for (const [nom, def] of Object.entries(SPRITES)) SPR[nom] = def.frames.map((f) => spriteDepuis(f, def.pal));
-    VEILLEUR_IMG = grillePixels(64, 52, (poser, lire) => {
-      for (let y = 0; y < 52; y++) for (let x = 0; x < 64; x++) {
-        const d = Math.hypot(x - 32, (y - 22) * 1.08), s = (x - 32) + (y - 22);
-        if (d <= 22) poser(x, y, s > 12 ? OS2 : s < -24 ? '#efe8dc' : OS);
-      }
-      for (let y = 30; y < 46; y++) { const m = (y - 30) * 0.45; for (let x = 15; x < 50; x++) if (x >= 15 + m && x <= 49 - m) poser(x, y, x > 40 ? OS2 : OS); }
-      for (const cx of [22, 42]) for (let y = 18; y < 35; y++) for (let x = cx - 8; x <= cx + 8; x++) if (Math.hypot(x - cx, (y - 26) * 1.1) <= 7.5) poser(x, y, ENCRE);
-      [[31, 34, 3], [30, 35, 5], [30, 36, 5], [31, 37, 3]].forEach(([x, y, w]) => { for (let i = 0; i < w; i++) poser(x + i - (w > 3 ? 1 : 0), y, ENCRE); });
-      for (let x = 19; x < 46; x++) for (let y = 41; y < 46; y++) if (lire(x, y)) poser(x, y, (x - 19) % 4 === 3 ? ENCRE : '#efe8dc');
-      [[21, 5], [22, 6], [22, 7], [23, 8], [24, 9], [24, 10], [23, 11], [24, 12], [25, 13]].forEach(([x, y]) => poser(x, y, ENCRE));
-    });
-    MACHOIRE_IMG = grillePixels(40, 13, (poser) => {
-      for (let y = 1; y < 12; y++) for (let x = 1; x < 39; x++) {
-        const coin = (y > 8 && (x < 5 - (11 - y) || x > 34 + (11 - y)));
-        if (coin) continue;
-        poser(x, y, y < 5 ? ((x - 2) % 4 === 3 ? ENCRE : '#efe8dc') : y > 9 ? OS2 : OS);
-      }
-    });
+    for (const nom of ['corbeau', 'chauve', 'ame', 'spectre', 'crane']) SPR[nom] = decouperPlanche('ennemis/' + nom);
+    const a = ART['ennemis/veilleur'], img = IMAGES_ART['ennemis/veilleur'];
+    const morceau = ([x, y, w, h]) => { const c = toile(w, h); c.getContext('2d').drawImage(img, x, y, w, h, 0, 0, w, h); return { n: c, b: silhouette(c, '#ffffff') }; };
+    VEILLEUR_IMG = morceau(a.rects[0]); MACHOIRE_IMG = morceau(a.rects[1]);
   }
 
   // ================= Son : bruitages synthétisés (M : couper) =================
@@ -781,7 +522,10 @@
     const r = cvs.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * W, y = (e.clientY - r.top) / r.height * H;
     if (x > W - 22 && y > 20 && y < 38) basculerSon();
-    else if (etat !== 'jeu') appui('fire');
+    else {
+      if (etat === 'titre' && pageTitre === 'menu') MENU.forEach((m, i) => { if (Math.abs(y - menuY(i) - 7) < 10) choix = i; });   // toucher une entrée la choisit
+      if (etat !== 'jeu') appui('fire');
+    }
   });
 
   // ================= Niveaux : cases, collisions, objets (fichiers niveaux/acteN.txt) =================
@@ -912,77 +656,109 @@
     return null;
   }
 
-  // ---------- tuiles et accessoires, dessinés en pixel art pour chaque acte ----------
+  // ---------- terrain et objets : textures et objets peints par Pixel Artist (art/recettes/terrain.json, objets.json) ----------
+  // roc : texture raccordable (128 px), crete : bordure posée sur les sols, dessous : roche qui pend sous les îles
+  const TERRAIN = [
+    { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
+    { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
+    { roc: 'terrain/roc-cryptes', crete: null, dessous: null },
+  ];
   let TUILES = null, ACCESSOIRES = null;
+  const mod = (a, n) => ((a % n) + n) % n;
+  // profondeur d'une roche ou d'une arche qui pend, à « bord » pixels de l'extrémité : épaules arrondies, bord irrégulier
+  const effile = (bord, mini, maxi, x) => Math.min(maxi, Math.round(mini + (maxi - mini) * Math.min(1, bord / 44) ** 0.55 + (hash(x * 1.7) - 0.5) * 5));
+  function ligneOpaque(img) {             // première ligne presque pleine : là où la crête rejoint le sol
+    const c = toile(img.width, img.height), g = c.getContext('2d');
+    g.drawImage(img, 0, 0);
+    const d = g.getImageData(0, 0, img.width, img.height).data;
+    for (let y = 0; y < img.height; y++) {
+      let n = 0;
+      for (let x = 0; x < img.width; x++) if (d[(y * img.width + x) * 4 + 3] > 0) n++;
+      if (n > img.width * 0.9) return y;
+    }
+    return img.height >> 1;
+  }
   function construireTuiles() {
-    const styles = [
-      { fond: '#1b1524', grains: ['#261e30', '#140f1a'], lumiere: '#7a6670', bord: '#4a3a55', bord2: '#2e2439', flanc: '#2a2233', herbe: '#5a4656', corniche: ['#7a6670', '#3a2d45', '#140f1a'] },
-      { fond: '#17121e', grains: ['#221b2a', '#110d16'], lumiere: '#827889', bord: '#4b4156', bord2: '#2a2233', flanc: '#241c2e', herbe: '#4b4156', corniche: ['#827889', '#3e3549', '#110d16'] },
-      { fond: '#241c2e', grains: ['#2e2639', '#0d0a12'], lumiere: '#827889', bord: '#4b4156', bord2: '#332b3d', flanc: '#332b3d', briques: true, corniche: ['#827889', '#4b4156', '#120e18'] },
-    ];
-    return styles.map((st, a) => {
-      const roc = [0, 1, 2, 3].map((v) => {
-        const c = toile(TP, TP), g = c.getContext('2d');
-        g.fillStyle = st.fond; g.fillRect(0, 0, TP, TP);
-        for (let y = 0; y < TP; y++) for (let x = 0; x < TP; x++) {
-          const h = hash(v * 131 + x * 17 + y * 7 + a * 3);
-          if (h > 0.9) { g.fillStyle = st.grains[0]; g.fillRect(x, y, 1, 1); } else if (h < 0.06) { g.fillStyle = st.grains[1]; g.fillRect(x, y, 1, 1); }
-        }
-        if (st.briques) {
-          const j0 = v & 1 ? 4 : 11, j1 = v & 1 ? 11 : 4;
-          g.fillStyle = st.grains[1]; g.fillRect(0, 7, TP, 1); g.fillRect(0, 15, TP, 1); g.fillRect(j0, 0, 1, 7); g.fillRect(j1, 8, 1, 7);
-          g.fillStyle = st.grains[0]; g.fillRect(0, 0, TP, 1); g.fillRect(0, 8, TP, 1); g.fillRect(j0 + 1, 0, 1, 7); g.fillRect(j1 + 1, 8, 1, 7);
-        }
-        return c;
-      });
-      const fragile = toile(TP, TP), gf = fragile.getContext('2d');
-      gf.drawImage(roc[0], 0, 0); gf.fillStyle = '#6b5a64';
-      [[3, 2], [4, 3], [5, 4], [5, 5], [6, 6], [7, 7], [8, 6], [9, 7], [10, 8], [10, 9], [11, 10], [6, 8], [5, 9], [4, 10], [4, 11], [12, 11], [12, 12], [8, 12], [7, 13]].forEach(([x, y]) => gf.fillRect(x, y, 1, 1));
-      gf.fillStyle = '#3a2d45'; gf.fillRect(0, 0, TP, 1); gf.fillRect(0, 0, 1, TP);
-      const pics = toile(TP, TP), gp = pics.getContext('2d');
-      for (const x0 of [1, 6, 11]) for (let r = 0; r < 11; r++) {
-        const w = Math.max(1, Math.round(4 * (1 - r / 11))), x = x0 + Math.round((4 - w) / 2);
-        gp.fillStyle = r > 6 ? OS : OS2; gp.fillRect(x, TP - 1 - r, w, 1);
-        gp.fillStyle = CENDRE; gp.fillRect(x + w - 1, TP - 1 - r, 1, 1);
-      }
-      const corniche = toile(TP, 7), gc = corniche.getContext('2d');
-      gc.fillStyle = st.corniche[1]; gc.fillRect(0, 0, TP, 6);
-      gc.fillStyle = st.corniche[0]; gc.fillRect(0, 0, TP, 1);
-      gc.fillStyle = st.corniche[2]; gc.fillRect(0, 5, TP, 1); gc.fillRect(3, 6, 2, 1); gc.fillRect(11, 6, 2, 1);
-      return { roc, fragile, pics, corniche, st };
-    });
+    const fissures = toile(TP, TP), g = fissures.getContext('2d');   // le mur fissuré : la roche de l'acte, zébrée de fentes claires
+    g.fillStyle = '#9a9a96';
+    [[3, 2], [4, 3], [5, 4], [5, 5], [6, 6], [7, 7], [8, 6], [9, 7], [10, 8], [10, 9], [11, 10], [6, 8], [5, 9], [4, 10], [4, 11], [12, 11], [12, 12], [8, 12], [7, 13]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
+    g.fillStyle = '#060606';
+    [[4, 2], [5, 3], [6, 5], [7, 6], [9, 6], [10, 7], [11, 9], [5, 8], [4, 9], [3, 11], [11, 11], [7, 12]].forEach(([x, y]) => g.fillRect(x, y, 1, 1));
+    return TERRAIN.map((t) => ({
+      roc: IMAGES_ART[t.roc], dessous: t.dessous && IMAGES_ART[t.dessous],
+      crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0,
+      passerelle: IMAGES_ART['terrain/passerelle'], tablier: ligneOpaque(IMAGES_ART['terrain/passerelle']), pointes: IMAGES_ART['terrain/pointes'], fissures,
+    }));
   }
   function construireAccessoires() {
-    const arbre = toile(60, 72); arbreMort(arbre.getContext('2d'), 30, 72, 66, '#0e0a13', 3);
-    const tombe_ = toile(12, 17); tombe(tombe_.getContext('2d'), 1, 16, 10, 15, '#0e0a13');
-    const g = tombe_.getContext('2d'); g.fillStyle = '#2a2233'; g.fillRect(5, 5, 2, 1); g.fillRect(4, 6, 1, 4);
-    const croix_ = toile(16, 22); croix(croix_.getContext('2d'), 8, 22, 20, '#0e0a13', 1);
-    return { T: arbre, t: tombe_, '+': croix_ };
+    return { T: IMAGES_ART['objets/arbre'], t: IMAGES_ART['objets/tombe'], '+': IMAGES_ART['objets/croix'] };
   }
   function dessinerTuiles() {
-    const T = TUILES[acteVisuel], st = T.st;
+    const T = TUILES[acteVisuel], plein = (tx, ty) => bloque(caseA(tx, ty));
     const tx0 = Math.max(0, Math.floor(cam / TP) - 1), tx1 = Math.min(NIV.l - 1, Math.floor((cam + W) / TP) + 1);
-    const ty0 = Math.max(0, Math.floor(camY / TP) - 1), ty1 = Math.min(NIV.h - 1, Math.floor((camY + H) / TP) + 1);
+    const ty0 = Math.max(0, Math.floor(camY / TP) - 5), ty1 = Math.min(NIV.h - 1, Math.floor((camY + H) / TP) + 2);
+    // 1. la roche qui pend sous les îles (derrière la roche elle-même) : pleine profondeur au milieu,
+    //    elle s'effile vers les bords de chaque île au lieu d'être coupée net
+    if (T.dessous) {
+      const d = T.dessous, pend = (tx, ty) => plein(tx, ty) && !plein(tx, ty + 1) && !plein(tx, ty + 2) && !plein(tx, ty + 3);
+      for (let ty = ty0; ty <= ty1; ty++) {
+        let tx = Math.max(0, tx0 - 12);
+        while (tx <= Math.min(NIV.l - 1, tx1 + 12)) {
+          if (!pend(tx, ty)) { tx++; continue; }
+          let fin = tx;
+          while (fin + 1 < NIV.l && pend(fin + 1, ty)) fin++;
+          const X0 = tx * TP, X1 = (fin + 1) * TP, y = ty * TP + TP - 4;
+          for (let x = Math.max(X0, Math.floor(cam) - 1); x < Math.min(X1, cam + W + 1); x++) {
+            const h = effile(Math.min(x - X0, X1 - 1 - x), 3, d.height, x);
+            ctx.drawImage(d, mod(x, d.width), 0, 1, h, x, y, 1, h);
+          }
+          tx = fin + 1;
+        }
+      }
+    }
+    // 2. la roche, les corniches (passerelles d'aqueduc), les pointes
     for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
       const t = caseA(tx, ty), x = tx * TP, y = ty * TP;
       if (t === ROC || t === FRAGILE) {
-        ctx.drawImage(t === FRAGILE ? T.fragile : T.roc[(tx * 7 + ty * 3) & 3], x, y);
-        if (ty > 0 && !bloque(caseA(tx, ty - 1))) {           // le dessus éclairé par la lune : c'est là qu'on se pose
-          ctx.fillStyle = st.lumiere; ctx.fillRect(x, y, TP, 1);
-          ctx.fillStyle = st.bord; ctx.fillRect(x, y + 1, TP, 2);
-          ctx.fillStyle = st.bord2; ctx.fillRect(x, y + 3, TP, 1);
-          for (let k = tx & 1; k < TP; k += 2) ctx.fillRect(x + k, y + 4, 1, 1);
-          if (!st.briques && hash(tx * 3.3 + ty) > 0.45) { ctx.fillStyle = st.herbe; ctx.fillRect(x + Math.floor(hash(tx) * 12), y - 1, 1, 1); ctx.fillRect(x + Math.floor(hash(tx * 7) * 12) + 2, y - 2, 1, 2); }
+        ctx.drawImage(T.roc, mod(x, T.roc.width), mod(y, T.roc.height), TP, TP, x, y, TP, TP);
+        if (t === FRAGILE) ctx.drawImage(T.fissures, x, y);
+        ctx.fillStyle = '#060606';
+        if (!plein(tx - 1, ty)) ctx.fillRect(x, y, 1, TP);
+        if (!plein(tx + 1, ty)) ctx.fillRect(x + TP - 1, y, 1, TP);
+        if (!plein(tx, ty + 1) && ty < NIV.h - 1) ctx.fillRect(x, y + TP - 1, TP, 1);
+        if (!T.crete && ty > 0 && !plein(tx, ty - 1)) { ctx.fillStyle = '#9a9a96'; ctx.fillRect(x, y, TP, 1); ctx.fillStyle = '#5e5e5b'; ctx.fillRect(x, y + 1, TP, 1); }
+      } else if (t === PICS) {
+        const p = T.pointes;
+        ctx.drawImage(p, mod(x, p.width), 0, TP, p.height, x, y + TP - p.height, TP, p.height);
+      }
+    }
+    // 3. les passerelles d'aqueduc (corniches) : le tablier d'un bout à l'autre, les arches s'effilent vers les extrémités
+    const p = T.passerelle, haut = T.tablier, tablier = 10;   // haut : où commence le tablier dans la bande (au-dessus : pinacles)
+    for (let ty = ty0; ty <= ty1; ty++) {
+      let tx = Math.max(0, tx0 - 8);
+      while (tx <= Math.min(NIV.l - 1, tx1 + 8)) {
+        if (caseA(tx, ty) !== CORNICHE) { tx++; continue; }
+        let fin = tx;
+        while (fin + 1 < NIV.l && caseA(fin + 1, ty) === CORNICHE) fin++;
+        const X0 = tx * TP, X1 = (fin + 1) * TP, y = ty * TP;
+        for (let x = Math.max(X0, Math.floor(cam) - 1); x < Math.min(X1, cam + W + 1); x++) {
+          const bord = Math.min(x - X0, X1 - 1 - x), h = effile(bord, tablier, p.height - haut, x);
+          const pinacle = bord > 6 ? haut : 0;                  // pas de pinacle coupé au ras d'un bout
+          ctx.drawImage(p, mod(x, p.width), haut - pinacle, 1, h + pinacle, x, y - pinacle, 1, h + pinacle);
         }
-        if (tx > 0 && !bloque(caseA(tx - 1, ty))) { ctx.fillStyle = st.flanc; ctx.fillRect(x + 1, y, 1, TP); ctx.fillStyle = ENCRE; ctx.fillRect(x, y, 1, TP); }
-        if (tx < NIV.l - 1 && !bloque(caseA(tx + 1, ty))) { ctx.fillStyle = st.flanc; ctx.fillRect(x + TP - 2, y, 1, TP); ctx.fillStyle = ENCRE; ctx.fillRect(x + TP - 1, y, 1, TP); }
-        if (ty < NIV.h - 1 && !bloque(caseA(tx, ty + 1))) { ctx.fillStyle = ENCRE; ctx.fillRect(x, y + TP - 1, TP, 1); }
-      } else if (t === CORNICHE) ctx.drawImage(T.corniche, x, y);
-      else if (t === PICS) ctx.drawImage(T.pics, x, y);
+        ctx.fillStyle = '#060606'; ctx.fillRect(X0, y + 1, 1, tablier - 2); ctx.fillRect(X1 - 1, y + 1, 1, tablier - 2);   // bouts du tablier nets
+        tx = fin + 1;
+      }
+    }
+    // 4. la crête posée sur chaque sol à l'air libre (herbe morte, gravats, dalles)
+    if (T.crete) {
+      const c = T.crete;
+      for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++)
+        if (plein(tx, ty) && ty > 0 && !plein(tx, ty - 1)) ctx.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
     }
   }
   function dessinerCourants() {           // colonnes de cendre qui montent : on voit où le vent porte
-    ctx.fillStyle = CENDRE;
+    ctx.fillStyle = '#c8c7c2';
     for (const c of NIV.courants) {
       if (c.x + TP < cam || c.x > cam + W || c.y1 < camY || c.y0 > camY + H) continue;
       for (let i = 0; i < 3; i++) {
@@ -993,39 +769,28 @@
     ctx.globalAlpha = 1;
   }
   function dessinerObjets() {
+    const au = (img, x, y) => ctx.drawImage(img, Math.round(x - img.width / 2), Math.round(y - img.height));   // posé sur le sol
     for (const o of NIV.objets) {
       if (o.x < cam - 70 || o.x > cam + W + 70 || o.y < camY - 90 || o.y > camY + H + 90) continue;
-      if (o.genre === 'decor') { const img = ACCESSOIRES[o.type]; ctx.drawImage(img, Math.round(o.x - img.width / 2), o.y - img.height); }
+      if (o.genre === 'decor') au(ACCESSOIRES[o.type], o.x, o.y + 1);
       else if (o.genre === 'autel') {
-        const x = Math.round(o.x), y = o.y;
-        ctx.fillStyle = '#2e2439'; ctx.fillRect(x - 7, y - 4, 15, 4); ctx.fillStyle = '#3a2d45'; ctx.fillRect(x - 3, y - 12, 7, 8);
-        ctx.fillStyle = '#4a3a55'; ctx.fillRect(x - 6, y - 15, 13, 3); ctx.fillStyle = ENCRE; ctx.fillRect(x - 6, y - 12, 13, 1);
-        if (o.allume) {
-          const f = Math.sin(temps * 12 + x) > 0;
-          ctx.drawImage(HALOS[f ? 1 : 0], x - (HALOS[0].width >> 1), y - 20 - (HALOS[0].height >> 1));
-          ctx.fillStyle = FEU[3]; ctx.fillRect(x - 3, y - 19, 7, 4); ctx.fillStyle = FEU[1]; ctx.fillRect(x - 2, y - 21 - (f ? 1 : 0), 5, 4); ctx.fillStyle = FEU[0]; ctx.fillRect(x - 1, y - 20, 3, 2);
-        } else { ctx.fillStyle = '#5e2f3c'; ctx.fillRect(x - 1, y - 16, 3, 1); }
+        const img = IMAGES_ART['objets/autel'], x = Math.round(o.x), y = o.y;
+        au(img, x, y + 1);
+        if (o.allume) {                   // la seule lumière chaude du monde : le feu
+          const f = Math.sin(temps * 12 + x) > 0, h = y - img.height + 4;
+          ctx.drawImage(HALOS[f ? 1 : 0], x - (HALOS[0].width >> 1), h - 8 - (HALOS[0].height >> 1));
+          flamme(x, h, x);
+        }
       } else if ((o.genre === 'relique' || o.genre === 'coeur') && !o.pris) {
         const y = Math.round(o.y + Math.sin(temps * 3 + o.x) * 2);
         if (o.genre === 'coeur') { coeur(Math.round(o.x) - 3, y - 3, true); continue; }
-        const x = Math.round(o.x);
-        ctx.fillStyle = ENCRE; ctx.fillRect(x - 3, y - 6, 7, 13); ctx.fillRect(x - 5, y - 3, 11, 5);
-        ctx.fillStyle = OS2; ctx.fillRect(x - 2, y - 5, 5, 11); ctx.fillRect(x - 4, y - 2, 9, 3);
-        ctx.fillStyle = OS; ctx.fillRect(x - 1, y - 5, 2, 10); ctx.fillRect(x - 4, y - 2, 8, 1);
-        ctx.fillStyle = SANG_VIF; ctx.fillRect(x - 1, y - 2, 3, 3); ctx.fillStyle = '#ffb09a'; ctx.fillRect(x, y - 2, 1, 1);
-        if (Math.sin(temps * 5 + o.x) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.fillRect(x + 4, y - 7, 1, 3); ctx.fillRect(x + 3, y - 6, 3, 1); }
+        const img = IMAGES_ART['objets/reliquaire'];
+        ctx.drawImage(img, Math.round(o.x - img.width / 2), y - (img.height >> 1));
+        if (Math.sin(temps * 5 + o.x) > 0.85) { ctx.fillStyle = '#ffffff'; ctx.fillRect(Math.round(o.x) + 5, y - 9, 1, 3); ctx.fillRect(Math.round(o.x) + 4, y - 8, 3, 1); }
       }
     }
     const s = NIV.sortie;
-    if (s && s.x > cam - 40 && s.x < cam + W + 40) {         // la porte de l'acte : une ogive sombre
-      const x = Math.round(s.x), y = s.y;
-      ctx.fillStyle = '#3a2d45'; ctx.fillRect(x - 15, y - 40, 30, 40);
-      for (let r = 0; r < 10; r++) { const w = Math.round(15 * Math.sqrt(1 - (r / 10) ** 2)); ctx.fillRect(x - w, y - 40 - r, w * 2, 1); }
-      ctx.fillStyle = ENCRE; ctx.fillRect(x - 10, y - 34, 20, 34);
-      for (let r = 0; r < 8; r++) { const w = Math.round(10 * Math.sqrt(1 - (r / 8) ** 2)); ctx.fillRect(x - w, y - 34 - r, w * 2, 1); }
-      ctx.fillStyle = '#2e2439';
-      for (let yy = y - 40; yy < y; yy += 2) for (let xx = x - 9; xx < x + 10; xx += 2) if (Math.sin(temps * 2 + yy * 0.3 + xx) > 0.4) ctx.fillRect(xx + ((yy >> 1) & 1), yy, 1, 1);
-    }
+    if (s && s.x > cam - 60 && s.x < cam + W + 60) au(IMAGES_ART['objets/porte'], s.x, s.y + 1);
   }
 
   // ================= État du jeu =================
@@ -1449,11 +1214,16 @@
     const d = posture();
     const sol = solSous(P.x, P.y - 4);                       // ombre sur le premier sol en dessous
     if (sol !== null) {
-      const haut = clamp((sol - P.y) / 180, 0, 1), lo = Math.round(46 * (1 - haut * 0.6));
-      ctx.fillStyle = '#050407';
-      for (let y = 0; y < 3; y++) {
-        const w = Math.round(lo * Math.sqrt(Math.max(0, 1 - ((y - 1) / 1.6) ** 2)));
-        ctx.fillRect(Math.round(P.x + P.fs * 6) - w, sol + y - 1, w * 2, 1);
+      // un ovale tramé, dense au centre, qui pâlit et rétrécit quand le dragon s'élève ; il ne se pose que sur
+      // le sol qui le porte, à cette hauteur : il s'arrête net au bord du vide ou d'un mur
+      const haut = clamp((sol - P.y - G) / 160, 0, 1), rx = Math.round(40 * (1 - haut * 0.55)), ry = Math.max(2, Math.round(rx * 0.07));
+      const cx = Math.round(P.x + P.fs * 6), ty = sol / TP, force = 1.15 * (1 - haut * 0.7);
+      const porte = (tx) => { const t = caseA(tx, ty); return (bloque(t) || t === CORNICHE) && !bloque(caseA(tx, ty - 1)); };
+      ctx.fillStyle = '#050505';
+      for (let dy = -ry; dy <= ry; dy++) for (let dx = -rx; dx <= rx; dx++) {
+        const d = (dx / rx) ** 2 + (dy / ry) ** 2, x = cx + dx, y = sol + dy;
+        if (d >= 1 || (1 - d) * force <= (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 || !porte(Math.floor(x / TP))) continue;
+        ctx.fillRect(x, y, 1, 1);
       }
     }
     for (const o of ombres) { ctx.globalAlpha = 0.5 * o.vie / 0.2; dessinerPosture(o.d, 'fantome'); }
@@ -1474,52 +1244,127 @@
     }
   }
 
-  // ================= Ennemis : placés sur la carte, réveillés quand ils entrent dans le champ =================
+  // ================= Ennemis : placés sur la carte, chacun avec son propre schéma =================
+  //   charognard : guette perché, puis fond en piqué sur le dragon, remonte et replonge (trois fois) avant de fuir ;
+  //   chauve-souris : dort pendue au plafond, se réveille quand on passe, fonce en zigzag ;
+  //   âme errante : tourne en huit autour de son point, sans jamais poursuivre — un obstacle vivant ;
+  //   spectre : dérive vers le dragon, s'efface, réapparaît dans son dos (on ne le touche que visible) ;
+  //   crâne ardent : tremble en visant, charge en ligne droite, vise de nouveau ; au troisième assaut, il se brise.
   const TYPES = {
-    charognard: { pv: 1, r: 7, pts: 100 },
-    ame: { pv: 1, r: 6, pts: 80 },
-    chauve: { pv: 1, r: 6, pts: 120 },
-    spectre: { pv: 2, r: 8, pts: 200 },
-    crane: { pv: 2, r: 7, pts: 150 },
+    charognard: { pv: 1, r: 13, pts: 100, sprite: 'corbeau', vol: 4, pose: 4 },    // vol : images du battement ; pose : perché
+    ame: { pv: 1, r: 12, pts: 80, sprite: 'ame', vol: 4 },
+    chauve: { pv: 1, r: 11, pts: 120, sprite: 'chauve', vol: 4, pose: 4 },          // pose : pendue, repliée
+    spectre: { pv: 2, r: 14, pts: 200, sprite: 'spectre', vol: 4 },
+    crane: { pv: 2, r: 13, pts: 150, sprite: 'crane', vol: 4 },
   };
   const TRAVERSE = { ame: true, spectre: true };        // les âmes et les spectres passent à travers la pierre
+  const pierre = (x, y) => bloque(caseA(Math.floor(x / TP), Math.floor(y / TP)));
   function creerEnnemi(type, x, y, dir, diff) {
-    const e = { type, x, y, cy: y, t: rand(0, 3), ph: rand(0, 6.28), pv: TYPES[type].pv, flash: 0, vx: 0, vy: 0, visible: true };
-    if (type === 'charognard') { e.vx = dir * rand(38, 58) * diff; e.amp = rand(4, 12); }
-    else if (type === 'ame') { e.vx = dir * rand(18, 30) * diff; e.amp = rand(10, 22); }
-    else if (type === 'chauve') { e.vx = dir * rand(48, 66) * diff; e.chg = 0; }
-    else if (type === 'spectre') e.vx = dir * 20 * diff;
-    else if (type === 'crane') { const a = Math.atan2(P.y - y, P.x - x), v = 70 * diff; e.vx = Math.cos(a) * v; e.vy = Math.sin(a) * v; }
+    const e = { type, x, y, hx: x, hy: y, t: rand(0, 3), ph: rand(0, 6.28), pv: TYPES[type].pv, flash: 0, vx: dir * 30, vy: 0,
+                visible: true, alpha: 1, etat: '', et: 0, diff, n: 0, face: dir, image: 0 };
+    if (type === 'charognard') {           // se perche sur le sol le plus proche en dessous, sinon plane sur place
+      e.etat = 'guet';
+      for (let ty = Math.floor(y / TP); ty < Math.floor(y / TP) + 6; ty++) if (bloque(caseA(Math.floor(x / TP), ty)) || caseA(Math.floor(x / TP), ty) === CORNICHE) { e.y = e.hy = ty * TP - 16; e.perche = true; break; }
+    } else if (type === 'chauve') {        // cherche un plafond où se pendre
+      e.etat = 'vole';
+      for (let ty = Math.floor(y / TP); ty > Math.floor(y / TP) - 8; ty--) if (bloque(caseA(Math.floor(x / TP), ty))) { e.y = e.hy = (ty + 1) * TP + 14; e.etat = 'dort'; break; }
+      e.chg = 0;
+    } else if (type === 'ame') e.etat = 'orbite';
+    else if (type === 'spectre') { e.etat = 'visible'; e.et = rand(0, 1); }
+    else if (type === 'crane') { e.etat = 'veille'; e.vx = 0; }
     return e;
   }
+  function changer(e, etat) { e.etat = etat; e.et = 0; }
   function majEnnemi(e, dt) {
-    const ax = e.x, ay = e.y;
-    e.t += dt; e.flash -= dt;
+    const ax = e.x, ay = e.y, nb = TYPES[e.type].vol, repos = TYPES[e.type].pose;
+    const dx = P.x - e.x, dy = P.y - e.y, dist = Math.hypot(dx, dy), d = e.diff;
+    e.t += dt; e.et += dt; e.flash -= dt;
     switch (e.type) {
-      case 'charognard': e.x += e.vx * dt; e.cy = approche(e.cy, P.y, dt * 0.12); e.y = e.cy + Math.sin(e.t * 2.3 + e.ph) * e.amp; break;
-      case 'ame':
-        e.x += e.vx * dt; e.y = e.cy + Math.sin(e.t * 1.3 + e.ph) * e.amp;
-        if (Math.random() < 0.3) particule({ x: e.x + rand(-2, 2), y: e.y - 4, vx: rand(-6, 6), vy: rand(-22, -10), vie: 0.5, max: 0.5, t: 1, genre: 'ecto' });
+      case 'charognard':
+        if (e.etat === 'guet') {
+          e.y = e.hy + (e.perche ? 0 : Math.sin(e.t * 2) * 2); e.image = e.perche ? repos : Math.floor(e.t * 10) % nb; e.face = Math.sign(dx) || 1;
+          if (Math.abs(dx) < 160 && Math.abs(dy) < 130) { changer(e, 'envol'); sfx('touche'); }
+        } else if (e.etat === 'envol') {   // s'arrache du perchoir
+          e.y -= 60 * dt; e.image = Math.floor(e.t * 14) % nb;
+          if (e.et > 0.35) { changer(e, 'pique'); e.x0 = e.x; e.y0 = e.y; e.cx = P.x; e.cy = P.y + 6; e.n++; }
+        } else if (e.etat === 'pique') {   // un arc en U qui passe par où était le dragon
+          const u = Math.min(1, e.et / (1.25 / d)), px = e.x;
+          e.x = e.x0 + (e.cx - e.x0) * 2 * u; e.y = e.y0 + (e.cy - e.y0) * Math.sin(Math.PI * u);
+          e.face = Math.sign(e.x - px) || e.face; e.image = u < 0.5 ? 2 : Math.floor(e.t * 14) % nb;
+          if (u >= 1) changer(e, 'remonte');
+        } else if (e.etat === 'remonte') {
+          e.x += e.face * 50 * dt; e.y -= 70 * dt; e.image = Math.floor(e.t * 14) % nb;
+          if (e.et > 0.7) { if (e.n < 3) { changer(e, 'pique'); e.x0 = e.x; e.y0 = e.y; e.cx = P.x; e.cy = P.y + 6; e.n++; } else changer(e, 'fuite'); }
+        } else { e.x += e.face * 90 * dt; e.y -= 30 * dt; e.image = Math.floor(e.t * 14) % nb; }
         break;
       case 'chauve':
-        e.chg -= dt;
-        if (e.chg <= 0) { e.chg = rand(0.25, 0.5); e.vy = clamp((P.y - e.y) * 0.35 + rand(-50, 50), -60, 60); }
-        e.x += e.vx * dt; e.y += e.vy * dt;
+        if (e.etat === 'dort') {           // pendue, repliée, la tête en bas
+          e.image = repos; e.y = e.hy + Math.sin(e.t * 1.5) * 0.6;
+          if (dist < 125) changer(e, 'reveil');
+        } else if (e.etat === 'reveil') {
+          e.y += 40 * dt; e.image = Math.floor(e.t * 16) % nb;
+          if (e.et > 0.3) changer(e, 'vole');
+        } else {                            // zigzag vif vers le dragon, cassures franches
+          e.chg -= dt;
+          if (e.chg <= 0) { e.chg = rand(0.22, 0.4); e.zig = -(e.zig || 1); }
+          e.vx = approche(e.vx, Math.sign(dx || 1) * 70 * d, dt * 2);
+          e.vy = e.zig * 75 + clamp(dy, -40, 40);
+          e.x += e.vx * dt; e.y += e.vy * dt; e.face = Math.sign(e.vx) || 1; e.image = Math.floor(e.t * 16) % nb;
+        }
         break;
-      case 'spectre': {
-        e.visible = e.t % 3.4 < 2.2;
-        const dx = P.x - e.x, dy = P.y - e.y, d = Math.hypot(dx, dy) || 1;
-        e.x += (dx / d * 18 + e.vx * 0.3) * dt; e.y += (dy / d * 14 + Math.sin(e.t * 2) * 6) * dt;
+      case 'ame': {                         // un huit lent autour de son point
+        const w = 2 * Math.PI / 5.5 * d;
+        const nx = e.hx + 44 * Math.sin(w * e.t + e.ph), ny = e.hy + 20 * Math.sin(2 * (w * e.t + e.ph));
+        e.face = Math.sign(nx - e.x) || e.face; e.x = nx; e.y = ny;
+        e.image = Math.floor(e.t * 6) % nb; e.alpha = 0.75 + 0.2 * Math.sin(e.t * 9);
+        if (Math.random() < 0.25) particule({ x: e.x - e.face * 6 + rand(-2, 2), y: e.y + rand(-3, 3), vx: -e.face * rand(5, 15), vy: rand(-12, -4), vie: 0.5, max: 0.5, t: 1, genre: 'ecto' });
         break;
       }
+      case 'spectre':
+        e.image = Math.floor(e.t * 6) % nb; e.face = Math.sign(dx) || 1;
+        if (e.etat === 'visible') {
+          e.visible = true; e.alpha = 0.85;
+          e.x += (dx / (dist || 1) * 20 * d) * dt; e.y += (dy / (dist || 1) * 15 * d + Math.sin(e.t * 2) * 6) * dt;
+          if (e.et > 2.2) changer(e, 'efface');
+        } else if (e.etat === 'efface') {
+          e.visible = false; e.alpha = 0.85 * (1 - e.et / 0.4);
+          if (e.et > 0.4) changer(e, 'absent');
+        } else if (e.etat === 'absent') {
+          e.visible = false; e.alpha = 0;
+          if (e.et > 0.9) {                 // réapparaît dans le dos du dragon
+            for (let k = 0; k < 6; k++) {
+              const x = P.x - P.face * rand(60, 95), y = P.y + rand(-24, 16);
+              if (!pierre(x, y)) { e.x = x; e.y = y; break; }
+            }
+            changer(e, 'revient');
+          }
+        } else {                             // en train de réapparaître : inoffensif, des volutes l'annoncent
+          e.visible = false; e.alpha = 0.85 * e.et / 0.5;
+          if (Math.random() < 0.6) particule({ x: e.x + rand(-8, 8), y: e.y + rand(-10, 10), vx: rand(-6, 6), vy: rand(-18, -6), vie: 0.5, max: 0.5, t: 1, genre: 'ecto' });
+          if (e.et > 0.5) changer(e, 'visible');
+        }
+        break;
       case 'crane':
-        e.x += e.vx * dt; e.y += e.vy * dt;
-        if (Math.random() < 0.6) particule({ x: e.x - Math.sign(e.vx) * 5, y: e.y + rand(-2, 2), vx: -e.vx * 0.2 + rand(-10, 10), vy: rand(-20, 5), vie: 0.3, max: 0.3, t: 1 });
+        e.image = Math.floor(e.t * 12) % nb;
+        if (e.etat === 'veille') {
+          e.y = e.hy + Math.sin(e.t * 2.5) * 3;
+          if (dist < 175) changer(e, 'vise');
+        } else if (e.etat === 'vise') {     // tremble et vise : on le voit venir
+          e.face = Math.sign(dx) || e.face;
+          e.x += rand(-1, 1); e.y += rand(-1, 1);
+          if (Math.random() < 0.7) particule({ x: e.x - e.face * 8, y: e.y + rand(-3, 3), vx: -e.face * rand(20, 50), vy: rand(-20, 5), vie: 0.3, max: 0.3, t: 1 });
+          if (e.et > 0.7 / d) { const v = 220 * d; e.vx = dx / (dist || 1) * v; e.vy = dy / (dist || 1) * v; e.n++; changer(e, 'charge'); sfx('ruee'); }
+        } else {
+          e.x += e.vx * dt; e.y += e.vy * dt; e.face = Math.sign(e.vx) || e.face;
+          if (Math.random() < 0.8) particule({ x: e.x - Math.sign(e.vx) * 8, y: e.y + rand(-3, 3), vx: -e.vx * 0.2 + rand(-10, 10), vy: rand(-20, 5), vie: 0.3, max: 0.3, t: 1 });
+          if (e.et > 0.75 && e.n < 3) changer(e, 'vise');
+        }
         break;
     }
-    if (!TRAVERSE[e.type] && bloque(caseA(Math.floor(e.x / TP), Math.floor(e.y / TP)))) {
+    if (!TRAVERSE[e.type] && pierre(e.x, e.y)) {
       if (e.type === 'crane') { e.mort = true; explosion(e.x, e.y, true); if (e.source) e.source.mort = true; }   // le crâne se brise sur la pierre
-      else { e.x = ax; e.y = e.cy = ay; e.vx = -e.vx; e.vy = -e.vy; }
+      else if (e.type === 'charognard' && e.etat === 'pique') { e.x = ax; e.y = ay; changer(e, 'remonte'); }
+      else { e.x = ax; e.y = ay; e.vx = -e.vx; e.zig = -(e.zig || 1); }
     }
     e.y = clamp(e.y, 10, NIV.hauteur - 10);
   }
@@ -1599,7 +1444,7 @@
     if (v.tir <= 0) { v.tir = rage ? 2.5 : 3.2; eventail(v, rage ? 6 : 5, rage ? 1.1 : 0.9); }
     if (v.invoc <= 0) {
       v.invoc = rage ? 8 : 10;
-      if (ennemis.length < 4) for (const k of [-1, 1]) ennemis.push(creerEnnemi('chauve', v.x - 10, v.y + k * 18, -1, 1));
+      if (ennemis.length < 4) for (const k of [-1, 1]) ennemis.push(Object.assign(creerEnnemi('chauve', v.x - 10, v.y + k * 18, -1, 1), { etat: 'vole', y: v.y + k * 18 }));
     }
     const d = Math.hypot(P.x - v.x, P.y + 4 - v.y);
     if (d < 28 && P.pv > 0) {
@@ -1638,7 +1483,8 @@
         break;
       }
       for (const o of orbes) if (b.vie > 0 && Math.hypot(o.x - b.x, o.y - b.y) < 10) { o.vie = 0; b.vie = 0; explosionSol(o.x, o.y); }
-      if (veilleur && b.vie > 0 && Math.hypot(veilleur.x - b.x, veilleur.y - b.y) < 28) { b.vie = 0; blesserVeilleur(veilleur, 1); explosionSol(b.x, b.y); }
+      // le feu touche tout le crâne et la mâchoire
+      if (veilleur && b.vie > 0 && ((veilleur.x - b.x) / 34) ** 2 + ((veilleur.y + 8 - b.y) / 44) ** 2 < 1) { b.vie = 0; blesserVeilleur(veilleur, 1); explosionSol(b.x, b.y); }
     }
     boules = boules.filter((b) => b.vie > 0);
 
@@ -1702,32 +1548,24 @@
 
   // ---------- dessin des ennemis, du Veilleur et des effets (coordonnées du monde) ----------
   const COEUR = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'];
-  function coeur(x, y, plein) {
+  function coeur(x, y, plein) {            // blanc d'os cerclé de noir (vide : un creux sombre)
+    ctx.fillStyle = '#060606';
+    COEUR.forEach((l, r) => [...l].forEach((c, k) => { if (c === 'X') { ctx.fillRect(x + k - 1, y + r, 3, 1); ctx.fillRect(x + k, y + r - 1, 1, 3); } }));
     COEUR.forEach((l, r) => [...l].forEach((c, k) => {
       if (c !== 'X') return;
-      ctx.fillStyle = plein ? (r === 1 && k < 3 ? '#e07078' : SANG_VIF) : '#2e2439';
+      ctx.fillStyle = plein ? (r === 1 && k < 3 ? '#ffffff' : r > 3 ? '#b9b8b3' : '#e6e5e0') : '#2a2a29';
       ctx.fillRect(x + k, y + r, 1, 1);
     }));
   }
+
   function dessinerEnnemis() {
     for (const c of coeurs) if (c.t < 7 || Math.floor(temps * 12) % 2) coeur(Math.round(c.x) - 3, Math.round(c.y + Math.sin(c.t * 4) * 2) - 3, true);
     for (const e of ennemis) {
-      const x = Math.round(e.x), y = Math.round(e.y);
-      if (e.type === 'ame') {
-        const f = Math.sin(e.t * 9) > 0;
-        ctx.globalAlpha = 0.85;
-        disque(x, y, 5, e.flash > 0 ? '#ffffff' : '#3e3549'); disque(x, y - 1, 3, BRUME); disque(x, y - 2, f ? 2 : 1, '#e6e0dc');
-        ctx.fillStyle = BRUME; ctx.fillRect(x - 1, y - 8 - (f ? 1 : 0), 2, 3);
-        ctx.globalAlpha = 1;
-        continue;
-      }
-      const nom = e.type === 'charognard' ? 'corbeau' : e.type;
-      const frames = SPR[nom];
-      const f = frames.length === 3 ? [0, 1, 2, 1][Math.floor(e.t * 12) % 4] : Math.floor(e.t * 4) % frames.length;
-      const img = e.flash > 0 ? frames[f].b : frames[f].n;
-      if (e.type === 'spectre') ctx.globalAlpha = e.visible ? 0.72 : 0.1;
-      ctx.save(); ctx.translate(x, y);
-      if (e.vx < 0 && e.type !== 'spectre') ctx.scale(-1, 1);
+      const S = SPR[TYPES[e.type].sprite], im = S.images[e.image % S.images.length], img = e.flash > 0 ? im.b : im.n;
+      if (e.alpha <= 0.02) continue;
+      ctx.globalAlpha = e.alpha;
+      ctx.save(); ctx.translate(Math.round(e.x), Math.round(e.y));
+      if ((e.face < 0) === S.droite) ctx.scale(-1, 1);          // la planche regarde d'un côté : on la retourne au besoin
       ctx.drawImage(img, -Math.floor(img.width / 2), -Math.floor(img.height / 2));
       ctx.restore();
       ctx.globalAlpha = 1;
@@ -1739,10 +1577,11 @@
         if (Math.random() < 0.5) particule({ x: v.x + rand(-24, 24), y: v.y + rand(-10, 20), vx: rand(-5, 5), vy: rand(-30, -12), vie: 0.8, max: 0.8, t: 1, genre: 'ecto' });
         const blanc = v.flash > 0;
         const M = blanc ? MACHOIRE_IMG.b : MACHOIRE_IMG.n, S = blanc ? VEILLEUR_IMG.b : VEILLEUR_IMG.n;
-        ctx.drawImage(M, x - (M.width >> 1), y + 18 + Math.round(v.machoire * 8));
-        ctx.drawImage(S, x - (S.width >> 1), y - (S.height >> 1));
-        const lueur = 0.5 + 0.5 * Math.sin(temps * 7);
-        for (const ex of [-10, 10]) { disque(x + ex, y + 1, 3, SANG); disque(x + ex, y + 1, 2, SANG_VIF); ctx.fillStyle = lueur > 0.5 ? '#ffb09a' : '#ff6a3a'; ctx.fillRect(x + ex, y + 1, 1, 1); }
+        const haut = y - (S.height >> 1);
+        ctx.drawImage(M, x - (M.width >> 1), haut + S.height - 12 + Math.round(v.machoire * 10));
+        ctx.drawImage(S, x - (S.width >> 1), haut);
+        const lueur = 0.5 + 0.5 * Math.sin(temps * 7), oy = haut + Math.round(S.height * 0.55);   // deux braises au fond des orbites
+        for (const ex of [-0.21, 0.21]) { const ox = x + Math.round(S.width * ex); disque(ox, oy, 3, SANG); disque(ox, oy, 2, SANG_VIF); ctx.fillStyle = lueur > 0.5 ? '#ffb09a' : '#ff6a3a'; ctx.fillRect(ox, oy, 1, 1); }
       }
     }
   }
@@ -1760,12 +1599,12 @@
       const x = Math.round(p.x), y = Math.round(p.y), k = clamp(p.vie / p.max, 0, 1);
       if (p.genre === 'braise') { ctx.fillStyle = FEU[Math.min(6, Math.floor((1 - k) * 7))]; ctx.fillRect(x, y, p.t, p.t); }
       else if (p.genre === 'plume' || p.genre === 'os') {
-        ctx.fillStyle = p.genre === 'os' ? (k > 0.3 ? OS2 : CENDRE) : (k > 0.3 ? '#3a2d45' : '#5a4656');
+        ctx.fillStyle = p.genre === 'os' ? (k > 0.3 ? OS2 : CENDRE) : (k > 0.3 ? '#333333' : '#4d4d4d');
         const l = Math.cos(p.rot) > 0 ? 3 : 1;
         ctx.fillRect(x - l, y, l * 2, 1); ctx.fillRect(x, y - 1, 1, 1);
-      } else if (p.genre === 'gravat') { ctx.fillStyle = k > 0.4 ? '#3a2d45' : '#241c2e'; ctx.fillRect(x, y, Math.cos(p.rot) > 0 ? 2 : 1, 2); }
-      else if (p.genre === 'ecto') { ctx.fillStyle = k > 0.5 ? BRUME : '#3e3549'; ctx.fillRect(x, y, 1, 1); }
-      else if (p.genre === 'poussiere') disque(x, y, Math.round(p.t + (1 - k) * 3), k > 0.5 ? '#5a4f5f' : '#3a3044');
+      } else if (p.genre === 'gravat') { ctx.fillStyle = k > 0.4 ? '#333333' : '#202020'; ctx.fillRect(x, y, Math.cos(p.rot) > 0 ? 2 : 1, 2); }
+      else if (p.genre === 'ecto') { ctx.fillStyle = k > 0.5 ? BRUME : '#3a3a3a'; ctx.fillRect(x, y, 1, 1); }
+      else if (p.genre === 'poussiere') disque(x, y, Math.round(p.t + (1 - k) * 3), k > 0.5 ? '#545454' : '#353535');
       else if (p.genre === 'eclair') disque(x, y, 9, '#ffffff');
       else if (p.genre === 'bouche') { disque(x, y, 5, FEU[3]); disque(x, y, 3, FEU[1]); disque(x, y, 1, FEU[0]); }
       else if (p.genre === 'onde') {
@@ -1786,14 +1625,14 @@
   }
   function barre(x, y, w, f, c) {
     ctx.fillStyle = ENCRE; ctx.fillRect(x - 1, y - 1, w + 2, 5);
-    ctx.fillStyle = '#2e2439'; ctx.fillRect(x, y, w, 3);
+    ctx.fillStyle = '#292929'; ctx.fillRect(x, y, w, 3);
     ctx.fillStyle = c; ctx.fillRect(x, y, Math.round(w * clamp(f, 0, 1)), 3);
   }
   function hud() {
     for (let i = 0; i < PV_MAX; i++) coeur(6 + i * 9, 6, i < P.pv);
     // le souffle, sous les cœurs : il pâlit quand il s'épuise, clignote quand il est vide
     const s = P.souffle, vide = s <= 0.02;
-    if (!vide || Math.floor(temps * 6) % 2) barre(6, 15, 43, s, s < 0.3 ? SANG_VIF : '#9a8fa6');
+    if (!vide || Math.floor(temps * 6) % 2) barre(6, 15, 43, s, s < 0.3 ? SANG_VIF : '#949494');
     texte('SCORE ' + pad(score, 6), W - 6, 6, OS, 1, 'ombre', 'droite');
     texte('RECORD ' + pad(record, 6), W - 6, 16, BRUME, 1, 'ombre', 'droite');
     hautParleur(W - 16, 26);
@@ -1827,24 +1666,88 @@
       texte(carte.sous, W / 2, y + 22, OS2, 1, 'ombre', 'centre');
     }
   }
+  // ================= Écran titre : un menu (COMMENCER, COMMANDES) et l'écran des commandes =================
+  const MENU = ['COMMENCER', 'COMMANDES'];
+  let choix = 0, pageTitre = 'menu';                       // pageTitre : 'menu' ou 'commandes'
+  const menuY = (i) => Math.round(H * 0.6) + i * 22;
+  function voile(a) { ctx.globalAlpha = a; ctx.fillStyle = '#060606'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  function flamme(x, y, graine = 0, el = 'feu/flamme') {     // une flamme peinte qui vacille, posée par sa base en (x, y)
+    const a = ART[el], img = IMAGES_ART[el], [cw, ch] = a.cellule, k = Math.floor(temps * 9 + graine * 3.7) % a.images;
+    ctx.drawImage(img, k * cw, 0, cw, ch, Math.round(x - cw / 2), Math.round(y - ch), cw, ch);
+  }
   function ecranTitre() {
-    const k = W >= 310 ? 4 : 3, y = Math.max(20, H * 0.1);
+    if (pageTitre === 'commandes') { ecranCommandes(); return; }
+    const k = W >= 310 ? 4 : 3, y = Math.max(18, Math.round(H * 0.12));
     texte('DRAGON RIDER', W / 2, y, LOGO, k, 'contour', 'centre');
-    texte("LE MONDE S'EST ÉTEINT. IL RESTE LE VOL.", W / 2, y + 9 * k + 3, BRUME, 1, 'ombre', 'centre');
-    if (Math.floor(temps * 1.6) % 2) texte('APPUIE SUR FEU', W / 2, H * 0.45, OS, 1, 'contour', 'centre');
-    const l = [
-      '← → VOLER   ↑ MONTER   ↓ PIQUER',
-      'X OU ESPACE : FEU (MAINTENU : RAFALE)',
-      'C OU 2× ← → : RUÉE (BRISE LES MURS)',
-      'VOLER USE LE SOUFFLE. LE SOL LE REND.',
-      'LES COLONNES DE CENDRE TE PORTENT.',
-      'AU SOL : ↓ ACCROUPI   ↑ SAUTER',
-    ];
-    const y0 = Math.round(H * 0.54);
-    ctx.fillStyle = 'rgba(7,6,11,0.72)'; ctx.fillRect(Math.round(W / 2) - 118, y0 - 6, 236, l.length * 11 + 7);
-    l.forEach((s, i) => texte(s, W / 2, y0 + i * 11, i === 3 || i === 4 ? OS2 : OS, 1, 'ombre', 'centre'));
+    texte("LE MONDE S'EST ÉTEINT. IL RESTE LE VOL.", W / 2, y + 9 * k + 4, OS2, 1, 'contour', 'centre');
+    MENU.forEach((m, i) => {
+      const yy = menuY(i), actif = i === choix, espace = m.split('').join(' '), demi = espace.length * 3;   // lettres espacées
+      texte(espace, W / 2, yy, actif ? OS : '#7c7b77', 1, 'contour', 'centre');
+      if (actif) { flamme(Math.round(W / 2) - demi - 10, yy + 6, 0, 'feu/flamme-petite'); flamme(Math.round(W / 2) + demi + 9, yy + 6, 1, 'feu/flamme-petite'); }
+    });
+    texte('↑ ↓ CHOISIR     X VALIDER', W / 2, H - 16, '#8c8b87', 1, 'contour', 'centre');
     hautParleur(W - 16, 26);
   }
+  function touche(label, x, y) {                            // une touche de clavier dessinée, renvoie sa largeur
+    const w = label.length * 6 + 5;
+    ctx.fillStyle = '#060606'; ctx.fillRect(x - 1, y - 1, w + 2, 13);
+    ctx.fillStyle = '#2a2a29'; ctx.fillRect(x, y, w, 11);
+    ctx.fillStyle = '#6f6e6a'; ctx.fillRect(x, y, w, 1); ctx.fillRect(x, y, 1, 10);
+    ctx.fillStyle = '#141414'; ctx.fillRect(x, y + 10, w, 1);
+    texte(label, x + 3, y + 2, OS, 1, 'plat');
+    return w;
+  }
+  const OUVERTURES = new Map();
+  function ouverture(img) {                                  // l'intérieur vide du cadre : on y écrit
+    if (!OUVERTURES.has(img)) {
+      const c = toile(img.width, img.height), g = c.getContext('2d');
+      g.drawImage(img, 0, 0);
+      const d = g.getImageData(0, 0, img.width, img.height).data, vide = (x, y) => d[(y * img.width + x) * 4 + 3] === 0;
+      const cx = img.width >> 1, cy = img.height >> 1;
+      let x0 = cx, x1 = cx, y0 = cy, y1 = cy;
+      while (x0 > 0 && vide(x0 - 1, cy)) x0--; while (x1 < img.width - 1 && vide(x1 + 1, cy)) x1++;
+      while (y0 > 0 && vide(cx, y0 - 1)) y0--; while (y1 < img.height - 1 && vide(cx, y1 + 1)) y1++;
+      OUVERTURES.set(img, { x0, y0, x1, y1 });
+    }
+    return OUVERTURES.get(img);
+  }
+  function ecranCommandes() {
+    voile(0.6);
+    const grand = W >= 270 && H >= 196, c = IMAGES_ART[grand ? 'objets/cadre' : 'objets/cadre-petit'];
+    const x0 = Math.round(W / 2 - c.width / 2), y0 = Math.round(H / 2 - c.height / 2), o = ouverture(c);
+    ctx.globalAlpha = 0.88; ctx.fillStyle = '#0a0a0a'; ctx.fillRect(x0 + o.x0 - 2, y0 + o.y0 - 2, o.x1 - o.x0 + 5, o.y1 - o.y0 + 5); ctx.globalAlpha = 1;
+    ctx.drawImage(c, x0, y0);
+    const cx = Math.round(W / 2);
+    texte('COMMANDES', cx, y0 + o.y0 - 12, OS, 1, 'contour', 'centre');
+    const lignes = [
+      [['←', '→'], grand ? 'VOLER, MARCHER' : 'VOLER'],
+      [['↑'], grand ? 'MONTER, SAUTER' : 'MONTER'],
+      [['↓'], 'PIQUER'],
+      [['X'], grand ? 'FEU (TENIR : RAFALE)' : 'FEU'],
+      [['C'], grand ? 'RUÉE, BRISE LES MURS' : 'RUÉE'],
+      [['↓', 'C'], 'PIQUÉ'],
+    ];
+    const col = grand ? 56 : 46, larg = col + (grand ? 20 : 6) * 6, gauche = cx - (larg >> 1), pas = grand ? 13 : 12;
+    let yy = y0 + o.y0 + 4;
+    for (const [ts, action] of lignes) {
+      let x = gauche;
+      ts.forEach((t, i) => {
+        if (i && action === 'PIQUÉ') { texte('+', x + 2, yy + 2, OS2, 1, 'plat'); x += 10; }   // ↓ + C : ensemble
+        else if (i) x += 3;                                                                   // ← → : l'un ou l'autre
+        x += touche(t, x, yy);
+      });
+      texte(action, gauche + col, yy + 2, OS2, 1, 'ombre');
+      yy += pas;
+    }
+    if (grand) {
+      texte('VOLER USE LE SOUFFLE,', cx, yy + 3, '#9d9c97', 1, 'ombre', 'centre');
+      texte('LE SOL ET LA CENDRE LE RENDENT.', cx, yy + 12, '#9d9c97', 1, 'ombre', 'centre');
+    }
+    const bas = y0 + c.height + 6;                             // sous le cadre s'il y a la place, sinon dans l'ouverture
+    if (Math.floor(temps * 2) % 2) texte('X : RETOUR', cx, bas + 8 < H ? bas : y0 + o.y1 - 8, OS, 1, 'contour', 'centre');
+  }
+
+
   function ecranFin(dt) {
     finT += dt;
     ctx.fillStyle = 'rgba(7,6,11,0.55)'; ctx.fillRect(0, 0, W, H);
@@ -1855,7 +1758,7 @@
   }
   function ecranEpilogue() {
     ctx.fillStyle = ENCRE; ctx.fillRect(0, 0, W, H);
-    for (let i = 0; i < 40; i++) { const x = Math.floor(hash(i * 3.3) * W), y = Math.floor(hash(i * 5.1) * H); if (Math.sin(temps + i) > 0.3) { ctx.fillStyle = '#2e2439'; ctx.fillRect(x, y, 1, 1); } }
+    for (let i = 0; i < 40; i++) { const x = Math.floor(hash(i * 3.3) * W), y = Math.floor(hash(i * 5.1) * H); if (Math.sin(temps + i) > 0.3) { ctx.fillStyle = '#292929'; ctx.fillRect(x, y, 1, 1); } }
     EPILOGUE.forEach((l, i) => { if (epiT > 0.8 + i * 1.5) texte(l, W / 2, Math.round(H * 0.24) + i * 16, i === 3 ? OS : BRUME, 1, 'ombre', 'centre'); });
     if (epiT > 7) {
       texte('SCORE ' + pad(score, 6) + '   RECORD ' + pad(record, 6), W / 2, Math.round(H * 0.24) + 82, OS2, 1, 'ombre', 'centre');
@@ -1905,7 +1808,9 @@
     const E = etat === 'titre' ? entreesDemo()
       : { L: tenu('left'), R: tenu('right'), U: tenu('up'), D: tenu('down'), feu: tenu('fire'), appuis, gestes };
     tenuBas = E.D;
-    if (etat === 'titre' && (appuis.has('fire') || appuis.has('ruee'))) nouvellePartie();
+    if (etat === 'titre' && pageTitre === 'commandes' && (appuis.has('fire') || appuis.has('ruee'))) { pageTitre = 'menu'; sfx('touche'); }
+    else if (etat === 'titre' && (appuis.has('up') || appuis.has('down'))) { choix = (choix + (appuis.has('up') ? MENU.length - 1 : 1)) % MENU.length; sfx('touche'); }
+    else if (etat === 'titre' && (appuis.has('fire') || appuis.has('ruee'))) { if (choix === 0) nouvellePartie(); else { pageTitre = 'commandes'; sfx('touche'); } }
     else if (etat === 'fin' && finT > 0.8 && appuis.has('fire')) reprendre();
     else if (gel > 0) gel -= dt;                                   // micro-pause à l'impact
     else {
@@ -1932,10 +1837,8 @@
     dessinerDragon();
     dessinerEffets();
     ctx.restore();
-    premierPlan();
     dessinerMeteo();
     ctx.restore();
-    ctx.drawImage(VIGNETTES[DECORS[acteVisuel].exterieur ? 0 : 1], 0, 0);
     if (etat === 'titre') ecranTitre();
     else { hud(); dessinerCarte(); if (etat === 'fin') ecranFin(dt); }
     if (etat === 'epilogue') ecranEpilogue();
@@ -1967,21 +1870,21 @@
     texte(l1, W / 2, H / 2 - 6, SANG_VIF, 1, 'ombre', 'centre');
     texte(l2, W / 2, H / 2 + 8, OS, 1, 'ombre', 'centre');
   }
-  const img = new Image(), imgPlanche = new Image();
-  img.onload = () => { imgPlanche.onload = demarrerJeu; imgPlanche.src = PLANCHE; };
-  const demarrerJeu = () => {
-    if (!NIVEAUX || NIVEAUX.length < 3) { panne('NIVEAUX INTROUVABLES', 'RECONSTRUIRE : OUTILS/CONSTRUIRE_JEU.PY'); return; }
+  const charger = (src) => new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; });
+  const demarrerJeu = (img, imgPlanche) => {
     disposer();
     PIECES = construirePieces(img);
     PL = construirePlanche(imgPlanche);
-    DECORS = [decorTerres(), decorCimetiere(), decorCryptes()];
-    LUNE = construireLune(); BRUME_T = tuileBrume(); HALOS = [construireHalo(14, 1), construireHalo(16, 2)];
+    HALOS = [construireHalo(14, 1), construireHalo(16, 2)];
     TUILES = construireTuiles(); ACCESSOIRES = construireAccessoires();
     construireEnnemis();
     modeTitre();
     requestAnimationFrame((t) => { avant = t; requestAnimationFrame(boucle); });
   };
-  img.onerror = () => panne('PLANCHE DU DRAGON INTROUVABLE', 'RECONSTRUIRE : OUTILS/CONSTRUIRE_JEU.PY');
-  img.src = ATLAS;
+  if (!NIVEAUX || NIVEAUX.length < 3) panne('NIVEAUX INTROUVABLES', 'RECONSTRUIRE : OUTILS/CONSTRUIRE_JEU.PY');
+  else if (!ART || PLANS.some((a) => a.plans.some((p) => !ART[p.el]))) panne('DÉCORS INTROUVABLES', 'RECONSTRUIRE : OUTILS/CONSTRUIRE_JEU.PY');
+  else Promise.all([charger(ATLAS), charger(PLANCHE), ...Object.entries(ART).map(([k, a]) => charger(a.src).then((i) => { IMAGES_ART[k] = i; }))])
+    .then(([img, imgPlanche]) => demarrerJeu(img, imgPlanche))
+    .catch(() => panne('IMAGES DU JEU ILLISIBLES', 'RECONSTRUIRE : OUTILS/CONSTRUIRE_JEU.PY'));
 })();
 </script>

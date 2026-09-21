@@ -1,0 +1,950 @@
+{
+ "nuages-bas": {
+  "fichier": "generes/nuages-bas-5196c125dc1d.png",
+  "empreinte": "5196c125dc1d",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 607,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 284
+   },
+   "output_tokens": 6503,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 295
+   },
+   "total_tokens": 7110
+  },
+  "essai": false,
+  "date": "2026-09-21T14:30:55+00:00"
+ },
+ "terres-lointain": {
+  "fichier": "generes/terres-lointain-817397ce6d20.png",
+  "empreinte": "817397ce6d20",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 642,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 319
+   },
+   "output_tokens": 6581,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 373
+   },
+   "total_tokens": 7223
+  },
+  "essai": false,
+  "date": "2026-09-21T14:30:53+00:00"
+ },
+ "terres-ciel": {
+  "fichier": "generes/terres-ciel-60fc0c37426f.png",
+  "empreinte": "60fc0c37426f",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 615,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 292
+   },
+   "output_tokens": 6480,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 272
+   },
+   "total_tokens": 7095
+  },
+  "essai": false,
+  "date": "2026-09-21T14:30:59+00:00"
+ },
+ "terres-milieu": {
+  "fichier": "generes/terres-milieu-5a645153e945.png",
+  "empreinte": "5a645153e945",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 649,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 326
+   },
+   "output_tokens": 6561,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 353
+   },
+   "total_tokens": 7210
+  },
+  "essai": false,
+  "date": "2026-09-21T14:35:29+00:00"
+ },
+ "terres-proche": {
+  "fichier": "generes/terres-proche-6ac5bea5fe8a.png",
+  "empreinte": "6ac5bea5fe8a",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 607,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 284
+   },
+   "output_tokens": 6507,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 299
+   },
+   "total_tokens": 7114
+  },
+  "essai": false,
+  "date": "2026-09-21T14:31:35+00:00"
+ },
+ "cimetiere-lointain": {
+  "fichier": "generes/cimetiere-lointain-a467ab053b27.png",
+  "empreinte": "a467ab053b27",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 653,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 330
+   },
+   "output_tokens": 6620,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 412
+   },
+   "total_tokens": 7273
+  },
+  "essai": false,
+  "date": "2026-09-21T14:34:41+00:00"
+ },
+ "cimetiere-milieu": {
+  "fichier": "generes/cimetiere-milieu-2d8266e9ea22.png",
+  "empreinte": "2d8266e9ea22",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 644,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 321
+   },
+   "output_tokens": 6611,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 403
+   },
+   "total_tokens": 7255
+  },
+  "essai": false,
+  "date": "2026-09-21T14:34:46+00:00"
+ },
+ "ciel-nuit": {
+  "fichier": "generes/ciel-nuit-31e6ffcbb366.png",
+  "empreinte": "31e6ffcbb366",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 611,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 288
+   },
+   "output_tokens": 6549,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 341
+   },
+   "total_tokens": 7160
+  },
+  "essai": false,
+  "date": "2026-09-21T14:34:46+00:00"
+ },
+ "cimetiere-proche": {
+  "fichier": "generes/cimetiere-proche-e4813b8aa4e2.png",
+  "empreinte": "e4813b8aa4e2",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 630,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 307
+   },
+   "output_tokens": 6552,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 344
+   },
+   "total_tokens": 7182
+  },
+  "essai": false,
+  "date": "2026-09-21T14:34:39+00:00"
+ },
+ "cryptes-arcades": {
+  "fichier": "generes/cryptes-arcades-0e37e2ee5e4e.png",
+  "empreinte": "0e37e2ee5e4e",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 621,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 298
+   },
+   "output_tokens": 6575,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 367
+   },
+   "total_tokens": 7196
+  },
+  "essai": false,
+  "date": "2026-09-21T14:35:29+00:00"
+ },
+ "lune": {
+  "fichier": "generes/lune-8b5b08ffe7a3.png",
+  "empreinte": "8b5b08ffe7a3",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 592,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 269
+   },
+   "output_tokens": 4468,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 308
+   },
+   "total_tokens": 5060
+  },
+  "essai": false,
+  "date": "2026-09-21T14:35:35+00:00"
+ },
+ "cryptes-fond": {
+  "fichier": "generes/cryptes-fond-a65f516c4552.png",
+  "empreinte": "a65f516c4552",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 631,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 308
+   },
+   "output_tokens": 6527,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 319
+   },
+   "total_tokens": 7158
+  },
+  "essai": false,
+  "date": "2026-09-21T14:35:28+00:00"
+ },
+ "autel": {
+  "fichier": "generes/autel-6c0b1182ca59.png",
+  "empreinte": "6c0b1182ca59",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 603,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 280
+   },
+   "output_tokens": 4479,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 319
+   },
+   "total_tokens": 5082
+  },
+  "essai": false,
+  "date": "2026-09-21T14:41:59+00:00"
+ },
+ "arbre-mort": {
+  "fichier": "generes/arbre-mort-a1469418c2cf.png",
+  "empreinte": "a1469418c2cf",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 597,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 274
+   },
+   "output_tokens": 4421,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 261
+   },
+   "total_tokens": 5018
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:04+00:00"
+ },
+ "cimetiere-roc": {
+  "fichier": "generes/cimetiere-roc-e2c0976b52c9.png",
+  "empreinte": "e2c0976b52c9",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 621,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 298
+   },
+   "output_tokens": 6520,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 312
+   },
+   "total_tokens": 7141
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:12+00:00"
+ },
+ "cimetiere-crete": {
+  "fichier": "generes/cimetiere-crete-c7794779a59d.png",
+  "empreinte": "c7794779a59d",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 607,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 284
+   },
+   "output_tokens": 6565,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 357
+   },
+   "total_tokens": 7172
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:17+00:00"
+ },
+ "croix": {
+  "fichier": "generes/croix-58e01a6afc7b.png",
+  "empreinte": "58e01a6afc7b",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 600,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 277
+   },
+   "output_tokens": 4403,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 243
+   },
+   "total_tokens": 5003
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:34+00:00"
+ },
+ "cryptes-roc": {
+  "fichier": "generes/cryptes-roc-afb0c236e5b5.png",
+  "empreinte": "afb0c236e5b5",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 623,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 300
+   },
+   "output_tokens": 6511,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 303
+   },
+   "total_tokens": 7134
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:50+00:00"
+ },
+ "passerelle": {
+  "fichier": "generes/passerelle-195d8eade4af.png",
+  "empreinte": "195d8eade4af",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 610,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 287
+   },
+   "output_tokens": 6563,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 355
+   },
+   "total_tokens": 7173
+  },
+  "essai": false,
+  "date": "2026-09-21T14:42:56+00:00"
+ },
+ "pointes": {
+  "fichier": "generes/pointes-4f8a65c676aa.png",
+  "empreinte": "4f8a65c676aa",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 609,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 286
+   },
+   "output_tokens": 6486,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 278
+   },
+   "total_tokens": 7095
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:04+00:00"
+ },
+ "porte": {
+  "fichier": "generes/porte-3cc394dd7970.png",
+  "empreinte": "3cc394dd7970",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 608,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 285
+   },
+   "output_tokens": 4544,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 384
+   },
+   "total_tokens": 5152
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:09+00:00"
+ },
+ "reliquaire": {
+  "fichier": "generes/reliquaire-dc6638c0f462.png",
+  "empreinte": "dc6638c0f462",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 599,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 276
+   },
+   "output_tokens": 4474,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 314
+   },
+   "total_tokens": 5073
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:30+00:00"
+ },
+ "terres-crete": {
+  "fichier": "generes/terres-crete-25cf44be4d43.png",
+  "empreinte": "25cf44be4d43",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 614,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 291
+   },
+   "output_tokens": 6482,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 274
+   },
+   "total_tokens": 7096
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:37+00:00"
+ },
+ "terres-dessous": {
+  "fichier": "generes/terres-dessous-57659a713aa0.png",
+  "empreinte": "57659a713aa0",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 626,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 303
+   },
+   "output_tokens": 6553,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 345
+   },
+   "total_tokens": 7179
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:49+00:00"
+ },
+ "terres-roc": {
+  "fichier": "generes/terres-roc-dcf4786eef38.png",
+  "empreinte": "dcf4786eef38",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "opaque",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 625,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 302
+   },
+   "output_tokens": 6518,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 310
+   },
+   "total_tokens": 7143
+  },
+  "essai": false,
+  "date": "2026-09-21T14:43:55+00:00"
+ },
+ "tombe": {
+  "fichier": "generes/tombe-acc9e6c7797b.png",
+  "empreinte": "acc9e6c7797b",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 597,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 274
+   },
+   "output_tokens": 4475,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 315
+   },
+   "total_tokens": 5072
+  },
+  "essai": false,
+  "date": "2026-09-21T14:44:01+00:00"
+ },
+ "ame": {
+  "fichier": "generes/ame-c26359540962.png",
+  "empreinte": "c26359540962",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 632,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 309
+   },
+   "output_tokens": 6573,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 365
+   },
+   "total_tokens": 7205
+  },
+  "essai": false,
+  "date": "2026-09-21T15:20:46+00:00"
+ },
+ "crane": {
+  "fichier": "generes/crane-628dc1bc8c3c.png",
+  "empreinte": "628dc1bc8c3c",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 622,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 299
+   },
+   "output_tokens": 6507,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 299
+   },
+   "total_tokens": 7129
+  },
+  "essai": false,
+  "date": "2026-09-21T15:20:49+00:00"
+ },
+ "corbeau": {
+  "fichier": "generes/corbeau-4f55d5b70bb3.png",
+  "empreinte": "4f55d5b70bb3",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 658,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 335
+   },
+   "output_tokens": 6536,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 328
+   },
+   "total_tokens": 7194
+  },
+  "essai": false,
+  "date": "2026-09-21T15:20:52+00:00"
+ },
+ "chauve-souris": {
+  "fichier": "generes/chauve-souris-ad33ab69c063.png",
+  "empreinte": "ad33ab69c063",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 636,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 313
+   },
+   "output_tokens": 6573,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 365
+   },
+   "total_tokens": 7209
+  },
+  "essai": false,
+  "date": "2026-09-21T15:20:40+00:00"
+ },
+ "spectre": {
+  "fichier": "generes/spectre-a4c1c56e85e9.png",
+  "empreinte": "a4c1c56e85e9",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 630,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 307
+   },
+   "output_tokens": 6547,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 339
+   },
+   "total_tokens": 7177
+  },
+  "essai": false,
+  "date": "2026-09-21T15:21:31+00:00"
+ },
+ "veilleur": {
+  "fichier": "generes/veilleur-1b2a0f291f9a.png",
+  "empreinte": "1b2a0f291f9a",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 612,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 289
+   },
+   "output_tokens": 6487,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 279
+   },
+   "total_tokens": 7099
+  },
+  "essai": false,
+  "date": "2026-09-21T14:45:44+00:00"
+ },
+ "dragon-marche": {
+  "fichier": "generes/dragon-marche-88e8e8666952.png",
+  "empreinte": "88e8e8666952",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/dragon.png",
+  "usage": {
+   "input_tokens": 670,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 347
+   },
+   "output_tokens": 6653,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 445
+   },
+   "total_tokens": 7323
+  },
+  "essai": false,
+  "date": "2026-09-21T15:09:32+00:00"
+ },
+ "cadre": {
+  "fichier": "generes/cadre-89e90e237ad4.png",
+  "empreinte": "89e90e237ad4",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 630,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 307
+   },
+   "output_tokens": 6560,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 352
+   },
+   "total_tokens": 7190
+  },
+  "essai": false,
+  "date": "2026-09-21T15:16:48+00:00"
+ },
+ "dragon-course": {
+  "fichier": "generes/dragon-course-567bb9501bb3.png",
+  "empreinte": "567bb9501bb3",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/dragon.png",
+  "usage": null,
+  "essai": true,
+  "date": "2026-09-21T15:19:59+00:00"
+ },
+ "flamme": {
+  "fichier": "generes/flamme-6e8b58a13a69.png",
+  "empreinte": "6e8b58a13a69",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": null,
+  "usage": {
+   "input_tokens": 149,
+   "input_tokens_details": {
+    "image_tokens": 0,
+    "text_tokens": 149
+   },
+   "output_tokens": 6548,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 340
+   },
+   "total_tokens": 6697
+  },
+  "essai": false,
+  "date": "2026-09-21T15:21:19+00:00"
+ },
+ "logo": {
+  "fichier": "generes/logo-f0fc82dd542e.png",
+  "empreinte": "f0fc82dd542e",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": null,
+  "usage": {
+   "input_tokens": 180,
+   "input_tokens_details": {
+    "image_tokens": 0,
+    "text_tokens": 180
+   },
+   "output_tokens": 6460,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 252
+   },
+   "total_tokens": 6640
+  },
+  "essai": false,
+  "date": "2026-09-21T15:23:19+00:00"
+ },
+ "boule-feu": {
+  "fichier": "generes/boule-feu-c5ff94dd1749.png",
+  "empreinte": "c5ff94dd1749",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": null,
+  "usage": {
+   "input_tokens": 174,
+   "input_tokens_details": {
+    "image_tokens": 0,
+    "text_tokens": 174
+   },
+   "output_tokens": 6597,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 389
+   },
+   "total_tokens": 6771
+  },
+  "essai": false,
+  "date": "2026-09-21T15:23:19+00:00"
+ },
+ "explosion": {
+  "fichier": "generes/explosion-df06e798680d.png",
+  "empreinte": "df06e798680d",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": null,
+  "usage": {
+   "input_tokens": 179,
+   "input_tokens_details": {
+    "image_tokens": 0,
+    "text_tokens": 179
+   },
+   "output_tokens": 6520,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 312
+   },
+   "total_tokens": 6699
+  },
+  "essai": false,
+  "date": "2026-09-21T15:23:22+00:00"
+ },
+ "orbe": {
+  "fichier": "generes/orbe-069ca185be74.png",
+  "empreinte": "069ca185be74",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": null,
+  "usage": {
+   "input_tokens": 173,
+   "input_tokens_details": {
+    "image_tokens": 0,
+    "text_tokens": 173
+   },
+   "output_tokens": 6551,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 343
+   },
+   "total_tokens": 6724
+  },
+  "essai": false,
+  "date": "2026-09-21T15:23:38+00:00"
+ }
+}

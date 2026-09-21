@@ -1,0 +1,134 @@
+{
+ "nom": "terrain",
+ "_doc": "Le terrain jouable : texture de roche par acte (raccordable dans les deux sens, 128 px = 8 cases), crêtes posées sur les sols, dessous rocheux qui pend, passerelle (corniche), pointes (pics).",
+ "palette": {
+  "rampe": [
+   "#060606",
+   "#ecebe6"
+  ],
+  "teintes": 15
+ },
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "roc-terres": {
+   "source": "terres-roc",
+   "largeur": 128,
+   "recadrer": [
+    0.1,
+    0,
+    0.7667,
+    1
+   ],
+   "raccord": 0.12,
+   "raccord_v": 0.12,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.5
+  },
+  "roc-cimetiere": {
+   "source": "cimetiere-roc",
+   "largeur": 128,
+   "recadrer": [
+    0.1,
+    0,
+    0.7667,
+    1
+   ],
+   "raccord": 0.12,
+   "raccord_v": 0.12,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.5
+  },
+  "roc-cryptes": {
+   "source": "cryptes-roc",
+   "largeur": 128,
+   "recadrer": [
+    0.1,
+    0,
+    0.7667,
+    1
+   ],
+   "raccord": 0.12,
+   "raccord_v": 0.12,
+   "tons": [
+    3,
+    9
+   ],
+   "tramage": 0.5
+  },
+  "crete-terres": {
+   "source": "terres-crete",
+   "largeur": 256,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    3,
+    10
+   ],
+   "tramage": 0.4,
+   "rogner": true
+  },
+  "crete-cimetiere": {
+   "source": "cimetiere-crete",
+   "largeur": 256,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    3,
+    10
+   ],
+   "tramage": 0.4,
+   "rogner": true
+  },
+  "dessous": {
+   "source": "terres-dessous",
+   "largeur": 256,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    0,
+    6
+   ],
+   "tramage": 0.4,
+   "rogner": true,
+   "recadrer": [
+    0,
+    0.47,
+    1,
+    1
+   ]
+  },
+  "passerelle": {
+   "source": "passerelle",
+   "largeur": 160,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    1,
+    8
+   ],
+   "tramage": 0.4,
+   "rogner": true,
+   "contour": true
+  },
+  "pointes": {
+   "source": "pointes",
+   "largeur": 48,
+   "alpha": true,
+   "raccord": 0.1,
+   "tons": [
+    3,
+    13
+   ],
+   "tramage": 0.2,
+   "rogner": true,
+   "contour": true
+  }
+ }
+}

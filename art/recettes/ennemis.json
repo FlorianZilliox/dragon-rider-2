@@ -1,0 +1,105 @@
+{
+ "nom": "ennemis",
+ "_doc": "Les créatures : planches d'animation découpées automatiquement (une case par image), mêmes teintes pour toutes les images d'une créature.",
+ "palette": {
+  "rampe": [
+   "#060606",
+   "#ecebe6"
+  ],
+  "teintes": 15
+ },
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "corbeau": {
+   "source": "corbeau",
+   "objets": true,
+   "echelle": 0.155,
+   "tons": [
+    0,
+    12
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "regarde": "droite",
+   "attendus": 5,
+   "joindre": 0.006,
+   "contour_ton": 0
+  },
+  "chauve": {
+   "source": "chauve-souris",
+   "objets": true,
+   "echelle": 0.15,
+   "tons": [
+    0,
+    12
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "regarde": "gauche",
+   "attendus": 5,
+   "joindre": 0.006,
+   "contour_ton": 0
+  },
+  "ame": {
+   "source": "ame",
+   "objets": true,
+   "echelle": 0.17,
+   "tons": [
+    0,
+    14
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "contour_ton": 0,
+   "regarde": "droite",
+   "attendus": 4,
+   "joindre": 0.006,
+   "seuil_alpha": 0.35
+  },
+  "spectre": {
+   "source": "spectre",
+   "objets": true,
+   "echelle": 0.18,
+   "tons": [
+    0,
+    13
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "regarde": "droite",
+   "attendus": 4,
+   "joindre": 0.006,
+   "contour_ton": 0
+  },
+  "crane": {
+   "source": "crane",
+   "objets": true,
+   "echelle": 0.13,
+   "tons": [
+    0,
+    14
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "regarde": "gauche",
+   "attendus": 4,
+   "joindre": 0.006,
+   "contour_ton": 0
+  },
+  "veilleur": {
+   "source": "veilleur",
+   "objets": true,
+   "echelle": 0.11,
+   "tons": [
+    0,
+    13
+   ],
+   "tramage": 0.3,
+   "contour": true,
+   "regarde": "face",
+   "attendus": 2,
+   "ancre": "bas"
+  }
+ }
+}

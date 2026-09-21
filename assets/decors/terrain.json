@@ -1,0 +1,126 @@
+{
+ "nom": "terrain",
+ "palette": [
+  "#060606",
+  "#121211",
+  "#1f1f1e",
+  "#2d2d2c",
+  "#3c3c3a",
+  "#4c4b4a",
+  "#5c5b59",
+  "#6c6c6a",
+  "#7e7d7a",
+  "#8f8e8b",
+  "#a1a09d",
+  "#b3b2af",
+  "#c6c5c1",
+  "#d9d8d3",
+  "#ecebe6"
+ ],
+ "elements": {
+  "roc-terres": {
+   "image": "terrain/roc-terres.png",
+   "taille": [
+    128,
+    128
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 128,
+   "raccord": true
+  },
+  "roc-cimetiere": {
+   "image": "terrain/roc-cimetiere.png",
+   "taille": [
+    128,
+    128
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 128,
+   "raccord": true
+  },
+  "roc-cryptes": {
+   "image": "terrain/roc-cryptes.png",
+   "taille": [
+    128,
+    128
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 128,
+   "raccord": true
+  },
+  "crete-terres": {
+   "image": "terrain/crete-terres.png",
+   "taille": [
+    256,
+    35
+   ],
+   "decalage": [
+    0,
+    139
+   ],
+   "hauteurAvantRognage": 190,
+   "raccord": true
+  },
+  "crete-cimetiere": {
+   "image": "terrain/crete-cimetiere.png",
+   "taille": [
+    256,
+    54
+   ],
+   "decalage": [
+    0,
+    80
+   ],
+   "hauteurAvantRognage": 190,
+   "raccord": true
+  },
+  "dessous": {
+   "image": "terrain/dessous.png",
+   "taille": [
+    256,
+    75
+   ],
+   "decalage": [
+    0,
+    0
+   ],
+   "hauteurAvantRognage": 101,
+   "raccord": true
+  },
+  "passerelle": {
+   "image": "terrain/passerelle.png",
+   "taille": [
+    160,
+    53
+   ],
+   "decalage": [
+    0,
+    56
+   ],
+   "hauteurAvantRognage": 118,
+   "raccord": true
+  },
+  "pointes": {
+   "image": "terrain/pointes.png",
+   "taille": [
+    48,
+    16
+   ],
+   "decalage": [
+    0,
+    10
+   ],
+   "hauteurAvantRognage": 36,
+   "raccord": true
+  }
+ }
+}

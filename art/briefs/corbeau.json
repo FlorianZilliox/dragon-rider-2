@@ -1,0 +1,9 @@
+{
+ "nom": "corbeau",
+ "sujet": "Un vautour charognard décharné dont la tête est un crâne d'oiseau en os blanchi au long bec crochu, cou déplumé, grandes ailes aux plumes déchirées et en lambeaux, serres griffues ; en vol, les images décomposent le battement : ailes hautes, ailes à l'horizontale, ailes basses, ailes à mi-hauteur, puis une cinquième image perché, ailes repliées. Planche d'animation de sprite pour un jeu : 5 images de la même créature, vue de profil, alignées sur UNE seule rangée horizontale, même taille, même hauteur, bien séparées par du vide, sans aucun chevauchement. Rien d'autre, fond transparent.",
+ "reference": "references/ambiance.png",
+ "style": "style-creature.txt",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent"
+}

@@ -1,0 +1,9 @@
+{
+ "nom": "spectre",
+ "sujet": "Un spectre de moine en haillons flottants, capuchon profond d'où luisent deux yeux blancs, longues mains squelettiques tendues, une lanterne éteinte pendue à une chaîne, bas du corps qui se défait en lambeaux de brume ; les images montrent les haillons et la chaîne qui flottent. Planche d'animation de sprite pour un jeu : 4 images de la même créature, vue de profil, alignées sur UNE seule rangée horizontale, même taille, même hauteur, bien séparées par du vide, sans aucun chevauchement. Rien d'autre, fond transparent.",
+ "reference": "references/ambiance.png",
+ "style": "style-creature.txt",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent"
+}

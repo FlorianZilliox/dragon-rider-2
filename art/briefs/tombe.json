@@ -1,0 +1,8 @@
+{
+ "nom": "tombe",
+ "reference": "references/ambiance.png",
+ "taille": "1024x1024",
+ "qualite": "high",
+ "fond": "transparent",
+ "sujet": "Une pierre tombale arrondie, fissurée et penchée, sur un petit tertre. Un seul objet, entier, centré, vu de face, qui occupe environ les deux tiers de la hauteur de l'image. Rien d'autre, fond transparent."
+}

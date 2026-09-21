@@ -1,0 +1,124 @@
+{
+ "nom": "objets",
+ "_doc": "Les objets posés sur la carte (autels, reliques, portes, décor), réduits à leur taille de jeu avec un liseré sombre.",
+ "palette": {
+  "rampe": [
+   "#060606",
+   "#ecebe6"
+  ],
+  "teintes": 15
+ },
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "autel": {
+   "source": "autel",
+   "largeur": 40,
+   "alpha": true,
+   "tons": [
+    1,
+    12
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "reliquaire": {
+   "source": "reliquaire",
+   "largeur": 24,
+   "alpha": true,
+   "tons": [
+    2,
+    14
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "porte": {
+   "source": "porte",
+   "largeur": 66,
+   "alpha": true,
+   "tons": [
+    0,
+    10
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "arbre": {
+   "source": "arbre-mort",
+   "largeur": 96,
+   "alpha": true,
+   "tons": [
+    0,
+    5
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "tombe": {
+   "source": "tombe",
+   "largeur": 30,
+   "alpha": true,
+   "tons": [
+    1,
+    9
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "croix": {
+   "source": "croix",
+   "largeur": 34,
+   "alpha": true,
+   "tons": [
+    1,
+    9
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
+  },
+  "ile": {
+   "source": "terres-dessous",
+   "largeur": 180,
+   "alpha": true,
+   "tons": [
+    7,
+    11
+   ],
+   "tramage": 0.5,
+   "rogner": true
+  },
+  "cadre": {
+   "source": "cadre",
+   "largeur": 300,
+   "alpha": true,
+   "tons": [
+    2,
+    12
+   ],
+   "tramage": 0.35,
+   "rogner": true,
+   "contour": true,
+   "contour_ton": 0
+  },
+  "cadre-petit": {
+   "source": "cadre",
+   "largeur": 220,
+   "alpha": true,
+   "tons": [
+    2,
+    12
+   ],
+   "tramage": 0.35,
+   "rogner": true,
+   "contour": true,
+   "contour_ton": 0
+  }
+ }
+}

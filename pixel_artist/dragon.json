@@ -1,285 +1,286 @@
 {
-  "nom": "dragon",
-  "_doc": "Recette Pixel Artist. Coordonnées en pixels de la planche nettoyée, relatives à son ancre (le corps du dragon). Ordre des pièces = priorité de découpe ; z = ordre de dessin (négatif : derrière le corps). « proteger » : zones où les pixels clairs isolés sont de vrais détails (yeux, dents, visage, étincelles). « variantes » : la même pièce prise dans d'autres images du modèle (têtes d'attaque).",
-  "planche": "../assets/dragon_sheet.png",
-  "description": "../assets/dragon_sheet.json",
-  "echelle": 0.5,
-  "mode": "rampe",
-  "gamma": 0.92,
-  "palette": [
-    "#050407",
-    "#0b0910",
-    "#110e17",
-    "#18141f",
-    "#201a28",
-    "#292232",
-    "#332b3d",
-    "#3e3549",
-    "#4b4156",
-    "#5a5065",
-    "#6c6276",
-    "#827889",
-    "#9c93a1",
-    "#bdb6bf",
-    "#e6e0dc"
-  ],
-  "contour": false,
-  "eclats": true,
-  "proteger": [
-    [
+ "nom": "dragon",
+ "_doc": "Recette Pixel Artist. Coordonnées en pixels de la planche nettoyée, relatives à son ancre (le corps du dragon). Ordre des pièces = priorité de découpe ; z = ordre de dessin (négatif : derrière le corps). « proteger » : zones où les pixels clairs isolés sont de vrais détails (yeux, dents, visage, étincelles). « variantes » : la même pièce prise dans d'autres images du modèle (têtes d'attaque).",
+ "planche": "../assets/dragon_sheet.png",
+ "description": "../assets/dragon_sheet.json",
+ "echelle": 0.5,
+ "mode": "rampe",
+ "gamma": 0.62,
+ "palette": [
+  "#050505",
+  "#0a0a0a",
+  "#101010",
+  "#161616",
+  "#1d1d1d",
+  "#262626",
+  "#2f2f2f",
+  "#3a3a3a",
+  "#464646",
+  "#555555",
+  "#676767",
+  "#7c7c7c",
+  "#979797",
+  "#b9b9b9",
+  "#e1e1e1"
+ ],
+ "contour": true,
+ "eclats": true,
+ "proteger": [
+  [
+   [
+    40,
+    -60
+   ],
+   [
+    250,
+    -60
+   ],
+   [
+    250,
+    24
+   ],
+   [
+    40,
+    24
+   ]
+  ]
+ ],
+ "jointure": 2.2,
+ "poses": {
+  "vol": {
+   "source": [
+    "idle",
+    0
+   ],
+   "pieces": [
+    {
+     "nom": "cavalier",
+     "role": "cavalier",
+     "z": 5,
+     "pivot": [
+      60,
+      6
+     ],
+     "poly": [
       [
-        40,
-        -60
+       44,
+       -36
       ],
       [
-        250,
-        -60
+       84,
+       -36
       ],
       [
-        250,
-        24
+       84,
+       -4
       ],
       [
-        40,
-        24
+       77,
+       -4
+      ],
+      [
+       72,
+       8
+      ],
+      [
+       56,
+       10
+      ],
+      [
+       46,
+       4
       ]
-    ]
-  ],
-  "jointure": 2.2,
-  "poses": {
-    "vol": {
-      "source": [
-        "idle",
+     ]
+    },
+    {
+     "nom": "tete",
+     "role": "tete",
+     "z": 2,
+     "pivot": [
+      70,
+      16
+     ],
+     "poly": [
+      [
+       84,
+       -14
+      ],
+      [
+       230,
+       -14
+      ],
+      [
+       230,
+       50
+      ],
+      [
+       70,
+       50
+      ],
+      [
+       70,
+       20
+      ],
+      [
+       84,
+       8
+      ]
+     ],
+     "variantes": {
+      "anim": "attack",
+      "poly": [
+       [
+        81,
+        -16
+       ],
+       [
+        230,
+        -16
+       ],
+       [
+        230,
+        50
+       ],
+       [
+        62,
+        50
+       ],
+       [
+        62,
+        12
+       ],
+       [
+        74,
+        6
+       ],
+       [
+        81,
         0
-      ],
-      "pieces": [
-        {
-          "nom": "cavalier",
-          "role": "cavalier",
-          "z": 5,
-          "pivot": [
-            60,
-            6
-          ],
-          "poly": [
-            [
-              44,
-              -36
-            ],
-            [
-              84,
-              -36
-            ],
-            [
-              84,
-              -4
-            ],
-            [
-              77,
-              -4
-            ],
-            [
-              72,
-              8
-            ],
-            [
-              56,
-              10
-            ],
-            [
-              46,
-              4
-            ]
-          ]
-        },
-        {
-          "nom": "tete",
-          "role": "tete",
-          "z": 2,
-          "pivot": [
-            70,
-            16
-          ],
-          "poly": [
-            [
-              84,
-              -14
-            ],
-            [
-              230,
-              -14
-            ],
-            [
-              230,
-              50
-            ],
-            [
-              70,
-              50
-            ],
-            [
-              70,
-              20
-            ],
-            [
-              84,
-              8
-            ]
-          ],
-          "variantes": {
-            "anim": "attack",
-            "poly": [
-              [
-                81,
-                -16
-              ],
-              [
-                230,
-                -16
-              ],
-              [
-                230,
-                50
-              ],
-              [
-                62,
-                50
-              ],
-              [
-                62,
-                12
-              ],
-              [
-                74,
-                6
-              ],
-              [
-                81,
-                0
-              ]
-            ]
-          }
-        },
-        {
-          "nom": "aile",
-          "role": "aile",
-          "z": 1,
-          "double": true,
-          "pivot": [
-            34,
-            6
-          ],
-          "axe": [
-            -11,
-            11
-          ],
-          "poly": [
-            [
-              -83,
-              -68
-            ],
-            [
-              47,
-              -68
-            ],
-            [
-              47,
-              -30
-            ],
-            [
-              40,
-              -26
-            ],
-            [
-              38,
-              -16
-            ],
-            [
-              35,
-              -3
-            ],
-            [
-              34,
-              6
-            ],
-            [
-              17,
-              9
-            ],
-            [
-              -3,
-              11
-            ],
-            [
-              -11,
-              11
-            ],
-            [
-              -17,
-              9
-            ],
-            [
-              -25,
-              5
-            ],
-            [
-              -43,
-              -8
-            ],
-            [
-              -58,
-              -23
-            ],
-            [
-              -83,
-              -43
-            ]
-          ]
-        },
-        {
-          "nom": "queue",
-          "role": "queue",
-          "z": -1,
-          "pivot": [
-            -40,
-            19
-          ],
-          "poly": [
-            [
-              -175,
-              -45
-            ],
-            [
-              -95,
-              -45
-            ],
-            [
-              -90,
-              -5
-            ],
-            [
-              -60,
-              0
-            ],
-            [
-              -40,
-              6
-            ],
-            [
-              -34,
-              12
-            ],
-            [
-              -34,
-              45
-            ],
-            [
-              -175,
-              45
-            ]
-          ]
-        }
+       ]
       ]
+     }
+    },
+    {
+     "nom": "aile",
+     "role": "aile",
+     "z": 1,
+     "double": true,
+     "pivot": [
+      34,
+      6
+     ],
+     "axe": [
+      -11,
+      11
+     ],
+     "poly": [
+      [
+       -83,
+       -68
+      ],
+      [
+       47,
+       -68
+      ],
+      [
+       47,
+       -30
+      ],
+      [
+       40,
+       -26
+      ],
+      [
+       38,
+       -16
+      ],
+      [
+       35,
+       -3
+      ],
+      [
+       34,
+       6
+      ],
+      [
+       17,
+       9
+      ],
+      [
+       -3,
+       11
+      ],
+      [
+       -11,
+       11
+      ],
+      [
+       -17,
+       9
+      ],
+      [
+       -25,
+       5
+      ],
+      [
+       -43,
+       -8
+      ],
+      [
+       -58,
+       -23
+      ],
+      [
+       -83,
+       -43
+      ]
+     ]
+    },
+    {
+     "nom": "queue",
+     "role": "queue",
+     "z": -1,
+     "pivot": [
+      -40,
+      19
+     ],
+     "poly": [
+      [
+       -175,
+       -45
+      ],
+      [
+       -95,
+       -45
+      ],
+      [
+       -90,
+       -5
+      ],
+      [
+       -60,
+       0
+      ],
+      [
+       -40,
+       6
+      ],
+      [
+       -34,
+       12
+      ],
+      [
+       -34,
+       45
+      ],
+      [
+       -175,
+       45
+      ]
+     ]
     }
+   ]
   }
+ },
+ "lisere": 10
 }

@@ -146,6 +146,10 @@ def pixeliser(cellule, rec, centres, protege=None):
     out[1:-1, 1:-1] = idx
     if rec.get('eclats'):
         out = eclats(out, protege if protege is not None else np.zeros(out.shape, bool), n)
+    if rec.get('lisere'):                        # liseré de lune : l'arête supérieure de la silhouette s'éclaire
+        plein = out >= 0
+        arete = plein & ~np.vstack([np.zeros((1, out.shape[1]), bool), plein[:-1]])
+        out[arete] = np.maximum(out[arete], rec['lisere'])
     if rec.get('contour', True):
         plein = out >= 0
         out[ndi.binary_dilation(plein, CROIX) & ~plein] = 0

@@ -1,0 +1,44 @@
+{
+ "nom": "feu",
+ "_doc": "Tout ce qui brûle : la seule couleur du monde. Palette du feu, du rouge sang au blanc chaud.",
+ "palette": [
+  "#1a0608",
+  "#5e1a22",
+  "#7a1c26",
+  "#b8323a",
+  "#e0702e",
+  "#f0a050",
+  "#ffd9a0",
+  "#fff4d6"
+ ],
+ "sources": "../generes/manifest.json",
+ "sortie": "../../assets/decors",
+ "elements": {
+  "flamme": {
+   "source": "flamme",
+   "objets": true,
+   "echelle": 0.12,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.3,
+   "regarde": "haut",
+   "attendus": 6,
+   "ancre": "bas"
+  },
+  "flamme-petite": {
+   "source": "flamme",
+   "objets": true,
+   "echelle": 0.065,
+   "tons": [
+    0,
+    7
+   ],
+   "tramage": 0.3,
+   "regarde": "haut",
+   "attendus": 6,
+   "ancre": "bas"
+  }
+ }
+}

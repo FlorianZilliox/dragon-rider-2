@@ -1,0 +1,9 @@
+{
+ "nom": "ame",
+ "sujet": "Une âme errante : un visage humain pâle et douloureux, bouche ouverte sur un cri muet, qui se dissout vers l'arrière en longue traînée de fumée et de lambeaux, deux mains décharnées qui se tendent vers l'avant ; les images montrent la traînée qui ondule et le visage qui se tord. Planche d'animation de sprite pour un jeu : 4 images de la même créature, vue de profil, alignées sur UNE seule rangée horizontale, même taille, même hauteur, bien séparées par du vide, sans aucun chevauchement. Rien d'autre, fond transparent.",
+ "reference": "references/ambiance.png",
+ "style": "style-creature.txt",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent"
+}

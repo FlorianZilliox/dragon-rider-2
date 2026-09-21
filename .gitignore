@@ -1,3 +1,10 @@
 .DS_Store
 __pycache__/
 *.pyc
+# secrets : jamais dans le dépôt (public)
+.env
+**/.env
+# autre projet de Florian (pipeline UI Sillage, gelé), pas versionné ici
+sillage-ui-pipeline/
+# images générées (lourdes, 2 Mo pièce) : sources locales, régénérables via pixel_artist/generer.py
+art/generes/*.png

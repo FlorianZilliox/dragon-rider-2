@@ -1,0 +1,286 @@
+{
+ "nom": "ennemis",
+ "palette": [
+  "#060606",
+  "#121211",
+  "#1f1f1e",
+  "#2d2d2c",
+  "#3c3c3a",
+  "#4c4b4a",
+  "#5c5b59",
+  "#6c6c6a",
+  "#7e7d7a",
+  "#8f8e8b",
+  "#a1a09d",
+  "#b3b2af",
+  "#c6c5c1",
+  "#d9d8d3",
+  "#ecebe6"
+ ],
+ "elements": {
+  "corbeau": {
+   "image": "ennemis/corbeau.png",
+   "taille": [
+    285,
+    51
+   ],
+   "cellule": [
+    57,
+    51
+   ],
+   "images": 5,
+   "rects": [
+    [
+     5,
+     0,
+     46,
+     51
+    ],
+    [
+     57,
+     4,
+     57,
+     42
+    ],
+    [
+     119,
+     9,
+     46,
+     32
+    ],
+    [
+     180,
+     9,
+     39,
+     32
+    ],
+    [
+     239,
+     11,
+     34,
+     29
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "chauve": {
+   "image": "ennemis/chauve.png",
+   "taille": [
+    200,
+    39
+   ],
+   "cellule": [
+    40,
+    39
+   ],
+   "images": 5,
+   "rects": [
+    [
+     0,
+     1,
+     40,
+     37
+    ],
+    [
+     40,
+     2,
+     39,
+     35
+    ],
+    [
+     81,
+     2,
+     37,
+     35
+    ],
+    [
+     121,
+     2,
+     37,
+     34
+    ],
+    [
+     173,
+     0,
+     14,
+     39
+    ]
+   ],
+   "regarde": "gauche",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "ame": {
+   "image": "ennemis/ame.png",
+   "taille": [
+    248,
+    49
+   ],
+   "cellule": [
+    62,
+    49
+   ],
+   "images": 4,
+   "rects": [
+    [
+     1,
+     0,
+     59,
+     48
+    ],
+    [
+     65,
+     0,
+     55,
+     48
+    ],
+    [
+     124,
+     0,
+     62,
+     49
+    ],
+    [
+     186,
+     0,
+     62,
+     49
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "spectre": {
+   "image": "ennemis/spectre.png",
+   "taille": [
+    292,
+    81
+   ],
+   "cellule": [
+    73,
+    81
+   ],
+   "images": 4,
+   "rects": [
+    [
+     5,
+     0,
+     63,
+     81
+    ],
+    [
+     74,
+     0,
+     70,
+     80
+    ],
+    [
+     148,
+     0,
+     68,
+     80
+    ],
+    [
+     219,
+     0,
+     73,
+     81
+    ]
+   ],
+   "regarde": "droite",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "crane": {
+   "image": "ennemis/crane.png",
+   "taille": [
+    328,
+    46
+   ],
+   "cellule": [
+    82,
+    46
+   ],
+   "images": 4,
+   "rects": [
+    [
+     4,
+     3,
+     73,
+     40
+    ],
+    [
+     92,
+     0,
+     62,
+     46
+    ],
+    [
+     164,
+     0,
+     82,
+     45
+    ],
+    [
+     249,
+     0,
+     76,
+     46
+    ]
+   ],
+   "regarde": "gauche",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  },
+  "veilleur": {
+   "image": "ennemis/veilleur.png",
+   "taille": [
+    128,
+    80
+   ],
+   "cellule": [
+    64,
+    80
+   ],
+   "images": 2,
+   "rects": [
+    [
+     0,
+     0,
+     64,
+     80
+    ],
+    [
+     67,
+     40,
+     57,
+     40
+    ]
+   ],
+   "regarde": "face",
+   "raccord": false,
+   "decalage": [
+    0,
+    0
+   ]
+  }
+ }
+}
