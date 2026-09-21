@@ -177,9 +177,16 @@ export function majDragon(dt, E) {
         J.P.y = J.P.sol - G + AN.jump.bodyY[0];
         break;
       }
+      // le départ : une poussée, ramassé sur lui-même ; l'arrêt en pleine course : il dérape, arc-bouté (Simba)
+      if (dir && Math.abs(J.P.vx) < 12 && !J.P.lance) { J.P.dosV += 12; J.P.ondeV -= 9; J.P.lance = true; }
+      if (!dir) J.P.lance = false;
+      const lance = Math.abs(J.P.vx) > V.MARCHE * 1.25 && (!dir || Math.sign(J.P.vx) !== dir);
+      if (lance && J.P.derape <= 0) { J.P.derape = 0.42; J.P.ondeV += 12; poussiere(J.P.x + J.P.face * 18, J.P.sol, 3, 0.8); sfx('pose'); }
+      J.P.derape = Math.max(0, J.P.derape - dt);
       J.P.course = dir && !accroupi && J.P.atk < 0 ? J.P.course + dt : 0;
       const vitesse = mix(V.MARCHE, V.COURSE, clamp((J.P.course - 0.35) / 0.7, 0, 1));
-      J.P.vx = approche(J.P.vx, libre && !accroupi && J.P.atk < 0 ? dir * vitesse : 0, dt * 8);
+      J.P.vx = approche(J.P.vx, libre && !accroupi && J.P.atk < 0 && J.P.derape <= 0 ? dir * vitesse : 0, dt * (J.P.derape > 0 ? 3.5 : 8));
+      if (J.P.derape > 0.15 && Math.random() < 0.18) poussiere(J.P.x + J.P.face * 20, J.P.sol, 1, 0.5);   // les griffes labourent le sol
       if (deplacerSol(J.P.vx * dt)) J.P.vx = 0;
       if (!appuiOuMarche()) { tomber(); break; }
       if (!toucheCase(PICS, J.P.x - LARG, J.P.sol - CORPS_SOL, J.P.x + LARG, J.P.sol - 1)) J.P.dernierSol = [J.P.x, J.P.sol];
@@ -249,14 +256,12 @@ export function secondaires(dt) {
   // coup, jet de feu, ruée, vide) les lancent et ils rebondissent ; en fond, le rythme des ailes ou des pas.
   let dosC = 0, ondeC = 0;
   if (enVol) {
-    const ph = 2 * Math.PI * J.P.ph, chute = clamp((J.P.vy - 60) / 200, 0, 1) * (1 - J.P.amp * 0.5);
-    dosC = 1.1 * J.P.amp * Math.cos(ph - 0.7) - (J.P.ruee >= 0 ? 1.2 : 0) - 1.6 * chute + (J.P.mode === 'fall' ? -1.5 : 0);
-    ondeC = 1.2 * J.P.amp * Math.sin(ph - 1.3) - clamp(J.P.vy / V.VERT, -1.2, 1.2) * 0.9 + 1.2 * chute * Math.sin(J.temps * 11);   // la chute : il se débat
+    const chute = clamp((J.P.vy - 60) / 200, 0, 1) * (1 - J.P.amp * 0.5);   // (le rythme des ailes agit directement, voir posture)
+    dosC = -(J.P.ruee >= 0 ? 1.2 : 0) - 1.6 * chute + (J.P.mode === 'fall' ? -1.5 : 0);
+    ondeC = -clamp(J.P.vy / V.VERT, -1.2, 1.2) * 0.9 + 1.2 * chute * Math.sin(J.temps * 11);   // la chute : il se débat
   } else if (J.P.mode === 'jump' && !J.P.envol) dosC = 2.8;          // l'élan, ramassé sur lui-même
   else {
-    const vif = clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1);
-    dosC = pas * (0.5 + 1.1 * vif) * Math.sin(4 * Math.PI * J.P.allure - 0.4) + (J.P.accroupi || 0) * 2.2;
-    ondeC = pas * (0.3 + 0.9 * vif) * Math.sin(2 * Math.PI * J.P.allure);
+    dosC = (J.P.accroupi || 0) * 2.2;                      // (le rythme des pas et du galop agit directement, voir posture)
   }
   J.P.dosV += (75 * (dosC - J.P.dos) - 6.5 * J.P.dosV) * dt; J.P.dos = clamp(J.P.dos + J.P.dosV * dt, -5, 6);
   J.P.ondeV += (65 * (ondeC - J.P.onde) - 7 * J.P.ondeV) * dt; J.P.onde = clamp(J.P.onde + J.P.ondeV * dt, -5, 5);

@@ -22,6 +22,7 @@ export function joueurNeuf(x, sol) {
     q2: 0, q2v: 0, q3: 0, q3v: 0, allure: 0, oisif: 0, geste: null, gesteT: 0, prochainGeste: 3, penche: 0, pencheV: 0, vxAvant: 0, ecrase: 0, cligne: 3,
     dos: 0, dosV: 0, onde: 0, ondeV: 0,               // la colonne vertébrale (voir secondaires)
     cavY: 0, cavYV: 0, teteY: 0, teteYV: 0,           // le cavalier et la tête encaissent les à-coups avec retard
+    derape: 0, lance: false,                          // l'arrêt en pleine course, le départ
   };
 }
 export function vider() { J.ennemis = []; J.boules = []; J.orbes = []; J.coeurs = []; J.particules = []; J.popups = []; J.ombres = []; }

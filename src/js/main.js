@@ -1,6 +1,6 @@
 import { J } from './etat.js';
 import { suivreCamera } from './camera.js';
-import { NIVEAUX, ENCRE, ESSAI, G, OS, PV_MAX, SANG_VIF, reduit } from './config.js';
+import { ATELIER, ENCRE, ESSAI, NIVEAUX, G, OS, PV_MAX, SANG_VIF, reduit } from './config.js';
 import { IMAGES_ART, PLANS, construireHalo, decor, dessinerMeteo, majMeteo } from './decor.js';
 import { entreesDemo } from './demo.js';
 import { ART, ATLAS, CARTES, PLANCHE } from './donnees.js';
@@ -60,6 +60,7 @@ export function boucle(tms) {
   ctx.save();
   if (J.secousse > 0 && !reduit) ctx.translate(Math.round(rand(-2, 2) * J.secousse * 5), Math.round(rand(-2, 2) * J.secousse * 5));
   decor();
+  if (ATELIER) { ctx.fillStyle = '#9d9d98'; ctx.fillRect(0, 0, J.W, J.H); }
   ctx.save();
   ctx.translate(-Math.round(J.cam), -Math.round(J.camY));          // le monde, en coordonnées de la carte
   dessinerCourants();
@@ -69,7 +70,7 @@ export function boucle(tms) {
   dessinerDragon();
   dessinerEffets();
   ctx.restore();
-  dessinerMeteo();
+  if (!ATELIER) dessinerMeteo();
   dessinerObscurite();                                             // la pénombre des profondeurs (certains niveaux)
   ctx.restore();
   if (J.etat === 'titre') ecranTitre();
