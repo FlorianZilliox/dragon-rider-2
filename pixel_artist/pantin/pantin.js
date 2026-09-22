@@ -86,7 +86,7 @@ function creerPose(nomPose, p, decouper, images) {
   const ax = Math.floor(p.ancre[0]), ay = Math.floor(p.ancre[1]), rel = (q) => [q[0] - ax, q[1] - ay];
   const racine = p.calques.some((c) => c.nom === 'corps') ? 'corps' : null;
   const os = p.calques.map((c) => ({
-    nom: c.nom, role: c.role, z: c.z || 0, double: !!c.double,
+    nom: c.nom, role: c.role, z: c.z || 0, double: !!c.double, herite: c.herite || null,
     nomParent: c.parent || (c.nom !== racine ? racine : null),
     p: c.pivot ? rel(c.pivot) : [0, 0], a: c.axe ? rel(c.axe) : null, o: rel(c.origine),
     jeux: images(decouper(c.atlas), true),
@@ -118,6 +118,8 @@ function creerPose(nomPose, p, decouper, images) {
 //       miroir : retournée autour de son pivot (une tête qui regarde déjà de l'autre côté) ;
 //       variante : le numéro d'une variante (tête d'attaque…) ; image : une reteinte (« dessous »…) ; cache : ne pas la dessiner.
 //       L'os « corps » (la racine) porte tout le reste : son dx, dy déplace toute la marionnette.
+//       Un os « herite: position » (recette) ne suit que la place de son pivot chez son parent, pas sa rotation ni
+//       son étirement : il se règle comme s'il était accroché au grand-parent.
 //   double: { dx, dy, sx, sy, image }  la copie opposée des pièces « double » (l'aile du fond), derrière tout.
 // }
 // Le cadre calculé dit où est chaque os (porte, versOs) et dessine la marionnette (dessiner).
@@ -129,12 +131,15 @@ function creerCadre(pose) {
       R = reglages || NEUTRE;
       const regl = R.os || NEUTRE, dbl = R.double;
       for (const o of pose.chaine) {
-        const g = regl[o.nom] || NEUTRE, m = o.parent ? copier(o.m, o.parent.m) : unite(o.m);
+        const g = regl[o.nom] || NEUTRE, base = o.herite === 'position' ? o.parent.parent : o.parent;
+        const m = base ? copier(o.m, base.m) : unite(o.m);
+        if (o.herite === 'position') epingler(m, o.parent.m, o.p);
         local(m, o, g, 1, 1);
         if (o.double) {                                // la copie opposée : même chaîne, décalée et étirée
           const md = unite(o.md);
           if (dbl) translater(md, dbl.dx || 0, dbl.dy || 0);
-          if (o.parent) multiplier(md, o.parent.m);
+          if (base) multiplier(md, base.m);
+          if (o.herite === 'position') epingler(md, o.parent.double ? o.parent.md : o.parent.m, o.p);
           local(md, o, g, dbl && dbl.sx !== undefined ? dbl.sx : 1, dbl && dbl.sy !== undefined ? dbl.sy : 1);
         }
       }
@@ -144,6 +149,17 @@ function creerCadre(pose) {
     porte(nom, [x, y]) {
       const m = pose.parNom[nom].m;
       return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+    },
+    // le point le plus bas d'une pièce (les coins de son image), dans le repère de la pose ; versMonde : une fonction
+    // facultative (x, y) → y dans le monde, quand la pose est tournée. De quoi garder une queue ou une tête hors du sol.
+    plusBas(nom, versMonde = null) {
+      const o = pose.parNom[nom], m = o.m, j = o.jeux.normal.img, [ox, oy] = o.o;
+      let bas = -Infinity, pt = null;
+      for (const [x, y] of [[ox, oy], [ox + j.width, oy], [ox, oy + j.height], [ox + j.width, oy + j.height]]) {
+        const X = m[0] * x + m[2] * y + m[4], Y = m[1] * x + m[3] * y + m[5], v = versMonde ? versMonde(X, Y) : Y;
+        if (v > bas) { bas = v; pt = [X, Y]; }
+      }
+      return { y: bas, point: pt };
     },
     // l'inverse : un point du repère de la pose → repère de l'os au repos
     versOs(nom, [X, Y]) {
@@ -178,6 +194,12 @@ function creerCadre(pose) {
     },
   };
   return cadre;
+}
+// « herite: position » : l'os garde l'orientation de son grand-parent, mais son pivot suit le point où son parent
+// l'emporte (le bout d'une aile, épinglé au poignet, se replie avec son propre retard sans être écrasé par le bras)
+function epingler(m, mParent, [px, py]) {
+  m[4] += mParent[0] * px + mParent[2] * py + mParent[4] - (m[0] * px + m[2] * py + m[4]);
+  m[5] += mParent[1] * px + mParent[3] * py + mParent[5] - (m[1] * px + m[3] * py + m[5]);
 }
 // la transformation propre d'un os : autour de son pivot, retournement, décalage, rotation, étirement (le long de son axe)
 function local(m, o, g, ksx, ksy) {
@@ -220,27 +242,30 @@ export function segmentEffile(p, x0, y0, r0, x1, y1, r1, grossir = 0) {
     }
   }
 }
-// peint des membres (résultats d'ik2) avec un pinceau, en trois passes pour qu'ils se recouvrent proprement :
-// contour, chair, puis lumière (un liseré sur l'avant du genou et du tibia) et griffes. Un seul appel de dessin.
-//   style : { epaisseur: [hanche, genou, cheville], pied: [longueur, talon, bout] } (en pixels) ;
-//   teintes : [contour, chair, liseré, griffes] ('#rrggbb', ou null pour ne pas peindre ce détail).
+// peint des membres (résultats d'ik2) avec un pinceau, en passes successives pour qu'ils se recouvrent proprement :
+// contour, chair, modelé (une bande plus claire du côté de la lumière, qui arrondit le membre), puis liseré sur
+// l'avant du genou et griffes au bout de la patte. Un seul appel de dessin.
+//   style : { epaisseur: [hanche, genou, cheville], pied: [longueur, talon, bout] } (en pixels) ; chaque membre de
+//           la liste peut porter son propre style (o.style), qui remplace celui-ci (une cuisse plus épaisse à l'arrière…) ;
+//   teintes : [contour, chair, liseré, griffes, modelé] ('#rrggbb', ou null pour ne pas peindre ce détail).
 export function peindreMembres(p, liste, style, teintes) {
   if (!liste.length) return;
-  const [eh, ek, ec] = style.epaisseur, [lp, pt, pb] = style.pied || [0, 0, 0];
   let x0 = Infinity, y0 = Infinity;
   for (const o of liste) { x0 = Math.min(x0, o.hx, o.kx, o.px); y0 = Math.min(y0, o.hy, o.ky, o.py); }
-  p.debut(x0 - 6, y0 - 6);
-  const passe = (teinte, g) => {                       // g : le contour déborde d'un pixel autour de la chair
+  p.debut(x0 - 8, y0 - 8);
+  const passe = (teinte, g, k = 1, dx = 0, dy = 0) => {  // g : le contour déborde d'un pixel ; k, dx, dy : le modelé, plus fin et décalé
     if (!teinte) return;
     p.couleur(teinte);
     for (const o of liste) {
-      segmentEffile(p, o.hx, o.hy, eh, o.kx, o.ky, ek, g);
-      segmentEffile(p, o.kx, o.ky, ek, o.px, o.py, ec, g);
-      if (lp) segmentEffile(p, o.px - 1, o.py, pt, o.px + lp - 1, o.py + 0.5, pb, g);
+      const st = o.style || style, [eh, ek, ec] = st.epaisseur, [lp, pt, pb] = st.pied || [0, 0, 0];
+      segmentEffile(p, o.hx + dx * eh, o.hy + dy * eh, eh * k, o.kx + dx * ek, o.ky + dy * ek, ek * k, g);
+      segmentEffile(p, o.kx + dx * ek, o.ky + dy * ek, ek * k, o.px + dx * ec, o.py + dy * ec, ec * k, g);
+      if (lp && k === 1) segmentEffile(p, o.px - 1, o.py, pt, o.px + lp - 1, o.py + 0.5, pb, g);
     }
   };
-  passe(teintes[0], 1); passe(teintes[1], 0);
+  passe(teintes[0], 1); passe(teintes[1], 0); passe(teintes[4], 0, 0.45, 0.35, -0.4);
   for (const o of liste) {
+    const [lp] = (o.style || style).pied || [0];
     if (teintes[2]) {
       p.couleur(teintes[2]);
       p.rect(Math.round(o.kx) + 1, Math.round(o.ky) - 1, 1, 2); p.rect(Math.round((o.kx + o.px) / 2) + 1, Math.round((o.ky + o.py) / 2), 1, 1);

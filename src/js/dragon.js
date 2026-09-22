@@ -4,6 +4,7 @@ import { DECOLLAGE, GESTES, RENVERSE, SOL_Y, foulee, posture } from './dragon-re
 import { explosionSol } from './monde.js';
 import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, tirerLevier, toucheCase } from './niveau.js';
 import { approche, clamp, frac, mix, rand } from './outils.js';
+import { ressort } from '../../pixel_artist/pantin/pantin.js';
 import { particule, popup, poussiere } from './partie.js';
 import { sfx } from './son.js';
 
@@ -14,8 +15,9 @@ export function profilAile(ph) {
   const u = (p - DESCENTE) / (1 - DESCENTE);
   return [S_BAS + (1 - S_BAS) * (1 - Math.cos(Math.PI * u)) / 2, 1 - 0.14 * Math.sin(Math.PI * u), 7 * Math.sin(Math.PI * u)];
 }
-export function poseAile(p) {
-  let [s, sx, rot] = profilAile(p.ph);
+// retard : le bout de l'aile suit le bras avec un temps de retard (en fraction de battement) — il fouette
+export function poseAile(p, retard = 0) {
+  let [s, sx, rot] = profilAile(p.ph - retard);
   const M = 0.35;
   s = M + p.amp * (s - M); sx = 1 + p.amp * (sx - 1); rot *= p.amp;
   s = mix(s, 0.5, p.plane); sx = mix(sx, 1.03, p.plane); rot = mix(rot, -4, p.plane);      // plané : ailes tendues
@@ -317,8 +319,10 @@ export function secondaires(dt) {
   }
   J.P.dosV += (75 * (dosC - J.P.dos) - 6.5 * J.P.dosV) * dt; J.P.dos = clamp(J.P.dos + J.P.dosV * dt, -8, 9);
   J.P.ondeV += (65 * (ondeC - J.P.onde) - 7 * J.P.ondeV) * dt; J.P.onde = clamp(J.P.onde + J.P.ondeV * dt, -7, 7);
-  J.P.cavYV += (-110 * J.P.cavY - 9 * J.P.cavYV) * dt; J.P.cavY = clamp(J.P.cavY + J.P.cavYV * dt, -6, 6);
-  J.P.teteYV += (-80 * J.P.teteY - 7 * J.P.teteYV) * dt; J.P.teteY = clamp(J.P.teteY + J.P.teteYV * dt, -6, 6);
+  if (!enVol && J.P.mode !== 'jump') ressortQueue(dt, 0);   // au sol aussi, la queue est un ressort (elle rebondit à chaque pas)
+  ressort(J.P, 'cavY', 0, 110, 9, dt, -6, 6);
+  ressort(J.P, 'teteY', 0, 80, 7, dt, -6, 6);
+  ressort(J.P, 'aileS', 0, 140, 8, dt, -1.5, 1.5);
   // au repos, il vit : de temps en temps un geste (regarder autour, étirer ou secouer les ailes, un coup de queue)
   if (J.P.mode === 'ground' && Math.abs(J.P.vx) < 5 && J.P.atk < 0 && !(J.P.accroupi > 0.05)) J.P.oisif += dt; else { J.P.oisif = 0; J.P.geste = null; J.P.prochainGeste = rand(2.5, 4); }
   if (J.P.geste) { J.P.gesteT += dt; if (J.P.gesteT > GESTES[J.P.geste]) { J.P.geste = null; J.P.prochainGeste = J.P.oisif + rand(3.5, 7); } }
@@ -326,8 +330,16 @@ export function secondaires(dt) {
   if (J.P.mode === 'ground') {
     const avant = J.P.allure;
     J.P.allure += dt * Math.abs(J.P.vx) / foulee() + (Math.abs(J.P.fs) < 0.98 ? dt * 3 : 0);   // un pas tous les « foulee » pixels ; il piétine en se retournant
-    const vif = (Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE);
+    const vif = clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1), pas = clamp(Math.abs(J.P.vx) / V.MARCHE, 0, 1);
     if (vif > 0.3 && Math.floor(avant * 2) !== Math.floor(J.P.allure * 2)) poussiere(J.P.x - J.P.face * 14, J.P.sol, 1, 0.4);   // la course soulève la poussière
+    // chaque pied qui se pose envoie son à-coup dans le corps, et les parties souples le rendent avec retard :
+    // une patte arrière fait plier le dos et rebondir la queue, une patte avant tasse le cavalier, hoche la tête, fait frémir l'aile
+    const k = pas * (0.6 + 0.7 * vif);
+    if (k > 0.05) for (const m of J.PANTIN.poses.sol.membres) {
+      if (frac(J.P.allure - m.pas) >= frac(avant - m.pas)) continue;          // ce pied n'est pas en train de se poser
+      if (m.avant) { J.P.cavYV += 9 * k; J.P.teteYV += 7 * k; J.P.aileSV -= 5 * k; }
+      else { J.P.dosV += 5 * k; J.P.queueV += 0.7 * k; }
+    }
   }
   J.P.cligne -= dt;
   if (J.P.cligne < -0.12) J.P.cligne = rand(2.5, 5.5);

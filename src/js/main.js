@@ -6,14 +6,14 @@ import { entreesDemo } from './demo.js';
 import { ART, ATLAS, CARTES, PLANCHE } from './donnees.js';
 import { blesser, majDragon } from './dragon.js';
 import { construirePantin, construirePlanche } from './dragon-pieces.js';
-import { SOL_Y, dessinerDragon, dessinerPosture, posture } from './dragon-rendu.js';
+import { JAMBE, SOL_Y, dessinerDragon, dessinerPosture, posture } from './dragon-rendu.js';
 import { ctx, disposer } from './ecran.js';
 import { construireEnnemis } from './ennemis-sprites.js';
 import { tenu } from './entrees.js';
 import { dessinerCarte, hud } from './interface.js';
 import { majMonde } from './monde.js';
 import { TP, caseA } from './niveau.js';
-import { rand } from './outils.js';
+import { frac, mix, rand } from './outils.js';
 import { cadrer, majCarte, modeTitre, nouvelActe, nouvellePartie, progression, reprendre } from './partie.js';
 import { dessinerEffets, dessinerEnnemis } from './rendu-monde.js';
 import { sfx } from './son.js';
@@ -107,23 +107,32 @@ if (ESSAI) window.__essai = {
   // de quoi comparer deux versions du rendu au pixel près (outils/tests/rendu.mjs)
   rendu(pose, o = {}) {
     J.P.face = 1; J.P.fs = 1;
-    const d = { type: 'rig', pose, x: J.P.x, y: pose === 'sol' ? J.P.sol - G + SOL_Y : J.P.y, fs: 1, pitch: 0, etire: 0, freine: 0, agite: false,
-                corps: { dx: 0, dy: 0 }, aile: { s: 1, sx: 1, rot: 0 }, queue: 0, allure: 0, amp: 0, vif: 0, tete: { dx: 0, dy: 0, rot: 0 }, teteVariante: -1,
-                cavalier: { dy: 0, rot: 0 }, queues: { 'queue-2': 0, 'queue-3': 0 }, cligne: false, ecrase: 0, dos: 0, onde: 0, ...o };
-    const L = 200, H = 130, x0 = Math.round(d.x - J.cam) - L / 2, y0 = Math.round(d.y - J.camY) - H / 2;
-    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = '#9d9d98'; ctx.fillRect(x0, y0, L, H);
-    ctx.translate(-Math.round(J.cam), -Math.round(J.camY));
-    dessinerPosture(d, 'normal');
-    ctx.restore();
-    const c = document.createElement('canvas'); c.width = L; c.height = H;
-    c.getContext('2d').drawImage(ctx.canvas, x0, y0, L, H, 0, 0, L, H);
-    return c.toDataURL('image/png');
+    return photo({ type: 'rig', pose, x: J.P.x, y: pose === 'sol' ? J.P.sol - G + SOL_Y : J.P.y, fs: 1, pitch: 0, etire: 0, freine: 0, agite: false,
+                   corps: { dx: 0, dy: 0 }, aile: { s: 1, sx: 1, rot: 0 }, queue: 0, allure: 0, amp: 0, vif: 0, tete: { dx: 0, dy: 0, rot: 0 }, teteVariante: -1,
+                   cavalier: { dy: 0, rot: 0 }, queues: { 'queue-2': 0, 'queue-3': 0 }, cligne: false, ecrase: 0, dos: 0, onde: 0, ...o });
+  },
+  // l'image exacte que le jeu dessinerait pour cet état du dragon (ex. { allure: 0.25, vx: 150 }) : des cycles réguliers,
+  // phase par phase, sans dépendre du chronomètre (outils/tests/cycle.mjs). Renvoie { png, pieds } : les pieds levés.
+  image(etat) {
+    Object.assign(J.P, { face: 1, fs: 1, derape: 0, atk: -1, recul: 0 }, etat);
+    const d = posture(), png = photo(d);
+    return { png, pieds: J.PANTIN.poses.sol.membres.map((m) => ({ nom: m.nom, leve: d.amp > 0 && frac(d.allure - m.pas) >= mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif) })) };
   },
   caseA: (tx, ty) => caseA(tx, ty),
   objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.tire ? ' tiré' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),
 };
 
+function photo(d) {                                       // dessine une posture sur l'écran, et renvoie la zone en PNG
+  const L = 200, H = 130, x0 = Math.round(d.x - J.cam) - L / 2, y0 = Math.round(d.y - J.camY) - H / 2;
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#9d9d98'; ctx.fillRect(x0, y0, L, H);
+  ctx.translate(-Math.round(J.cam), -Math.round(J.camY));
+  dessinerPosture(d, 'normal');
+  ctx.restore();
+  const c = document.createElement('canvas'); c.width = L; c.height = H;
+  c.getContext('2d').drawImage(ctx.canvas, x0, y0, L, H, 0, 0, L, H);
+  return c.toDataURL('image/png');
+}
 export function panne(l1, l2) {
   disposer();
   ctx.fillStyle = ENCRE; ctx.fillRect(0, 0, J.W, J.H);

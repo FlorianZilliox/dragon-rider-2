@@ -25,11 +25,14 @@ Leçons de Dragon Rider : un dragon quadrupède ailé, avec son dragonnier sur l
    - Les mouvements secondaires sont des ressorts peu amortis : colonne (creuser, voûter, onduler), tête, cavalier, segments de queue.
    - Des impulsions les lancent : atterrissage proportionnel à la vitesse d'impact, coup reçu, recul du feu, ruée, vide sous les pattes.
    - Les rythmes réguliers (pas, battements d'ailes) s'appliquent directement à la pose. Un ressort les filtrerait et les décalerait.
-6. **Le chevauchement.** Tête et cavalier encaissent les à-coups avec un temps de retard. La queue fouette et se soulève dans la chute. Les ailes s'ouvrent grand à la surprise du vide.
+6. **Le chevauchement.** Tête et cavalier encaissent les à-coups avec un temps de retard. La queue fouette et se soulève dans la chute. Les ailes s'ouvrent grand à la surprise du vide. Le bout de l'aile suit le bras avec un temps de retard (une aile en deux segments) : il fouette à chaque battement.
+7. **Rien ne passe sous le sol.** Borner les angles ne suffit pas : au cabré, la queue passait sous le sol, et à l'atterrissage lourd, le menton. Une garde vérifie le point le plus bas des pièces contre le vrai sol et relève l'os fautif. Au cabré, la queue se pose en appui, comme un trépied.
 
 ## Les allures (le piège qui a coûté le plus)
 
 - **Marche : pas latéral à quatre temps**, dans l'ordre arrière gauche, avant gauche, arrière droite, avant droite. Au pas, une seule patte levée à la fois ; chaque pied reste posé les trois quarts du temps. L'arrière entraîne l'avant du même côté, pas l'inverse. Les pattes du fond se placent presque derrière celles de devant (profil), pas au milieu du ventre comme les pieds d'une table.
+- **Le corps suit les pieds.** Chaque ceinture (hanches, épaules) s'enfonce juste après la pose de ses pieds et remonte quand la patte passe sous elle. Au pas latéral, les épaules ont un quart de foulée de retard : les deux ceintures se balancent à contretemps et le dos tangue, comme celui d'un cheval. La tête et le cavalier compensent et restent presque de niveau. Un rythme sinusoïdal posé à côté des pieds, sans lien avec eux, ne se lit pas comme une marche.
+- **Chaque pied qui se pose envoie une impulsion dans les ressorts.** Une patte arrière fait plier le dos et rebondir la queue ; une patte avant tasse le cavalier, hoche la tête et fait frémir l'aile repliée. Le mouvement secondaire naît des appuis au lieu d'être une ondulation plaquée.
 - **Course : le même pas à quatre temps, plus vif.** Jamais deux pieds posés ensemble. Un galop par paires, sur un corps massif aux pattes courtes, fait « rhinocéros ». L'erreur a été commise deux fois : ne pas la réintroduire en voulant enrichir.
 - Monté, le dos reste presque horizontal (le cavalier), la tête stable, les pattes rasent le sol.
 - Départ : une poussée tassée. Arrêt en pleine course : dérapage arc-bouté, pattes avant en butée, griffes dans la poussière.
@@ -57,7 +60,7 @@ La planche de Simba adulte (The Spriters Resource) est une référence image par
 
 1. **Un atelier.** Un mode d'affichage (`#atelier`) qui ne montre que le personnage sur un fond uni, sans le clignotement d'invulnérabilité.
 2. **Des bandes d'images** (`outils/tests/bande.mjs`). Ne jamais juger une animation sur une capture fixe : un défaut de battement d'ailes est passé inaperçu ainsi.
-3. **Le diagramme des appuis.** Imprimer, sur un cycle, quelles pattes sont en l'air : c'est la seule vérification fiable de l'ordre des pas.
+3. **Le diagramme des appuis et les images exactes** (`outils/tests/cycle.mjs`). Imprimer, sur un cycle, quelles pattes sont en l'air : c'est la seule vérification fiable de l'ordre des pas. L'outil rend aussi l'image exacte de chaque phase (`__essai.image`), sans dépendre du chronomètre. Faire de même pour les gestes courts, à leur moment fort (sommet du cabré, impact), c'est là que se cachent les défauts.
 4. **Le détecteur de fentes** (`outils/tests/fentes.mjs`). Il compte les pixels du fond enfermés dans la silhouette, par animation.
 5. **L'inspection** (`outils/tests/inspection.mjs`). Elle repère les sauts d'image, les tressautements au sous-pixel (dessiner à `round(x − cam) + round(cam)`) et les à-coups de caméra.
 6. **Des aides de test** : forcer une posture (`plier(dos, onde)`), déclencher un coup, lire la posture calculée. Et comparer avec les références : Muybridge pour les allures réelles, Simba pour les poses, Toothless pour l'attitude (félin, la tête qui exprime).
@@ -74,5 +77,8 @@ Tout est générique, réutilisable pour un autre personnage ou un autre jeu : c
 ## Pièges déjà rencontrés
 
 - **L'ancre à un demi-pixel.** Une pièce posée à cheval sur deux pixels est échantillonnée au gré des arrondis : des colonnes doublées ou perdues, qui changent d'une image à l'autre. Pantin cale l'origine de la pose sur un pixel entier.
-- **Les pieds visés dans le repère du corps** au lieu de celui de la pose : quand le corps descendait, les pattes s'enfonçaient dans le sol au lieu de plier. Les hanches sont portées par le tronc, les pieds visent le sol.
+- **Les pieds visés dans le repère du corps** au lieu de celui de la pose : quand le corps descendait, les pattes s'enfonçaient dans le sol au lieu de plier. Les hanches sont portées par le tronc ; les pieds visent le vrai sol, dans le monde.
+- **Des pattes en bâtons.** Des segments fins sous un corps massif font bricolé. Il faut une cuisse épaisse, une articulation marquée, un modelé et des griffes.
+- **Une pose couchée qui fait des roues.** Des pattes repliées en boules sous le ventre se lisent comme des roues. Couché, les pattes s'allongent au sol, l'avant vers l'avant, l'arrière vers l'arrière.
+- **Un robot resté bloqué** : un Chrome sans fenêtre d'un test précédent occupait le port. Fermer les navigateurs de test orphelins avant de conclure à un bug.
 - **Une refonte du moteur se prouve** : des postures figées rendues avant et après (`outils/tests/rendu.mjs --comparer`), la comparaison au repos avec la recomposition des pièces de Pixel Artist (0 pixel d'écart), les fentes, et des bandes d'images côte à côte.

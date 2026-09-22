@@ -301,7 +301,7 @@ def decouper(idx, pose, rec, planche):
                     pixels=np.where(appart < 0, idx, -1))]
     for k, piece in enumerate(pieces):
         calques.append(dict(nom=piece['nom'], role=piece['role'], z=piece['z'], parent=piece.get('parent'),
-                            double=piece.get('double', False), phase=piece.get('phase'), pivot=vers(piece['pivot']),
+                            herite=piece.get('herite'), double=piece.get('double', False), phase=piece.get('phase'), pivot=vers(piece['pivot']),
                             axe=vers(piece['axe']) if 'axe' in piece else None, pixels=np.where(appart == k, idx, -1)))
     zones = [appart < 0] + [appart == k for k in range(len(pieces))]
     rang = {c['nom']: i for i, c in enumerate(calques)}
@@ -410,6 +410,21 @@ def matrice_locale(c, params, u):
     return T(px, py) @ R(rot) @ T(-px, -py)
 
 
+def monde(c, params, u, parents):
+    """La matrice d'un os dans le repère de la pose : il suit toute sa lignée (queue-3 → queue-2 → queue → croupe).
+    « herite: position » : il ne suit que la place de son pivot chez son parent, et l'orientation de son grand-parent."""
+    if not c.get('parent'):
+        return matrice_locale(c, params, u)
+    p = parents[c['parent']]
+    if c.get('herite') != 'position':
+        return monde(p, params, u, parents) @ matrice_locale(c, params, u)
+    base = monde(parents[p['parent']], params, u, parents) if p.get('parent') else np.eye(3)
+    px, py = c['pivot']
+    cible, ici = monde(p, params, u, parents) @ [px, py, 1], base @ [px, py, 1]
+    base = base.copy(); base[:2, 2] += (cible - ici)[:2]
+    return base @ matrice_locale(c, params, u)
+
+
 def composer(calques, taille, palette, params, marge=20):
     W, H = taille[0] + 2 * marge, taille[1] + 2 * marge
     toile = Image.new('RGBA', (W, H))
@@ -417,10 +432,7 @@ def composer(calques, taille, palette, params, marge=20):
     u = taille[1] / 40
     decal = np.array([[1, 0, marge], [0, 1, marge], [0, 0, 1]], float)
     for c in sorted(calques, key=lambda c: c['z']):
-        m, a = matrice_locale(c, params, u), c
-        while a['parent']:                            # chaque os suit toute sa lignée (queue-3 → queue-2 → queue → croupe)
-            a = parents[a['parent']]
-            m = matrice_locale(a, params, u) @ m
+        m = monde(c, params, u, parents)
         inv = np.linalg.inv(decal @ m)
         img = en_image(c['pixels'], palette)
         img = img.transform((W, H), Image.AFFINE, data=tuple(inv[:2].ravel()), resample=Image.NEAREST)
@@ -461,7 +473,9 @@ def main():
     description = {'nom': rec['nom'], 'echelle': f, 'palette': rec['palette'], 'poses': {}}
     if rec.get('membre'):                             # le dessin des membres : longueurs ramenées à l'échelle de sortie
         m = {k: v for k, v in rec['membre'].items() if not k.startswith('_')}
-        m['segments'] = [round(v * f, 2) for v in m['segments']]
+        for st in [m] + [m[k] for k in ('avant', 'arriere') if k in m]:
+            if 'segments' in st:
+                st['segments'] = [round(v * f, 2) for v in st['segments']]
         description['membre'] = m
     morceaux, refs, apercus = [], [], []
 
@@ -493,7 +507,9 @@ def main():
         pieces = {p['nom']: p for p in pose['pieces']}
         vars_apercu = []
         for c in calques:
-            entree = {k: c[k] for k in ('nom', 'role', 'z', 'parent', 'double', 'phase') if c[k] not in (None, False)}
+            entree = {k: c[k] for k in ('nom', 'role', 'z', 'parent', 'herite', 'double', 'phase') if c.get(k) not in (None, False)}
+            if c['z'] == 0 and c['nom'] != 'corps':
+                entree['z'] = 0
             if c['pivot'] is not None:
                 entree['pivot'] = [round(c['pivot'][0], 2), round(c['pivot'][1], 2)]
             if c['axe'] is not None:

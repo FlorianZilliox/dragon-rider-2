@@ -17,9 +17,11 @@ Dans la recette de `pixel_artist.py` (exemple : `pixel_artist/dragon.json`), cha
 | `z` | L'ordre de dessin. Négatif : derrière le corps. |
 | `axe` | Pour une aile : la ligne d'attache le long de laquelle elle se replie (l'étirement suit cet axe). |
 | `double` | Une copie du côté opposé (l'aile du fond), dessinée derrière tout, plus sombre. |
+| `herite` | `"position"` : l'os ne suit que la place de son pivot chez son parent, pas sa rotation ni son étirement. Pour le bout d'une aile épinglé au poignet, qui se replie avec son propre retard. |
 | `variantes` | La même pièce prise dans d'autres images du modèle (têtes d'attaque, gueule ouverte). |
 
 - **L'ordre des pièces fixe la priorité de découpe** : une pièce ne prend que les pixels que les précédentes n'ont pas pris. Les grandes pièces qui servent de fond (les segments du tronc, de grands rectangles) viennent donc en dernier.
+- **Une aile en deux segments** : le bras (`aile`) et le bout (`aile-bout`, `parent: aile`, `herite: position`), découpés le long d'une ligne parallèle à l'attache, son pivot et son axe sur cette ligne. Le jeu donne au bout le battement du bras avec un temps de retard : il fouette.
 - **Un tronc articulé**, c'est deux pièces de plus : `croupe` et `poitrail`, avec un pivot aux reins et au garrot. On y accroche ensuite la queue (`parent: croupe`), la tête et le cavalier (`parent: poitrail`). Le milieu reste le corps.
 - **Des membres dessinés par le jeu** se déclarent dans `membres` : l'os qui les porte, l'attache (hanche, épaule), le côté (`loin`), la patte avant ou arrière (`avant`), la place dans le pas (`pas`), le `z`. Leur dessin (longueurs des segments, épaisseurs, teintes) se règle dans `membre`, à la racine de la recette.
 
@@ -66,6 +68,7 @@ cadre.dessiner(ctx, 'normal', {
 - **Chaque os suit toute sa lignée** : le bout de la queue suit le milieu de la queue, qui suit la croupe, qui suit le corps.
 - **Les calques** du jeu s'insèrent avant le premier os de `z` plus grand.
 - `cadre.porte('croupe', [x, y])` donne la place d'un point porté par un os dans le repère de la pose (une hanche). `cadre.versOs` fait l'inverse.
+- `cadre.plusBas('queue-3', versMonde)` donne le point le plus bas d'une pièce. De quoi garder une queue ou un menton hors du sol : si elle passe dessous, on relève l'os et on recalcule le cadre.
 - L'origine de la pose est calée sur un pixel entier : une pièce à cheval sur deux pixels serait échantillonnée au gré des arrondis, avec des colonnes doublées ou perdues.
 
 ## 4. Membres, allures, ressorts
@@ -73,14 +76,18 @@ cadre.dessiner(ctx, 'normal', {
 | Fonction | Rôle |
 |---|---|
 | `ik2(hx, hy, fx, fy, l1, l2, sens)` | Cinématique inverse à deux segments : de la hanche vers le pied visé. Renvoie hanche, genou, pied. Hors d'atteinte, le membre se tend. |
-| `peindreMembres(pinceau, liste, style, teintes)` | Peint les membres en gros pixels (contour, chair, liseré, griffes), en un seul appel de dessin. |
+| `peindreMembres(pinceau, liste, style, teintes)` | Peint les membres en gros pixels (contour, chair, modelé, liseré, griffes), en un seul appel de dessin. Chaque membre peut porter son propre style (`o.style`) : une cuisse plus massive qu'un bras. |
 | `pas(phase, { appui, foulee, levee, amp })` | La place d'un pied dans son cycle, par rapport à sa hanche. Posé, il reste planté au sol ; levé, il file en arc. |
 | `ressort(o, cle, cible, raideur, amorti, dt, min, max)` | Un ressort amorti : `o[cle]` tend vers la cible, sa vitesse est `o[cle + 'V']`. Une impulsion : `o.teteYV -= 30`. |
 | `demiTour(fs, mini)` | La largeur pendant un demi-tour : jamais une feuille de papier. |
 | `silhouette`, `reteinter` | Une image toute d'une couleur, ou reteinte dans la palette. |
 | `pinceau(l, h)` | Peindre des centaines de petits rectangles hors écran, puis les poser d'un coup. |
 
-**Viser les pieds dans le repère de la pose, pas dans celui du corps.** Quand le corps descend (atterrissage, accroupi), les hanches descendent avec lui, les pieds restent au sol et les genoux plient.
+**Viser les pieds dans le monde.** Le pied posé se place sur le vrai sol, puis se convertit dans le repère de la pose par l'inverse exact de la transformation du dessin (`ctx.getTransform()`). Ainsi il reste planté quand le corps bascule, se cabre ou s'écrase.
+
+**Des pattes qui ont du volume** : une cuisse épaisse à la hanche, qui s'affine vers la cheville, et un modelé plus clair du côté de la lumière. Des segments fins font des bâtons sous un corps massif.
+
+**Les hanches suivent le tronc, pas les pieds.** Quand le corps descend (atterrissage, accroupi), les hanches descendent avec lui, les pieds restent au sol et les genoux plient.
 
 **Les allures d'un quadrupède** : `pas` 0, 0,25, 0,5, 0,75 (arrière près, avant près, arrière loin, avant loin), avec un appui de 0,75 au pas et d'environ 0,6 en course. Jamais deux pieds qui se posent ensemble : un galop par paires, sur un corps massif, fait « rhinocéros ».
 
@@ -89,4 +96,5 @@ cadre.dessiner(ctx, 'normal', {
 Les robots de Dragon Rider (`outils/tests/`) s'adaptent à un autre jeu :
 - `rendu.mjs` : des postures figées enregistrées en PNG, puis `--comparer` deux versions au pixel près ;
 - `fentes.mjs` : les pixels du fond enfermés dans la silhouette, pendant chaque animation ;
-- `bande.mjs` : des bandes d'images, pour juger le mouvement (jamais une capture fixe).
+- `bande.mjs` : des bandes d'images, pour juger le mouvement (jamais une capture fixe) ;
+- `cycle.mjs` : les images exactes d'une foulée ou d'un battement, phase par phase, et le diagramme des appuis (quelles pattes sont en l'air).
