@@ -47,7 +47,7 @@ export const EPILOGUE = ["LE VEILLEUR S'EST TU.", "AU FOND DE LA CRYPTE, IL N'Y 
 // raccourcis d'entraînement : #calme (sans ennemis), #niveau=2, #niveau=3…, #veilleur, #acte=2 (l'acte II : plus dur) ;
 // #essai expose des aides de test
 export const CALME = /calme/.test(location.hash), ESSAI = /essai/.test(location.hash), VEILLEUR = /veilleur/.test(location.hash);
-// #atelier : le décor laisse place à un fond gris uni, pour étudier les postures du dragon comme sur une planche d'animateur
+// #atelier : le dragon seul sur un fond gris uni, pour étudier ses postures comme sur une planche d'animateur
 export const ATELIER = /atelier/.test(location.hash);
 export const DEPART = VEILLEUR ? NIVEAUX.length - 1 : clamp((+((/niveau=(\d+)/.exec(location.hash) || [])[1]) || 1) - 1, 0, NIVEAUX.length - 1);
 export const ACTE_DEPART = Math.max(1, +((/acte=(\d+)/.exec(location.hash) || [])[1]) || 1);

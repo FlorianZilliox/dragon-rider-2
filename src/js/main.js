@@ -63,10 +63,12 @@ export function boucle(tms) {
   if (ATELIER) { ctx.fillStyle = '#9d9d98'; ctx.fillRect(0, 0, J.W, J.H); }
   ctx.save();
   ctx.translate(-Math.round(J.cam), -Math.round(J.camY));          // le monde, en coordonnées de la carte
-  dessinerCourants();
-  dessinerTuiles();
-  dessinerObjets();
-  dessinerEnnemis();
+  if (!ATELIER) {                                                  // (l'atelier ne montre que le dragon)
+    dessinerCourants();
+    dessinerTuiles();
+    dessinerObjets();
+    dessinerEnnemis();
+  }
   dessinerDragon();
   dessinerEffets();
   ctx.restore();

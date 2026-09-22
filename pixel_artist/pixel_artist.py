@@ -213,6 +213,35 @@ def sans_ilots(pixels, mini):
     return pixels if not len(garder) else np.where(plein & ~np.isin(lab, garder), -1, pixels)
 
 
+def jointures_sans_couture(calques, pose, appart, idx, rec):
+    """Des articulations sans couture, comme dans les logiciels d'animation par pièces.
+    Quand une pièce bouge (tête, aile, cavalier, segment de queue…), la découpe laissait voir le fond par les fentes
+    de la jointure. Pour chaque pièce et son parent :
+      - la couche du dessous (selon z) reçoit une doublure : sa matière est prolongée de `doublure` pixels dans la zone
+        de l'autre, chaque pixel prenant la couleur du plus proche des siens ; cachée au repos par la couche du dessus ;
+      - la couche du dessus reçoit un recouvrement : elle déborde de `recouvrement` pixels sur l'autre, avec les vrais
+        pixels de l'image ; identique au repos.
+    Au repos, le personnage est donc inchangé au pixel près ; en mouvement, aucun vide ne s'ouvre."""
+    N, M = rec.get('doublure', 4), rec.get('recouvrement', 2)
+    par_nom = {c['nom']: c for c in calques}
+    for k, piece in enumerate(pose['pieces']):
+        enfant, parent = par_nom[piece['nom']], par_nom[piece.get('parent') or 'corps']
+        zone_e = (appart == k) & (enfant['pixels'] >= 0)                       # la place de la pièce (pixels gardés)
+        zone_p = (parent['pixels'] >= 0) & ~zone_e                             # celle du parent, hors la pièce
+        if not zone_e.any() or not zone_p.any():
+            continue
+        dessous, dessus, zone_dessous, zone_dessus = (parent, enfant, zone_p, zone_e) if piece['z'] >= parent['z'] else (enfant, parent, zone_e, zone_p)
+        reels = dessous['pixels'].copy()                                       # (on ne puise que dans les pièces nettoyées)
+        # doublure : la couche du dessous se prolonge sous l'autre
+        dist, (iy, ix) = ndi.distance_transform_edt(~zone_dessous, return_indices=True)
+        bande = zone_dessus & (dist <= N) & (dessous['pixels'] < 0)
+        dessous['pixels'][bande] = reels[iy[bande], ix[bande]]
+        # recouvrement : la couche du dessus déborde sur l'autre, avec ses vrais pixels
+        de = ndi.distance_transform_edt(~zone_dessus)
+        deborde = zone_dessous & (de <= M) & (dessus['pixels'] < 0)
+        dessus['pixels'][deborde] = reels[deborde]
+
+
 def decouper(idx, pose, rec, planche):
     f = rec['echelle']
     vers = lambda p: ((planche.ax + p[0]) * f + 1, (planche.ay + p[1]) * f + 1)
@@ -247,9 +276,13 @@ def decouper(idx, pose, rec, planche):
                                 pixels=np.where(appart == k, 1, -1)))
     calques.insert(0, dict(nom='corps', role='corps', z=0, parent=None, double=False, phase=None,
                            pivot=None, axe=None, pixels=corps))
-    for c in calques:                                  # aucun reste de découpe détaché d'une pièce
-        if c['role'] != 'gueule':
-            c['pixels'] = sans_ilots(c['pixels'], rec.get('ilot_piece', 6))
+    def nettoyer_pieces():                             # aucun reste de découpe détaché d'une pièce
+        for c in calques:
+            if c['role'] != 'gueule':
+                c['pixels'] = sans_ilots(c['pixels'], rec.get('ilot_piece', 6))
+    nettoyer_pieces()
+    jointures_sans_couture(calques, pose, appart, idx, rec)
+    nettoyer_pieces()
     return calques, appart, idx
 
 
