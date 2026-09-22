@@ -31,8 +31,8 @@ for (const k of ts) await key('keyDown', k);
 const images = [];
 for (let i = 0; i < +n; i++) {
   const e = JSON.parse(await ev('JSON.stringify(window.__dragonRider())'));
-  const x = Math.max(0, e.sx * 3 - 190), y = Math.max(0, e.sy * 3 - 110);
-  const r = await cmd('Page.captureScreenshot', { format: 'png', clip: { x, y, width: 380, height: 200, scale: 1 } });
+  const x = Math.max(0, e.sx * 3 - 285), y = Math.max(0, e.sy * 3 - 125);   // le dragon entier, queue comprise
+  const r = await cmd('Page.captureScreenshot', { format: 'png', clip: { x, y, width: 480, height: 216, scale: 1 } });
   images.push(Buffer.from(r.result.data, 'base64'));
   await sleep(+pas);
 }
