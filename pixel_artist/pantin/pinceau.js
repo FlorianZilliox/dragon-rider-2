@@ -1,7 +1,8 @@
-// Un pinceau logiciel : les formes faites de centaines de petits rectangles (pattes du dragon, ombre tramée)
-// sont peintes dans un tampon de pixels, puis posées sur l'écran en un seul appel de dessin.
-// Sur téléphone, c'est le nombre d'appels de dessin par image qui coûte, pas le nombre de pixels.
-import { toile } from './outils.js';
+// Un pinceau logiciel (livré avec Pantin, le moteur de marionnette de Pixel Artist) : les formes faites de centaines
+// de petits rectangles (membres d'une marionnette, ombre tramée) sont peintes dans un tampon de pixels, puis posées
+// sur l'écran en un seul appel de dessin. Sur téléphone, c'est le nombre d'appels de dessin par image qui coûte,
+// pas le nombre de pixels.
+const toile = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
 
 const RGBA = new Map();
 function rgba(hex) {                                   // '#rrggbb' → pixel du tampon (octets R, G, B, A en mémoire)

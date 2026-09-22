@@ -5,8 +5,8 @@ import { IMAGES_ART, PLANS, construireHalo, decor, dessinerMeteo, majMeteo } fro
 import { entreesDemo } from './demo.js';
 import { ART, ATLAS, CARTES, PLANCHE } from './donnees.js';
 import { blesser, majDragon } from './dragon.js';
-import { construirePieces, construirePlanche } from './dragon-pieces.js';
-import { dessinerDragon, posture } from './dragon-rendu.js';
+import { construirePantin, construirePlanche } from './dragon-pieces.js';
+import { SOL_Y, dessinerDragon, dessinerPosture, posture } from './dragon-rendu.js';
 import { ctx, disposer } from './ecran.js';
 import { construireEnnemis } from './ennemis-sprites.js';
 import { tenu } from './entrees.js';
@@ -103,6 +103,23 @@ if (ESSAI) window.__essai = {
   posture: () => JSON.stringify(posture(), (k, v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v)),   // la posture calculée (débogage)                               // déclenche un éclair (niveaux d'orage)
   reliques() { for (const o of J.NIV.objets) if (o.genre === 'relique' && !o.pris) { o.pris = true; J.NIV.prises++; } },   // ouvre la porte du niveau
   pv(n) { J.P.pv = n; },
+  // dessine une posture figée (réglages neutres + ceux donnés) sur le dragon posé, et renvoie l'image de la zone (PNG) :
+  // de quoi comparer deux versions du rendu au pixel près (outils/tests/rendu.mjs)
+  rendu(pose, o = {}) {
+    J.P.face = 1; J.P.fs = 1;
+    const d = { type: 'rig', pose, x: J.P.x, y: pose === 'sol' ? J.P.sol - G + SOL_Y : J.P.y, fs: 1, pitch: 0, etire: 0, freine: 0, agite: false,
+                corps: { dx: 0, dy: 0 }, aile: { s: 1, sx: 1, rot: 0 }, queue: 0, allure: 0, amp: 0, vif: 0, tete: { dx: 0, dy: 0, rot: 0 }, teteVariante: -1,
+                cavalier: { dy: 0, rot: 0 }, queues: { 'queue-2': 0, 'queue-3': 0 }, cligne: false, ecrase: 0, dos: 0, onde: 0, ...o };
+    const L = 200, H = 130, x0 = Math.round(d.x - J.cam) - L / 2, y0 = Math.round(d.y - J.camY) - H / 2;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#9d9d98'; ctx.fillRect(x0, y0, L, H);
+    ctx.translate(-Math.round(J.cam), -Math.round(J.camY));
+    dessinerPosture(d, 'normal');
+    ctx.restore();
+    const c = document.createElement('canvas'); c.width = L; c.height = H;
+    c.getContext('2d').drawImage(ctx.canvas, x0, y0, L, H, 0, 0, L, H);
+    return c.toDataURL('image/png');
+  },
   caseA: (tx, ty) => caseA(tx, ty),
   objets: () => J.NIV.objets.filter((o) => o.genre !== 'decor').map((o) => `${o.genre}${o.type ? '/' + o.type : ''}@${Math.floor(o.x / TP)},${Math.floor(o.y / TP)}${o.pris ? ' pris' : ''}${o.allume ? ' allumé' : ''}${o.tire ? ' tiré' : ''}${o.mort ? ' mort' : ''}${o.coriace ? ' coriace' : ''}${o.renfort ? ' renfort' : ''}`),
 };
@@ -116,7 +133,7 @@ export function panne(l1, l2) {
 export const charger = (src) => new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; });
 export const demarrerJeu = (img, imgPlanche) => {
   disposer();
-  J.PIECES = construirePieces(img);
+  J.PANTIN = construirePantin(img);
   J.PL = construirePlanche(imgPlanche);
   J.HALOS = [construireHalo(14, 1), construireHalo(16, 2)];
   J.TUILES = construireTuiles(); J.ACCESSOIRES = construireAccessoires();

@@ -2,7 +2,6 @@ import { PIXEL } from './donnees.js';
 import { clamp } from './outils.js';
 
 // ================= Constantes =================
-export const POSES = PIXEL.poses;                        // la pose en vol, découpée en pièces
 export const PL_META = PIXEL.planche, AN = PL_META.animations;   // toutes les images du modèle, redessinées
 export const FW = PL_META.frameWidth, FH = PL_META.frameHeight;
 export const AX = PL_META.anchor.x, AY = PL_META.anchor.y;

@@ -9,7 +9,14 @@ Deux outils, deux fichiers Python autonomes qu'on peut copier dans n'importe que
 | `generer.py` | fabrique les **images sources** avec l'API d'images d'OpenAI | payant (crédits OpenAI) ; `--essai` gratuit | aucune (Python 3.9 ou plus) |
 | `pixeliser.py` | les convertit en **pixel art de jeu** : taille réelle, palette commune, tramage, transparence nette, PNG indexés | gratuit, hors ligne | Pillow, numpy, scipy |
 
-`pixel_artist.py` (dans le même dossier) est un outil à part, propre au personnage de Dragon Rider (redessin et découpe du dragon en pièces articulées) ; il n'est pas couvert ici.
+Pour un **personnage animé**, deux outils de plus :
+
+| Outil | Rôle | Dépendances |
+|---|---|---|
+| `pixel_artist.py` | redessine le personnage en pixel art et le **découpe en os** d'après une recette (`dragon.json` en exemple) : pivots, hiérarchie, ordre de dessin, tronc articulé, membres ; jointures sans couture, aucun pixel qui flotte, image au repos identique au modèle | Pillow, numpy, scipy |
+| `pantin/` | le **moteur de marionnette** côté jeu (JavaScript, aucune dépendance) : chaîne des os, teintes, cinématique inverse des membres, allures, ressorts | aucune |
+
+Leur mode d'emploi : [`pantin/README.md`](pantin/README.md).
 
 Aide rapide dans le terminal : `python3 pixel_artist/generer.py --aide` et `python3 pixel_artist/pixeliser.py --aide`.
 

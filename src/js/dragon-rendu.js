@@ -6,7 +6,7 @@ import { BAS, CORNICHE, CORPS_SOL, HAUT, LARG, TP, bloque, caseA, solSous } from
 import { clamp, frac, mix, toile } from './outils.js';
 import { auPixel } from './terrain.js';
 import { texte } from './texte.js';
-import { pinceau } from './pinceau.js';
+import { demiTour, ik2, pas, peindreMembres, pinceau } from '../../pixel_artist/pantin/pantin.js';
 
 // ---------- posture : ce qui décrit l'image du dragon à dessiner ----------
 // en vol : la marionnette, calculée en continu ; au sol : les images du modèle, redessinées par Pixel Artist
@@ -103,99 +103,81 @@ export function vieAuRepos() {                  // ce que le repos ajoute à la 
 }
 export const SOL_Y = -1.5;                      // la marionnette au sol, un peu haut sur pattes : de son repère au sol
 export const foulee = () => mix(24, 40, clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));   // en courant, des foulées plus longues
-// les quatre pattes, dans le repère de la pose au sol : hanche (ou épaule), côté (près / loin), place dans le pas.
+// Les quatre pattes sont décrites dans la recette de Pixel Artist (pixel_artist/dragon.json, « membres ») : l'os qui
+// les porte (croupe ou poitrail), l'attache (hanche ou épaule), le côté, la place dans le pas.
 // Au pas, une marche latérale à quatre temps, comme un grand félin : arrière près, avant près, arrière loin,
 // avant loin ; chaque pied reste posé les trois quarts du temps, une seule patte en l'air à la fois.
 // En courant, le même pas à quatre temps, plus vif (l'allure d'un cheval de selle rapide) : jamais deux pattes qui
 // se posent ensemble — un galop par paires, sur ces pattes courtes et ce corps massif, faisait « rhinocéros ».
 // Le dos reste presque horizontal : il porte le dragonnier.
 // Les pattes du fond sont presque derrière celles de devant (profil), un peu rentrées par la perspective.
-export const PATTES = [
-  { h: [-15.5, 16.5], loin: true, pas: 0.5 }, { h: [19.5, 17], loin: true, pas: 0.75, avant: true },
-  { h: [-19, 15.5], loin: false, pas: 0 }, { h: [23.5, 17], loin: false, pas: 0.25, avant: true },
-];
-export const JAMBE = { cuisse: 6.5, tibia: 6.5, appuiPas: 0.75, appuiCourse: 0.62 };
-export function membre(p, x0, y0, r0, x1, y1, r1, grossir) {   // un segment de membre effilé, en gros pixels (disques le long du segment)
-  const n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.5));
-  for (let i = 0; i <= n; i++) {
-    const u = i / n, x = x0 + (x1 - x0) * u, y = y0 + (y1 - y0) * u, r = r0 + (r1 - r0) * u + grossir;
-    for (let dy = -Math.ceil(r); dy <= Math.ceil(r); dy++) {
-      const w = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
-      if (w > 0 || r >= 0.5) p.rect(Math.round(x) - w, Math.round(y) + dy, w * 2 + 1, 1);
-    }
-  }
-}
+export const JAMBE = { appuiPas: 0.75, appuiCourse: 0.62 };
 const PATTES_PINCEAU = pinceau(96, 64);                 // les pattes : peintes hors écran, posées d'un seul coup
-// un point du monde dans le repère de la pose (l'inverse des transformations du dessin : position, retournement, tangage, corps)
+const BLANC = ['#ffffff', '#ffffff', '#ffffff', '#ffffff'], FANTOME = ['#646464', '#646464', '#646464', '#646464'];
+// un point du monde dans le repère de la pose (l'inverse des transformations du dessin : position, retournement, tangage)
 function versLocal(d, [X, Y]) {
   const x = (X - d.x) / largeurDemiTour(d.fs), y = Y - d.y, p = d.pitch || 0, c = Math.cos(p), s = Math.sin(p);
-  return [x * c + y * s - d.corps.dx, -x * s + y * c - d.corps.dy];
+  return [x * c + y * s, -x * s + y * c];
 }
-export function dessinerPattes(d, loin, jeu) {
-  const sol = G - SOL_Y, S = foulee(), [cdx, cdy] = [d.corps.dx, d.corps.dy];
-  const teinte = jeu === 'blanc' ? ['#ffffff', '#ffffff', '#ffffff', '#ffffff'] : jeu === 'fantome' ? ['#646464', '#646464', '#646464', '#646464']
-    : loin ? ['#050505', '#0d0d0d', '#1d1d1d', '#3a3a3a'] : ['#050505', '#262626', '#676767', '#b9b9b9'];   // contour, chair, liseré, griffes
-  const os = [];
-  for (const pt of PATTES) {
-    if (pt.loin !== loin) continue;
-    const [px0, py0] = d.porte ? d.porte(pt.h[0], pt.h[1] - 2) : [pt.h[0], pt.h[1] - 2];
-    const hx = px0 + cdx, hy = py0 + Math.round(cdy);   // la hanche (ou l'épaule), un peu dans le corps, portée par la croupe (ou le poitrail)
-    // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
-    const appui = mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif);
-    const p = frac(d.allure - pt.pas), a = d.amp;   // l'arrière lève, puis l'avant du même côté, à toutes les allures
-    let fx, fy = sol - 1;
-    const agite = d.agite === true || (d.agite === 'avant' && pt.avant) || (d.agite === 'arriere' && !pt.avant);
-    const impose = d.pieds && pt.avant && d.pieds.avant ? versLocal(d, d.pieds.avant) : null;
-    if (impose) { fx = impose[0] + (pt.loin ? -2 : 0); fy = impose[1]; }   // les griffes tiennent l'arête
-    else if (agite) { const k = PATTES.indexOf(pt); fx = pt.h[0] + 3 + 4 * Math.sin(J.temps * 21 + k * 1.9); fy = hy + 8 + 3 * Math.cos(J.temps * 17 + k); }   // cabré : les pattes avant battent l'air
-    else if (d.freine) { fx = pt.h[0] + (pt.avant ? 8 : -2) * d.freine; }   // le dérapage : pattes avant en butée devant, arrière sous le corps
-    else if (p < appui) fx = pt.h[0] + S * appui * (0.5 - p / appui) * a;
-    else {                                                                 // le pied se lève en arc, file vers l'avant, se repose en douceur
-      const u = (p - appui) / (1 - appui), e = u * u * (3 - 2 * u);
-      fx = pt.h[0] + S * appui * (-0.5 + e) * a; fy = sol - 1 - (3.5 + 1.2 * d.vif) * Math.sin(Math.PI * Math.pow(u, 0.8)) * a;   // la patte rase le sol : pas de trot sautillant
+const OS_PATTES = [];
+// les pattes d'un côté, en cinématique inverse : les hanches sont portées par le tronc (la croupe, le poitrail),
+// les pieds visent le sol du repère de la pose — le corps qui descend plie donc les genoux, les pieds restent au sol
+export function dessinerPattes(d, loin, jeu, cadre) {
+  const M = J.PANTIN.membre, sol = G - SOL_Y - 1, S = foulee(), [l1, l2] = M.segments;
+  const teinte = jeu === 'blanc' ? BLANC : jeu === 'fantome' ? FANTOME : M.teintes[loin ? 'loin' : 'pres'];
+  const liste = OS_PATTES;
+  liste.length = 0;
+  J.PANTIN.poses.sol.membres.forEach((m, k) => {
+    if (!!m.loin !== loin) return;
+    const [hx, hy] = cadre.porte(m.os, m.attache), h0 = m.attache[0];
+    let fx, fy = sol;
+    const agite = d.agite === true || (d.agite === 'avant' && m.avant) || (d.agite === 'arriere' && !m.avant);
+    const impose = d.pieds && m.avant && d.pieds.avant ? versLocal(d, d.pieds.avant) : null;
+    if (impose) { fx = impose[0] + (m.loin ? -2 : 0); fy = impose[1]; }   // les griffes tiennent l'arête
+    else if (agite) { fx = h0 + 3 + 4 * Math.sin(J.temps * 21 + k * 1.9); fy = hy + 8 + 3 * Math.cos(J.temps * 17 + k); }   // cabré : les pattes battent l'air
+    else if (d.freine) fx = h0 + (m.avant ? 8 : -2) * d.freine;          // le dérapage : pattes avant en butée devant, arrière sous le corps
+    else {                                                                // le pied planté recule à la vitesse du sol, puis se lève en arc
+      const q = pas(d.allure - m.pas, { appui: mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif), foulee: S, levee: 3.5 + 1.2 * d.vif, amp: d.amp });
+      fx = h0 + q.dx; fy = sol + q.dy;                                    // la patte rase le sol : pas de trot sautillant
     }
     const dessous = caseA(Math.floor((d.x + Math.sign(d.fs || 1) * fx) / TP), Math.floor(J.P.sol / TP));
-    if (!agite && !impose && !bloque(dessous) && dessous !== CORNICHE) { fx = pt.h[0] + 1.5; fy = hy + JAMBE.cuisse + JAMBE.tibia - 2; }   // rien sous la patte : elle pend
-    // cinématique inverse : cuisse et tibia, le genou (ou le jarret) vers l'arrière
-    const dx = fx - hx, dy = fy - hy, dist = Math.min(Math.hypot(dx, dy), JAMBE.cuisse + JAMBE.tibia - 0.01);
-    const ang = Math.atan2(dy, dx), b = Math.acos(clamp((JAMBE.cuisse ** 2 + dist ** 2 - JAMBE.tibia ** 2) / (2 * JAMBE.cuisse * dist), -1, 1));
-    const kx = hx + JAMBE.cuisse * Math.cos(ang + b), ky = hy + JAMBE.cuisse * Math.sin(ang + b);
-    const t = Math.atan2(fy - ky, fx - kx), px = kx + JAMBE.tibia * Math.cos(t), py = ky + JAMBE.tibia * Math.sin(t);
-    os.push({ hx, hy, kx, ky, px, py });
-  }
-  // trois passes pour toutes les pattes du côté : contour, chair, puis lumière (les pattes se recouvrent proprement)
-  const p = PATTES_PINCEAU;
-  p.debut(Math.min(...os.map((o) => Math.min(o.hx, o.kx, o.px))) - 6, Math.min(...os.map((o) => Math.min(o.hy, o.ky, o.py))) - 6);
-  p.couleur(teinte[0]);
-  for (const o of os) { membre(p, o.hx, o.hy, 2.2, o.kx, o.ky, 1.2, 1); membre(p, o.kx, o.ky, 1.2, o.px, o.py, 0.8, 1); membre(p, o.px - 1, o.py, 1, o.px + 3, o.py + 0.5, 0.6, 1); }
-  p.couleur(teinte[1]);
-  for (const o of os) { membre(p, o.hx, o.hy, 2.2, o.kx, o.ky, 1.2, 0); membre(p, o.kx, o.ky, 1.2, o.px, o.py, 0.8, 0); membre(p, o.px - 1, o.py, 1, o.px + 3, o.py + 0.5, 0.6, 0); }
-  for (const o of os) {
-    p.couleur(teinte[2]);                                                  // le liseré de lune sur l'avant du membre
-    p.rect(Math.round(o.kx) + 1, Math.round(o.ky) - 1, 1, 2); p.rect(Math.round((o.kx + o.px) / 2) + 1, Math.round((o.ky + o.py) / 2), 1, 1);
-    p.couleur(teinte[3]);                                                  // deux griffes au bout de la patte
-    p.rect(Math.round(o.px) + 4, Math.round(o.py) + 1, 1, 1); p.rect(Math.round(o.px) + 2, Math.round(o.py) + 2, 1, 1);
-  }
-  p.poser(ctx);
+    if (!agite && !impose && !bloque(dessous) && dessous !== CORNICHE) { fx = h0 + 1.5; fy = hy + l1 + l2 - 2; }   // rien sous la patte : elle pend
+    liste.push(ik2(hx, hy, fx, fy, l1, l2));                             // le genou (ou le jarret) vers l'arrière
+  });
+  peindreMembres(PATTES_PINCEAU, liste, M, teinte);
+  PATTES_PINCEAU.poser(ctx);
 }
 
-export function autour(q, rot, dx = 0, dy = 0) { ctx.translate(q.p[0] + dx, q.p[1] + dy); ctx.rotate(rot); ctx.translate(-q.p[0], -q.p[1]); }
-export function transformer(q, d, loin) {
-  switch (q.role) {
-    case 'aile': {
-      const w = d.aile, [qx, qy] = q.a || [q.p[0] - 10, q.p[1]], b = Math.atan2(q.p[1] - qy, q.p[0] - qx);
-      ctx.translate(q.p[0], q.p[1]); ctx.rotate(b + w.rot);
-      ctx.scale(w.sx * (loin ? LOIN.sx : 1), w.s * (loin ? LOIN.s : 1));
-      ctx.rotate(-b); ctx.translate(-q.p[0], -q.p[1]);
-      break;
-    }
-    case 'tete': autour(q, d.tete.rot, Math.round(d.tete.dx), Math.round(d.tete.dy)); break;
-    case 'queue': autour(q, d.queues && d.queues[q.nom] !== undefined ? d.queues[q.nom] : d.queue); break;
-    case 'cavalier': autour(q, d.cavalier.rot, 0, Math.round(d.cavalier.dy)); break;
-    case 'jambe': { const [a, h] = (d.jambes && d.jambes[q.nom]) || [0, 0]; autour(q, a, 0, Math.round(h)); break; }
-  }
+// la posture décrite par le jeu → les réglages des os de la marionnette (un seul objet, réutilisé à chaque image)
+const REGLAGES = { os: { corps: {}, croupe: {}, poitrail: {}, tete: {}, cavalier: {}, aile: {}, queue: {}, 'queue-2': {}, 'queue-3': {} }, double: { image: 'loin' } };
+export const TRONC = { K: 0.05, max: 0.42 };   // la colonne : degrés de pli par pixel de « dos » et d'« onde », et le pli maximal
+function reglerOs(d) {
+  const o = REGLAGES.os, dos = d.dos || 0, onde = d.onde || 0;
+  // le tronc articulé, comme la queue : la croupe (queue, pattes arrière) et le poitrail (cou, tête, cavalier, pattes
+  // avant) pivotent autour des reins et du garrot ; le milieu reste l'axe. dos > 0 : il se creuse (les deux bouts
+  // remontent) ; < 0 : il se voûte ; onde > 0 : le poitrail se relève, la croupe s'abaisse. Bornés : jamais la tête dans le sol.
+  o.corps.dx = d.corps.dx; o.corps.dy = d.corps.dy;
+  o.croupe.rot = clamp(TRONC.K * (dos - onde), -TRONC.max, TRONC.max);
+  o.poitrail.rot = clamp(-TRONC.K * (dos + onde), -TRONC.max, TRONC.max);
+  Object.assign(o.tete, d.tete); o.tete.miroir = d.tourne; o.tete.variante = d.teteVariante;   // demi-tour : la tête a déjà tourné
+  o.cavalier.rot = d.cavalier.rot; o.cavalier.dy = d.cavalier.dy;
+  o.aile.rot = d.aile.rot; o.aile.sx = d.aile.sx; o.aile.sy = d.aile.s; o.aile.image = d.aile.s < 0 ? 'dessous' : null;   // l'aile retournée montre son dessous
+  o.queue.rot = d.queue;
+  for (const q of ['queue-2', 'queue-3']) o[q].rot = d.queues && d.queues[q] !== undefined ? d.queues[q] : d.queue;
+  const k = d.ecart || 1;                              // l'aile opposée, plus sombre, derrière tout (écartée pendant la volte-face)
+  REGLAGES.double.dx = LOIN.dx * k; REGLAGES.double.dy = LOIN.dy * k; REGLAGES.double.sx = LOIN.sx; REGLAGES.double.sy = LOIN.s;
+  return REGLAGES;
 }
-const MARGE_TRONC = 18, TRONC = { toile: toile(1, 1) };   // la toile où le tronc plié s'assemble
+let jeuEnCours = 'normal', postureEnCours = null;
+function paupiere(os, g, variante) {                   // clignement : la paupière couvre l'œil
+  if (os.role !== 'tete' || variante >= 0 || !postureEnCours.cligne || !os.oeil || jeuEnCours !== 'normal') return;
+  const [ox, oy, ow, oh] = os.oeil;
+  g.fillStyle = '#161616'; g.fillRect(os.o[0] + ox, os.o[1] + oy, ow, oh); g.fillStyle = '#5c5c5c'; g.fillRect(os.o[0] + ox, os.o[1] + oy + oh - 1, ow, 1);
+}
+const COUCHES_SOL = [
+  { z: -0.5, dessiner: (g, cadre) => dessinerPattes(postureEnCours, true, jeuEnCours, cadre) },    // pattes du fond, derrière le tronc
+  { z: 0.5, dessiner: (g, cadre) => dessinerPattes(postureEnCours, false, jeuEnCours, cadre) },   // pattes de devant, sur le corps
+], OPTIONS = { calques: COUCHES_SOL, apres: paupiere }, OPTIONS_VOL = { calques: [], apres: paupiere };
 export function dessinerPosture(d, jeu) {
   if (d.type === 'planche') {
     ctx.save();
@@ -205,26 +187,6 @@ export function dessinerPosture(d, jeu) {
     ctx.restore();
     return;
   }
-  const L = J.PIECES[jeu][d.pose], tete = L.find((q) => q.role === 'tete'), corps = L.find((q) => q.role === 'corps');
-  // le tronc articulé : trois segments, comme la queue. La croupe (queue, pattes arrière) et le poitrail (cou, tête,
-  // ailes, cavalier, pattes avant) pivotent autour des reins et du dos ; le milieu reste l'axe.
-  // dos > 0 : il se creuse (les deux bouts remontent) ; < 0 : il se voûte ; onde > 0 : le poitrail se relève, la croupe s'abaisse.
-  const tw = corps.img.width, th = corps.img.height, xA = corps.o[0], yA = corps.o[1], dos = d.dos || 0, onde = d.onde || 0;
-  const reins = [xA + 0.38 * tw, yA + 0.4 * th], garrot = [xA + 0.6 * tw, yA + 0.4 * th], K = 0.05;
-  const aP = clamp(-K * (dos + onde), -0.42, 0.42), aC = clamp(K * (dos - onde), -0.42, 0.42);   // poitrail, croupe (radians, bornés : jamais la tête dans le sol)
-  const segment = (x) => (x >= garrot[0] ? [garrot, aP] : x <= reins[0] ? [reins, aC] : null);
-  const plier = (q) => {                               // une pièce suit le segment où elle s'accroche
-    const sg = segment(q.p[0]);
-    if (!sg || !sg[1]) return;
-    const [[jx, jy], a] = sg;
-    ctx.translate(jx, jy); ctx.rotate(a); ctx.translate(-jx, -jy);
-  };
-  d.porte = (x, y) => {                                // un point porté par le tronc (hanches, épaules)
-    const sg = segment(x);
-    if (!sg) return [x, y];
-    const [[jx, jy], a] = sg, c = Math.cos(a), s = Math.sin(a);
-    return [jx + (x - jx) * c - (y - jy) * s, jy + (x - jx) * s + (y - jy) * c];
-  };
   // demi-tour : 0 au repos, 1 au milieu ; la tête a déjà tourné, le corps se cabre et s'écrase, la queue traîne
   const tour = Math.sin(Math.PI * clamp((1 - d.fs * J.P.face) / 2, 0, 1));
   d.tourne = Math.sign(d.fs) !== J.P.face && Math.abs(d.fs) < 0.65;   // le corps n'a pas fini de tourner, la tête si
@@ -240,50 +202,8 @@ export function dessinerPosture(d, jeu) {
   ctx.scale(largeurDemiTour(d.fs), 1 + (auSolPose ? 0.04 : 0.08) * tour);
   if (d.pitch || tour) ctx.rotate((d.pitch || 0) - (auSolPose ? 0.2 : 0.3) * tour);
   if (d.etire) ctx.scale(1 + d.etire, 1 - 0.5 * d.etire);           // l'arrachement du saut : tout le corps s'allonge
-  ctx.translate(Math.round(d.corps.dx), Math.round(d.corps.dy));
-  for (const q of L) if (q.double) {                  // l'aile opposée, plus sombre, derrière tout (écartée pendant la volte-face)
-    const k = d.ecart || 1;
-    ctx.save(); ctx.translate(LOIN.dx * k, LOIN.dy * k); plier(q); transformer(q, d, true); ctx.drawImage(q.loin, q.o[0], q.o[1]); ctx.restore();
-  }
-  let fond = false, devant = false;
-  for (const q of L) {
-    if (d.pose === 'sol' && !fond && q.z >= 0) { dessinerPattes(d, true, jeu); fond = true; }     // pattes du fond, derrière le corps
-    if (d.pose === 'sol' && !devant && q.z > 0) { dessinerPattes(d, false, jeu); devant = true; } // pattes de devant, sur le corps
-    ctx.save();
-    if (q === corps) {                                   // le tronc articulé, assemblé hors écran puis posé d'un bloc
-      const M = MARGE_TRONC, W = tw + 2 * M, H = th + 2 * M;
-      const t = TRONC.toile.width < W || TRONC.toile.height < H ? (TRONC.toile = toile(W, H)) : TRONC.toile, g = t.getContext('2d');
-      g.imageSmoothingEnabled = false;
-      g.clearRect(0, 0, t.width, t.height);
-      const seg = (x0, x1, joint, a) => {                // une tranche du tronc, tournée autour de son articulation
-        g.save();
-        if (a) { const jx = joint[0] - xA + M, jy = joint[1] - yA + M; g.translate(jx, jy); g.rotate(a); g.translate(-jx, -jy); }
-        g.drawImage(q.img, x0, 0, x1 - x0, th, x0 + M, M, x1 - x0, th);
-        g.restore();
-      };
-      seg(0, Math.round(0.46 * tw), reins, aC);         // la croupe (déborde sous le milieu)
-      seg(Math.round(0.52 * tw), tw, garrot, aP);       // le poitrail
-      seg(Math.round(0.33 * tw), Math.round(0.66 * tw), null, 0);   // le milieu, par-dessus les deux jointures
-      ctx.drawImage(t, 0, 0, W, H, xA - M, yA - M, W, H);
-      ctx.restore(); continue;
-    }
-    const lignee = [];                                   // la pièce suit tous ses parents (la tête, les segments de queue…)
-    for (let a = q; a; a = a.parent ? L.find((x) => x.nom === a.parent) : null) lignee.unshift(a);
-    plier(lignee[0]);                                    // et la colonne, là où elle s'y accroche
-    // demi-tour : la tête se retourne la première et regarde déjà de l'autre côté
-    if (d.tourne && (q === tete || q.parent === 'tete')) { ctx.translate(tete.p[0], tete.p[1]); ctx.scale(-1, 1); ctx.translate(-tete.p[0], -tete.p[1]); }
-    for (const a of lignee) transformer(a, d, false);
-    const v = q.role === 'tete' && d.teteVariante >= 0 && q.variantes[d.teteVariante];
-    if (q === tete && !v && d.cligne && tete.oeil && jeu === 'normal') {  // clignement : la paupière couvre l'œil
-      ctx.drawImage(q.img, q.o[0], q.o[1]);
-      const [ox, oy, ow, oh] = tete.oeil;
-      ctx.fillStyle = '#161616'; ctx.fillRect(q.o[0] + ox, q.o[1] + oy, ow, oh); ctx.fillStyle = '#5c5c5c'; ctx.fillRect(q.o[0] + ox, q.o[1] + oy + oh - 1, ow, 1);
-      ctx.restore(); continue;
-    }
-    if (v) ctx.drawImage(v.img, v.o[0], v.o[1]);                      // la vraie tête d'attaque, gueule ouverte
-    else ctx.drawImage(q.role === 'aile' && d.aile.s < 0 ? q.dessous : q.role === 'jambe' && q.z < 0 ? q.loin : q.img, q.o[0], q.o[1]);   // pattes du fond, plus sombres
-    ctx.restore();
-  }
+  jeuEnCours = jeu; postureEnCours = d;
+  J.PANTIN.poses[d.pose].cadre(reglerOs(d)).dessiner(ctx, jeu, auSolPose ? OPTIONS : OPTIONS_VOL);
   ctx.restore();
 }
 // l'ombre : un ovale tramé (Bayer, calé sur la grille du monde), préparé une fois par taille, densité et phase de trame
@@ -304,7 +224,7 @@ function ovaleTrame(rx, ry, force, phx, phy) {
   OVALES.set(cle, t);
   return t;
 }
-export const largeurDemiTour = (fs) => (fs < 0 ? -1 : 1) * (0.55 + 0.45 * Math.abs(fs));   // jamais une feuille de papier
+export const largeurDemiTour = (fs) => demiTour(fs, 0.55);   // jamais une feuille de papier
 export function dessinerDragon() {
   const d = posture();
   const sol = solSous(J.P.x, J.P.y - 4);                       // ombre sur le premier sol en dessous

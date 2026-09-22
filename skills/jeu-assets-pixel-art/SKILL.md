@@ -21,7 +21,7 @@ Méthode éprouvée sur Dragon Rider (jeu gothique en noir et blanc) : chaque im
 | Brief | `art/briefs/<nom>.json` | Sujet, cadrage, fond (transparent pour un objet), références (une liste). Formuler sobrement : la modération rejette les briefs violents. Pour du texte (logo, inscription), épeler les lettres et vérifier l'orthographe sur l'image (une génération a déjà sorti « DRAGOON », une autre un accent en trop). |
 | Génération | `pixel_artist/generer.py` | Édition d'après la référence pour la cohérence ; cache par empreinte et manifeste : ne payer que ce qui change. Clé dans un `.env` jamais versionné. |
 | Réduction | `pixel_artist/pixeliser.py` + `art/recettes/*.json` | Palette en rampe (luminance OKLab), plage de tons par plan (le lointain clair, le proche sombre), tramage Bayer 4×4, raccords sans couture (`raccord`), `garder` bas/haut, `contour`, `ilot_min`, `trous_max`, planches d'objets découpées automatiquement, `valeurs` (même étirement pour des pièces tirées d'une même source), `lumiere` (liseré). |
-| Personnage | `pixel_artist/pixel_artist.py` | Redessin en pixel art, découpe en pièces articulées (voir le skill jeu-animation-marionnette), nettoyage des îlots par pièce, jointures sans couture. |
+| Personnage | `pixel_artist/pixel_artist.py` + `pixel_artist/pantin/` | Redessin en pixel art, découpe en os d'après la recette (voir le skill jeu-animation-marionnette) : jointures sans couture, morceaux détachés rendus à la pièce voisine, image au repos identique au modèle. En jeu, Pantin anime la marionnette. |
 
 ## Ce qui a été rejeté, et pourquoi
 

@@ -1,14 +1,16 @@
-"""Pixel Artist : redessine un personnage en pixel art propre et le découpe en pièces articulées.
+"""Pixel Artist : redessine un personnage en pixel art propre et le découpe en os, pour une marionnette.
 
 Une recette (pixel_artist/<nom>.json) décrit les poses de base et leurs pièces. Le pipeline :
   1. prend chaque pose dans la planche nettoyée (outils/extraire_sprites.py) ;
   2. calcule une palette commune à toutes les poses (mêmes teintes partout) ;
   3. redessine en pixel art : réduction, lissage sélectif (les détails contrastés
      comme l'œil ou le visage sont protégés), quantification, nettoyage, contour ;
-  4. découpe chaque pose en calques (une pièce = un polygone + un pivot ; le corps
-     garde l'articulation pour qu'aucun trou n'apparaisse quand la pièce bouge) ;
-  5. écrit l'atlas des pièces + sa description, une planche propre de toutes les
+  4. découpe chaque pose en os (une pièce = un polygone, un pivot, un parent, un ordre de dessin) :
+     aucun pixel qui flotte, des jointures sans couture entre les pièces qui se touchent,
+     et au repos une image identique au modèle (vérifiée) ;
+  5. écrit l'atlas des pièces + sa description (os, membres), une planche propre de toutes les
      images du modèle, et un aperçu où chaque pièce est mise en mouvement.
+Le jeu anime la marionnette avec Pantin (pixel_artist/pantin/, voir son README).
 
 Usage : python3 pixel_artist/pixel_artist.py [pixel_artist/dragon.json]
 Dépendances : Pillow, numpy, scipy.
@@ -213,36 +215,69 @@ def sans_ilots(pixels, mini):
     return pixels if not len(garder) else np.where(plein & ~np.isin(lab, garder), -1, pixels)
 
 
-def jointures_sans_couture(calques, pose, appart, idx, rec):
+def rattacher_ilots(appart, idx, mini):
+    """Un petit morceau détaché d'une pièce (quelques pixels de contour que la découpe a séparés du reste) flotterait
+    dans le vide une fois la pièce animée. Il revient à la pièce voisine qu'il touche le plus ; s'il ne touche rien,
+    c'est une poussière de l'image, retirée. appart : la pièce propriétaire de chaque pixel (−1 : le corps)."""
+    idx, appart = idx.copy(), appart.copy()
+    huit = np.ones((3, 3), bool)
+    for _ in range(3):
+        change = False
+        for k in np.unique(appart[idx >= 0]):
+            zone = (appart == k) & (idx >= 0)
+            lab, nb = ndi.label(zone, huit)
+            if nb <= 1 and k >= 0:
+                continue
+            tailles = ndi.sum(zone, lab, range(1, nb + 1))
+            for j in np.flatnonzero(tailles < mini):
+                ilot = lab == j + 1
+                if tailles.max() < mini and k < 0:
+                    break                                   # (le corps entier est minuscule : on n'y touche pas)
+                autour = ndi.binary_dilation(ilot, huit) & ~ilot & (idx >= 0) & (appart != k)
+                if autour.any():
+                    v, n = np.unique(appart[autour], return_counts=True)
+                    appart[ilot] = v[np.argmax(n)]
+                else:
+                    idx[ilot] = -1
+                change = True
+        if not change:
+            break
+    return appart, idx
+
+
+def jointures_sans_couture(calques, zones, parente, rec):
     """Des articulations sans couture, comme dans les logiciels d'animation par pièces.
-    Quand une pièce bouge (tête, aile, cavalier, segment de queue…), la découpe laissait voir le fond par les fentes
-    de la jointure. Pour chaque pièce et son parent :
+    Quand une pièce bouge (tête, aile, cavalier, segment de queue ou du tronc…), la découpe laisserait voir le fond par
+    les fentes des jointures. Pour chaque paire de pièces qui se touchent :
       - la couche du dessous (selon z) reçoit une doublure : sa matière est prolongée de `doublure` pixels dans la zone
         de l'autre, chaque pixel prenant la couleur du plus proche des siens ; cachée au repos par la couche du dessus ;
-      - la couche du dessus reçoit un recouvrement : elle déborde de `recouvrement` pixels sur l'autre, avec les vrais
-        pixels de l'image ; identique au repos.
+      - entre une pièce et son parent (une vraie articulation), la couche du dessus reçoit aussi un recouvrement : elle
+        déborde de `recouvrement` pixels sur l'autre, avec les vrais pixels de l'image ; identique au repos.
+    Toutes les paires comptent, pas seulement les articulations : deux pièces voisines qui bougent chacune de leur côté
+    (l'aile et la croupe, le cavalier et la tête) ouvriraient aussi une fente.
+    zones[k] : les pixels dont la pièce k est propriétaire ; parente : les paires (enfant, parent).
     Au repos, le personnage est donc inchangé au pixel près ; en mouvement, aucun vide ne s'ouvre."""
     N, M = rec.get('doublure', 4), rec.get('recouvrement', 2)
-    par_nom = {c['nom']: c for c in calques}
-    for k, piece in enumerate(pose['pieces']):
-        enfant, parent = par_nom[piece['nom']], par_nom[piece.get('parent') or 'corps']
-        zone_e = (appart == k) & (enfant['pixels'] >= 0)                       # la place de la pièce (pixels gardés)
-        zone_p = (parent['pixels'] >= 0) & ~zone_e                             # celle du parent, hors la pièce
-        if not zone_e.any() or not zone_p.any():
-            continue
-        dessous, dessus, zone_dessous, zone_dessus = (parent, enfant, zone_p, zone_e) if piece['z'] >= parent['z'] else (enfant, parent, zone_e, zone_p)
-        reels = dessous['pixels'].copy()                                       # (on ne puise que dans les pièces nettoyées)
-        # doublure : la couche du dessous se prolonge sous l'autre
-        dist, (iy, ix) = ndi.distance_transform_edt(~zone_dessous, return_indices=True)
-        bande = zone_dessus & (dist <= N) & (dessous['pixels'] < 0)
-        dessous['pixels'][bande] = reels[iy[bande], ix[bande]]
-        # recouvrement : la couche du dessus déborde sur l'autre, avec ses vrais pixels
-        de = ndi.distance_transform_edt(~zone_dessus)
-        deborde = zone_dessous & (de <= M) & (dessus['pixels'] < 0)
-        dessus['pixels'][deborde] = reels[deborde]
+    reels = [c['pixels'].copy() for c in calques]                      # (on ne puise que dans les pièces nettoyées)
+    zones = [z & (r >= 0) for z, r in zip(zones, reels)]
+    proches = [ndi.distance_transform_edt(~z, return_indices=True) if z.any() else None for z in zones]
+    for a in range(len(calques)):
+        for b in range(a + 1, len(calques)):
+            if proches[a] is None or proches[b] is None or not (zones[b] & (proches[a][0] <= N)).any():
+                continue                                               # ces deux pièces ne se touchent pas
+            dessous, dessus = (a, b) if calques[a]['z'] < calques[b]['z'] else (b, a)
+            dist, (iy, ix) = proches[dessous]
+            bande = zones[dessus] & (dist <= N) & (calques[dessous]['pixels'] < 0)
+            calques[dessous]['pixels'][bande] = reels[dessous][iy[bande], ix[bande]]
+            if (a, b) in parente or (b, a) in parente:
+                deborde = zones[dessous] & (proches[dessus][0] <= M) & (calques[dessus]['pixels'] < 0)
+                calques[dessus]['pixels'][deborde] = reels[dessous][deborde]
 
 
 def decouper(idx, pose, rec, planche):
+    """Découpe une pose en os. Chaque pièce prend, par ordre de priorité, les pixels de son polygone que les précédentes
+    n'ont pas pris ; le reste est le corps (la racine). Autour de son articulation (pivot, ou axe pour une aile), une
+    pièce laisse aussi ses pixels à son parent, pour que rien ne s'ouvre quand elle tourne."""
     f = rec['echelle']
     vers = lambda p: ((planche.ax + p[0]) * f + 1, (planche.ay + p[1]) * f + 1)
     H, W = idx.shape
@@ -251,39 +286,58 @@ def decouper(idx, pose, rec, planche):
         idx = np.where(dans_polygone(xs, ys, [vers(p) for p in zone]), -1, idx)
     if pose.get('effacer') and rec.get('contour', True):
         idx = retracer_contour(idx)
+    pieces = pose['pieces']
+    noms = [p['nom'] for p in pieces]
+    for p in pieces:
+        if p.get('parent') and p['parent'] not in noms:
+            raise SystemExit(f"Pièce « {p['nom']} » : son parent « {p['parent']} » n'est pas une pièce de la pose "
+                             f"(pièces : {', '.join(noms)}). Corriger la recette, ou retirer « parent » pour l'accrocher au corps.")
     appart = np.full(idx.shape, -1)
-    for k, piece in enumerate(pose['pieces']):
+    for k, piece in enumerate(pieces):
         appart[dans_polygone(xs, ys, [vers(p) for p in piece['poly']]) & (idx >= 0) & (appart < 0)] = k
-    corps = np.where(appart < 0, idx, -1)
-    calques = []
-    for k, piece in enumerate(pose['pieces']):
-        pivot = vers(piece['pivot'])
-        axe = vers(piece['axe']) if 'axe' in piece else None
-        dist = dist_segment(xs, ys, axe, pivot) if axe else np.hypot(xs - pivot[0], ys - pivot[1])
+    appart, idx = rattacher_ilots(appart, idx, rec.get('ilot_piece', 6))
+    # le corps est l'os 0, les pièces suivent : calques[k + 1] pour la pièce k
+    calques = [dict(nom='corps', role='corps', z=0, parent=None, double=False, phase=None, pivot=None, axe=None,
+                    pixels=np.where(appart < 0, idx, -1))]
+    for k, piece in enumerate(pieces):
+        calques.append(dict(nom=piece['nom'], role=piece['role'], z=piece['z'], parent=piece.get('parent'),
+                            double=piece.get('double', False), phase=piece.get('phase'), pivot=vers(piece['pivot']),
+                            axe=vers(piece['axe']) if 'axe' in piece else None, pixels=np.where(appart == k, idx, -1)))
+    zones = [appart < 0] + [appart == k for k in range(len(pieces))]
+    rang = {c['nom']: i for i, c in enumerate(calques)}
+    parente = {(k + 1, rang[p.get('parent') or 'corps']) for k, p in enumerate(pieces)}
+    for k, piece in enumerate(pieces):                 # l'articulation reste aussi au parent
+        c = calques[k + 1]
+        dist = dist_segment(xs, ys, c['axe'], c['pivot']) if c['axe'] else np.hypot(xs - c['pivot'][0], ys - c['pivot'][1])
         garde = (appart == k) & (dist <= rec['jointure'])
-        if piece.get('parent'):                       # articulation d'une pièce accrochée : elle suit sa pièce parente
-            parent = next(c for c in calques if c['nom'] == piece['parent'])
-            parent['pixels'][garde] = idx[garde]
-        else:
-            corps[garde] = idx[garde]                 # le corps garde l'articulation
-        c = dict(nom=piece['nom'], role=piece['role'], z=piece['z'], parent=piece.get('parent'),
-                 double=piece.get('double', False), phase=piece.get('phase'), pivot=pivot, axe=axe,
-                 pixels=np.where(appart == k, idx, -1))
-        calques.append(c)
+        parent = calques[rang[piece.get('parent') or 'corps']]
+        parent['pixels'][garde] = idx[garde]
+    for k, piece in enumerate(pieces):
         if piece['role'] == 'machoire':               # l'intérieur de la gueule, visible quand elle s'ouvre
             calques.append(dict(nom='gueule', role='gueule', z=piece['z'] - 0.5, parent=piece.get('parent'),
-                                double=False, phase=None, pivot=pivot, axe=None,
+                                double=False, phase=None, pivot=calques[k + 1]['pivot'], axe=None,
                                 pixels=np.where(appart == k, 1, -1)))
-    calques.insert(0, dict(nom='corps', role='corps', z=0, parent=None, double=False, phase=None,
-                           pivot=None, axe=None, pixels=corps))
-    def nettoyer_pieces():                             # aucun reste de découpe détaché d'une pièce
+    def nettoyer_pieces():                             # (les ajouts détachés : articulation laissée au parent, doublures)
         for c in calques:
             if c['role'] != 'gueule':
                 c['pixels'] = sans_ilots(c['pixels'], rec.get('ilot_piece', 6))
     nettoyer_pieces()
-    jointures_sans_couture(calques, pose, appart, idx, rec)
+    n = len(pieces) + 1
+    jointures_sans_couture(calques[:n], zones, parente, rec)
     nettoyer_pieces()
+    ecart = ecart_au_repos(calques, idx)
+    if ecart:
+        print(f"  attention : au repos, la marionnette recomposée diffère de l'image sur {ecart} pixels "
+              f"(pièces qui se chevauchent dans le mauvais ordre ?)")
     return calques, appart, idx
+
+
+def ecart_au_repos(calques, idx):
+    """Recompose toutes les pièces sans mouvement (du fond vers l'avant) et compte les pixels qui diffèrent de l'image."""
+    rendu = np.full(idx.shape, -1)
+    for c in sorted([c for c in calques if c['role'] != 'gueule'], key=lambda c: c['z']):
+        rendu = np.where(c['pixels'] >= 0, c['pixels'], rendu)
+    return int((rendu != idx).sum())
 
 
 def recaler(ref, img):
@@ -352,7 +406,7 @@ def matrice_locale(c, params, u):
         t = params.get('tete', {})
         return T(px + t.get('dx', 0) * u, py + t.get('dy', 0) * u) @ R(t.get('rot', 0)) @ T(-px, -py)
     rot = {'machoire': params.get('machoire', 0), 'queue': params.get('queue', 0), 'cavalier': params.get('cavalier', 0),
-           'jambe': params.get('jambes', {}).get(c['nom'], 0)}.get(role, 0)
+           'jambe': params.get('jambes', {}).get(c['nom'], 0), 'tronc': params.get('tronc', {}).get(c['nom'], 0)}.get(role, 0)
     return T(px, py) @ R(rot) @ T(-px, -py)
 
 
@@ -363,10 +417,10 @@ def composer(calques, taille, palette, params, marge=20):
     u = taille[1] / 40
     decal = np.array([[1, 0, marge], [0, 1, marge], [0, 0, 1]], float)
     for c in sorted(calques, key=lambda c: c['z']):
-        m = matrice_locale(c, params, u)
-        p = parents.get(c['parent']) if c['parent'] else None
-        if p is not None:
-            m = matrice_locale(p, params, u) @ m
+        m, a = matrice_locale(c, params, u), c
+        while a['parent']:                            # chaque os suit toute sa lignée (queue-3 → queue-2 → queue → croupe)
+            a = parents[a['parent']]
+            m = matrice_locale(a, params, u) @ m
         inv = np.linalg.inv(decal @ m)
         img = en_image(c['pixels'], palette)
         img = img.transform((W, H), Image.AFFINE, data=tuple(inv[:2].ravel()), resample=Image.NEAREST)
@@ -405,6 +459,10 @@ def main():
 
     SORTIE.mkdir(parents=True, exist_ok=True)
     description = {'nom': rec['nom'], 'echelle': f, 'palette': rec['palette'], 'poses': {}}
+    if rec.get('membre'):                             # le dessin des membres : longueurs ramenées à l'échelle de sortie
+        m = {k: v for k, v in rec['membre'].items() if not k.startswith('_')}
+        m['segments'] = [round(v * f, 2) for v in m['segments']]
+        description['membre'] = m
     morceaux, refs, apercus = [], [], []
 
     def ranger(pixels, entree, decalage=(0, 0)):
@@ -424,6 +482,14 @@ def main():
         ancre = [planche.ax * f + 1, planche.ay * f + 1]
         info = {'taille': [idx.shape[1], idx.shape[0]], 'ancre': ancre,
                 'sol': ancre[1] + planche.desc['groundOffset'] * f if anim.get('grounded') else None, 'calques': []}
+        if pose.get('membres'):                       # les membres dessinés par le jeu : attache dans le repère de la pose
+            os_pose = {'corps'} | {p['nom'] for p in pose['pieces']}
+            info['membres'] = []
+            for m in pose['membres']:
+                if m['os'] not in os_pose:
+                    raise SystemExit(f"Membre « {m['nom']} » : l'os « {m['os']} » n'existe pas dans la pose « {nom} ».")
+                x, y = (planche.ax + m['attache'][0]) * f + 1, (planche.ay + m['attache'][1]) * f + 1
+                info['membres'].append({**{k: v for k, v in m.items() if k != 'attache'}, 'attache': [round(x, 2), round(y, 2)]})
         pieces = {p['nom']: p for p in pose['pieces']}
         vars_apercu = []
         for c in calques:
@@ -484,7 +550,9 @@ def main():
             sel = appart == k
             arr[sel, :3] = arr[sel, :3] * 0.5 + np.array(TEINTES[k % len(TEINTES)]) * 0.5
         vues = [Image.fromarray(arr.astype(np.uint8)),
-                composer(calques, info['taille'], palette, {'aile': {'s': -0.8}, 'queue': 0.3, 'cavalier': -0.15})]
+                composer(calques, info['taille'], palette, {'aile': {'s': -0.8}, 'queue': 0.3, 'cavalier': -0.15}),
+                composer(calques, info['taille'], palette, {'tronc': {'croupe': 0.22, 'poitrail': -0.22}, 'queue': -0.2}),    # dos creusé
+                composer(calques, info['taille'], palette, {'tronc': {'croupe': -0.22, 'poitrail': 0.22}, 'queue': 0.2})]     # dos voûté
         for c, v in vars_apercu[2:5]:           # la tête d'attaque remplace la tête au repos
             greffe = [x for x in calques if x is not c] + [dict(c, pixels=np.roll(np.roll(v['pixels'], v['decalage'][1], 0), v['decalage'][0], 1))]
             vues.append(composer(greffe, info['taille'], palette, {}))

@@ -60,6 +60,7 @@ Tous vivent dans `outils/tests/`. `chrome.mjs` trouve Chrome sur la machine, `se
 | `perf.mjs` | Banc de performance. |
 | `bande.mjs` | Bandes d'images. |
 | `fentes.mjs` | Fentes aux jointures d'une marionnette. |
+| `rendu.mjs` | Postures figées en PNG ; `--comparer` deux versions au pixel près. |
 
 - **Lancer les robots l'un après l'autre** quand ils mesurent du temps : une page cachée se met en pause.
 - **Vérifier après la toute dernière retouche** : un écran noir a été livré après une modification de dernière minute.

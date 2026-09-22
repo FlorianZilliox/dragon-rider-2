@@ -1,7 +1,7 @@
 import { J } from './etat.js';
 import { IMAGES_ART } from './decor.js';
 import { ART } from './donnees.js';
-import { silhouette } from './dragon-pieces.js';
+import { silhouette } from '../../pixel_artist/pantin/pantin.js';
 import { toile } from './outils.js';
 
 // ================= Ennemis : planches peintes par Pixel Artist (art/recettes/ennemis.json) =================

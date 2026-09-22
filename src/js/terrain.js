@@ -1,7 +1,7 @@
 import { J } from './etat.js';
 import { FEU, NIVEAUX } from './config.js';
 import { IMAGES_ART, eclairVisible } from './decor.js';
-import { silhouette } from './dragon-pieces.js';
+import { silhouette } from '../../pixel_artist/pantin/pantin.js';
 import { ctx } from './ecran.js';
 import { CORNICHE, FRAGILE, MONTEE_HERSE, PICS, ROC, TOUR, TP, bloque, caseA, porteOuverte } from './niveau.js';
 import { clamp, hash, toile } from './outils.js';

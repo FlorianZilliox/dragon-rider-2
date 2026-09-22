@@ -63,8 +63,16 @@ La planche de Simba adulte (The Spriters Resource) est une référence image par
 6. **Des aides de test** : forcer une posture (`plier(dos, onde)`), déclencher un coup, lire la posture calculée. Et comparer avec les références : Muybridge pour les allures réelles, Simba pour les poses, Toothless pour l'attitude (félin, la tête qui exprime).
 7. **Assembler hors écran les pièces qui tournent** (le tronc articulé), puis les poser d'un bloc : sous une rotation globale, sinon, des raccords s'ouvrent.
 
-## Où est le code de référence
+## Le moteur : Pixel Artist découpe, Pantin anime
 
-Dans Dragon Rider, `src/js/dragon-rendu.js` : `posture()` choisit les paramètres par état, `dessinerPosture()` assemble les pièces et le tronc articulé, `dessinerPattes()` gère la cinématique inverse à deux segments et les appuis imposés. `src/js/dragon.js` : `secondaires()` contient les ressorts. Côté outil, `pixel_artist/pixel_artist.py` : `decouper`, `jointures_sans_couture`, `sans_ilots`.
+Tout est générique, réutilisable pour un autre personnage ou un autre jeu : copier `pixel_artist/` (dépôt `github.com/FlorianZilliox/dragon-rider-2`).
+- **La recette décrit un squelette** (`pixel_artist/dragon.json`) : chaque pièce est un os (polygone, pivot, `parent`, `z`, `axe`, `double`, `variantes`). Le tronc articulé, ce sont deux pièces `croupe` et `poitrail`, placées en dernier dans la liste (la priorité de découpe). Les membres peints par le jeu se déclarent dans `membres` (os porteur, attache, côté, place dans le pas).
+- **`pixel_artist.py` découpe et vérifie** : des doublures entre toutes les pièces qui se touchent, un recouvrement entre une pièce et son parent. Un petit morceau détaché revient à la pièce voisine (retirer les îlots avait supprimé de vrais pixels de contour). Il signale tout écart au repos avec le modèle.
+- **Pantin anime** (`pixel_artist/pantin/pantin.js`, mode d'emploi dans `pantin/README.md`) : la chaîne des os, les jeux de teintes, la copie opposée, les variantes, les calques du jeu insérés selon leur `z`, `porte` et `versOs`, `ik2`, `peindreMembres`, `pas`, `ressort`, `demiTour`.
+- **Dans Dragon Rider** : `src/js/dragon-rendu.js` (`posture()` choisit les réglages par état, `reglerOs()` les traduit en os, `dessinerPattes()` vise les pieds), `src/js/dragon.js` (`secondaires()`, les ressorts).
 
-Chantier annoncé : faire de ce moteur de marionnette un module générique livré avec Pixel Artist (os, chaînes, membres, ressorts), pour d'autres jeux. Mettre ce skill à jour quand il existera.
+## Pièges déjà rencontrés
+
+- **L'ancre à un demi-pixel.** Une pièce posée à cheval sur deux pixels est échantillonnée au gré des arrondis : des colonnes doublées ou perdues, qui changent d'une image à l'autre. Pantin cale l'origine de la pose sur un pixel entier.
+- **Les pieds visés dans le repère du corps** au lieu de celui de la pose : quand le corps descendait, les pattes s'enfonçaient dans le sol au lieu de plier. Les hanches sont portées par le tronc, les pieds visent le sol.
+- **Une refonte du moteur se prouve** : des postures figées rendues avant et après (`outils/tests/rendu.mjs --comparer`), la comparaison au repos avec la recomposition des pièces de Pixel Artist (0 pixel d'écart), les fentes, et des bandes d'images côte à côte.
