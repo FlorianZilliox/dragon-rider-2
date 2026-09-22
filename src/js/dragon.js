@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { AN, BOUCHE, BRUME, DESCENTE, FPS, G, OS, RUEE_COUT, SOUFFLE, S_BAS, V } from './config.js';
 import { DECOLLAGE, GESTES, RENVERSE, SOL_Y, foulee, posture } from './dragon-rendu.js';
 import { explosionSol } from './monde.js';
-import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, tirerLevier, toucheCase, toucheLevier } from './niveau.js';
+import { BAS, CORNICHE, CORPS_SOL, COURANT, FRAGILE, HAUT, LARG, PICS, TP, allumerBucher, appuiOuMarche, appuiSous, bloque, briser, caseA, deplacerSol, deplacerVol, solSous, tirerLevier, toucheBucher, toucheCase, toucheLevier } from './niveau.js';
 import { approche, clamp, frac, mix, rand } from './outils.js';
 import { ressort } from '../../pixel_artist/pantin/pantin.js';
 import { particule, popup, poussiere } from './partie.js';
@@ -40,6 +40,8 @@ export function cracher() {
     const x = mix(J.P.x, bx, k), y = mix(J.P.y, by, k), tx = Math.floor(x / TP), ty = Math.floor(y / TP), t = caseA(tx, ty);
     const levier = J.NIV.objets.find((o) => o.genre === 'levier' && !o.tire && toucheLevier(o, x, y));
     if (levier) { tirerLevier(levier); explosionSol(x, y); return; }   // un levier tout près : la gueule l'atteint avant la boule
+    const bucher = J.NIV.objets.find((o) => o.genre === 'bucher' && !o.allume && toucheBucher(o, x, y));
+    if (bucher) { allumerBucher(bucher); explosionSol(x, y); return; }
     if (!bloque(t)) continue;
     if (t === FRAGILE) briser(tx, ty);
     explosionSol(x - J.P.face * 4, y);

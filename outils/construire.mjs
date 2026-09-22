@@ -34,6 +34,9 @@ function donnees() {
   const NIV = join(RACINE, 'niveaux');
   const niveaux = existsSync(NIV) ? readdirSync(NIV).filter((f) => f.endsWith('.txt')).sort() : [];
   if (!niveaux.length) arreter('aucune carte dans niveaux/ (un fichier <cle>.txt par acte)');
+  // les salles d'essai : niveaux/salles/<nom>.txt, jouées seules avec #salle=<nom> (une idée de jeu à essayer)
+  const SAL = join(NIV, 'salles');
+  const salles = existsSync(SAL) ? readdirSync(SAL).filter((f) => f.endsWith('.txt')).sort() : [];
   const DECORS = join(RACINE, 'assets', 'decors');
   const descripteurs = existsSync(DECORS) ? readdirSync(DECORS).filter((f) => f.endsWith('.json')).sort() : [];
   if (!descripteurs.length) arreter('décors absents : lancer  python3 pixel_artist/pixeliser.py art/recettes/<acte>.json  pour chaque recette');
@@ -56,6 +59,7 @@ function donnees() {
     `export const PLANCHE = ${js(image(join(PIXEL, 'dragon_propre.png'), 'images/dragon_propre.png'))};`,
     `export const ART = ${js(art)};`,
     `export const CARTES = ${js(Object.fromEntries(niveaux.map((f) => [f.slice(0, -4), readFileSync(join(NIV, f), 'utf8')])))};`,
+    `export const SALLES = ${js(Object.fromEntries(salles.map((f) => [f.slice(0, -4), readFileSync(join(SAL, f), 'utf8')])))};`,
   ].join('\n');
   return { code, copies };
 }

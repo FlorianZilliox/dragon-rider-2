@@ -1,4 +1,4 @@
-import { PIXEL } from './donnees.js';
+import { PIXEL, SALLES } from './donnees.js';
 import { clamp } from './outils.js';
 
 // ================= Constantes =================
@@ -30,6 +30,15 @@ export const NIVEAUX = [
     obscurite: { debut: 24, plein: 32, max: 0.85 } },            // sous la brume, les fondations du château, dans la pénombre
   { cle: 'cryptes', nom: 'LES CRYPTES', sous: 'EN BAS, QUELQUE CHOSE VEILLE ENCORE.', plaque: 'inscriptions/cryptes' },
 ];
+// #salle=<nom> : une salle d'essai jouée seule (niveaux/salles/<nom>.txt), pour essayer une idée de jeu avant de la
+// mettre dans un niveau. Une ligne « ; decor: <cle> » choisit le décor d'un niveau (terres par défaut) ; la porte relance la salle.
+export const SALLE = (/salle=([\w-]+)/.exec(location.hash) || [])[1] || null;
+if (SALLE) {
+  const texte = SALLES[SALLE], decor = ((texte && /^;\s*decor\s*:\s*(\w+)/m.exec(texte)) || [])[1] || 'terres';
+  const base = NIVEAUX.find((n) => n.cle === decor) || NIVEAUX[0];
+  NIVEAUX.splice(0, NIVEAUX.length, { cle: base.cle, plaque: base.plaque, carte: texte ? SALLE : null, titre: "SALLE D'ESSAI",
+    nom: "SALLE D'ESSAI", sous: texte ? SALLE.toUpperCase().replace(/-/g, ' ') : `SALLE INTROUVABLE : NIVEAUX/SALLES/${SALLE.toUpperCase()}.TXT` });
+}
 // la difficulté ne monte pas d'un niveau à l'autre, seulement d'un acte à l'autre (a = 0 à l'acte I) :
 // plus d'ennemis, et plus résistants — sans qu'on les distingue des autres
 export const DIFFICULTE = {

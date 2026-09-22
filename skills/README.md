@@ -31,6 +31,7 @@ Les étapes 3 à 5 avancent en parallèle une fois les fiches validées. On ne d
 |---|---|---|---|
 | Pixel Artist | `pixel_artist/` (`generer.py`, `pixeliser.py`, `pixel_artist.py`) | génère d'après une référence, réduit en pixel art, découpe un personnage en os | en service |
 | Pantin | `pixel_artist/pantin/` | anime une marionnette découpée : os, ressorts, cinématique inverse | en service |
+| Salles d'essai | `niveaux/salles/`, `#salle=<nom>` (Dragon Rider) | une idée de jeu jouable seule, prouvée au robot avant d'être montrée | en service (bûcher) |
 | Rouages | à venir | moteur générique de mécanismes : déclencheur → effet, liens nommés dans les cartes | étape 2 du chantier « ce que le joueur fait » |
 | Arpenteur | à venir | lit carte, mécanismes et grammaire ; prouve qu'un niveau se termine, trace le graphe des énigmes, et une table à dessin | étape 3 |
 

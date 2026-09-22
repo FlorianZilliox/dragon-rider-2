@@ -1,6 +1,6 @@
 import { J } from './etat.js';
 import { NIVEAUX, AN, G } from './config.js';
-import { CARTES } from './donnees.js';
+import { CARTES, SALLES } from './donnees.js';
 import { rand } from './outils.js';
 import { particule } from './partie.js';
 import { sfx } from './son.js';
@@ -55,6 +55,26 @@ export function tirerLevier(o) {
   sfx('touche');
   if (meilleure) { meilleure.ouverture = J.temps; sfx('boum', 0.1); sfx('chute', 0.15); }
 }
+// un bûcher (case w) : le feu l'embrase pour de bon, et sa fumée monte en colonne de cendre (elle porte vers le haut et
+// rend le souffle) sur toute la hauteur libre au-dessus de lui, sur 3 cases de large ; elle s'arrête 3 rangées sous le
+// haut de la carte, pour que le dragon qu'elle porte reste en entier à l'écran
+export const toucheBucher = (o, x, y) => Math.abs(o.x - x) < 22 && y > o.y - 32 && y < o.y + 2;
+export function allumerBucher(o) {
+  if (o.allume) return;
+  o.allume = true;
+  const niv = J.NIV;
+  for (let tx = o.tx - 1; tx <= o.tx + 1; tx++) {
+    if (tx < 0 || tx >= niv.l) continue;
+    let haut = o.ty;
+    for (let ty = o.ty; ty >= 3 && !bloque(niv.cases[ty * niv.l + tx]); ty--) {
+      if (niv.cases[ty * niv.l + tx] === VIDE) niv.cases[ty * niv.l + tx] = COURANT;
+      haut = ty;
+    }
+    niv.courants.push({ x: tx * TP, y0: haut * TP, y1: (o.ty + 1) * TP });
+  }
+  for (let i = 0; i < 16; i++) particule({ x: o.x + rand(-16, 16), y: o.y - rand(6, 22), vx: rand(-40, 40), vy: rand(-160, -60), vie: rand(0.4, 0.9), max: 0.9, t: 1 });
+  sfx('feu'); sfx('envol', 0.05);
+}
 export function majHerses() {                        // la herse bloque jusqu'à ce qu'elle soit remontée
   for (const g of J.NIV.herses) if (g.ouverture !== null && !g.levee && J.temps - g.ouverture > MONTEE_HERSE) {
     g.levee = true;
@@ -62,7 +82,7 @@ export function majHerses() {                        // la herse bloque jusqu'à
   }
 }
 export function lireNiveau(n) {
-  const lignes = CARTES[NIVEAUX[n].cle].split('\n').filter((l) => !l.startsWith(';')).map((l) => l.replace(/\s+$/, ''));
+  const lignes = (NIVEAUX[n].carte ? SALLES[NIVEAUX[n].carte] : CARTES[NIVEAUX[n].cle]).split('\n').filter((l) => !l.startsWith(';')).map((l) => l.replace(/\s+$/, ''));
   while (lignes.length && !lignes[lignes.length - 1]) lignes.pop();
   const h = lignes.length, l = Math.max(...lignes.map((x) => x.length));
   const niv = { niveau: n, l, h, cases: new Uint8Array(l * h), objets: [], courants: [], largeur: l * TP, hauteur: h * TP,
@@ -75,6 +95,7 @@ export function lireNiveau(n) {
     else if (ch === 'r') { niv.objets.push({ genre: 'relique', x, y }); niv.reliques++; }
     else if (ch === 'f') niv.objets.push({ genre: 'autel', x, y: sol });
     else if (ch === 'l') niv.objets.push({ genre: 'levier', x, y: sol, tire: false });
+    else if (ch === 'w') niv.objets.push({ genre: 'bucher', x, y: sol, tx, ty, allume: false });
     else if (DECOR.includes(ch)) niv.objets.push({ genre: 'decor', type: ch, x, y: sol });
     else if (ch === 'v') niv.objets.push({ genre: 'volee', x, y });   // une volée de corbeaux, lâchée quand on arrive
     else if (ch === 'P') niv.depart = [x, sol];

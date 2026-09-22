@@ -1,5 +1,5 @@
 import { J } from './etat.js';
-import { ACTE_DEPART, AN, DEPART, G, NIVEAUX, OS, PV_MAX, VEILLEUR } from './config.js';
+import { ACTE_DEPART, AN, DEPART, G, NIVEAUX, OS, PV_MAX, SALLE, VEILLEUR } from './config.js';
 import { BAS, HAUT, LARG, lireNiveau, porteOuverte, solSous } from './niveau.js';
 import { clamp, rand, romain } from './outils.js';
 import { sfx } from './son.js';
@@ -50,7 +50,7 @@ export function modeTitre() {
   J.P.mode = 'air'; J.P.x = 220; J.P.y = J.NIV.depart[1] - J.SOL + 108; cadrer(); J.camY = J.NIV.depart[1] - J.SOL;
 }
 // « ACTE II · NIVEAU 3 », au-dessus du nom du niveau
-export const titreNiveau = (n) => `ACTE ${romain(J.acte)} · NIVEAU ${n + 1}`;
+export const titreNiveau = (n) => NIVEAUX[n].titre || `ACTE ${romain(J.acte)} · NIVEAU ${n + 1}`;
 export function lancerNiveau(n, depuisLeNoir) {
   J.carte = { titre: titreNiveau(n), nom: NIVEAUX[n].nom, plaque: NIVEAUX[n].plaque, sous: NIVEAUX[n].sous, t: depuisLeNoir ? 0.45 : 0, fondu: true, bascule: depuisLeNoir, niveau: n };
   if (depuisLeNoir) entrerNiveau(n, false);
@@ -94,8 +94,8 @@ export function progression() {
   if (!J.NIV || (J.carte && J.carte.fondu) || J.P.pv <= 0) return;
   const s = J.NIV.sortie;
   // la porte : il suffit que le corps du dragon la touche, à pied ou en vol ; sans toutes les reliques, elle n'est pas là
-  if (s && J.niveau < NIVEAUX.length - 1 && Math.abs(J.P.x - s.x) < 15 + LARG && J.P.y + BAS > s.y - 50 && J.P.y - HAUT < s.y) {
-    if (porteOuverte()) { lancerNiveau(J.niveau + 1, false); J.P.inv = 3; }
+  if (s && (J.niveau < NIVEAUX.length - 1 || SALLE) && Math.abs(J.P.x - s.x) < 15 + LARG && J.P.y + BAS > s.y - 50 && J.P.y - HAUT < s.y) {
+    if (porteOuverte()) { lancerNiveau(SALLE ? J.niveau : J.niveau + 1, false); J.P.inv = 3; }
     else if (!(J.temps - (s.rappel ?? -9) < 4)) {           // rappel, au plus toutes les 4 secondes
       s.rappel = J.temps;
       const manque = J.NIV.reliques - J.NIV.prises;

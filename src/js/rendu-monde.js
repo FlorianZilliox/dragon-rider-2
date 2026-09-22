@@ -74,6 +74,11 @@ export function dessinerEffets() {
       const l = Math.cos(p.rot) > 0 ? 3 : 1;
       ctx.fillRect(x - l, y, l * 2, 1); ctx.fillRect(x, y - 1, 1, 1);
     } else if (p.genre === 'gravat') { ctx.fillStyle = k > 0.4 ? '#333333' : '#202020'; ctx.fillRect(x, y, Math.cos(p.rot) > 0 ? 2 : 1, 2); }
+    else if (p.genre === 'fumee') {           // la bouffée peinte de la poussière, qui grossit et pâlit en montant
+      ctx.globalAlpha = 0.25 + 0.55 * k;
+      imagePlanche('objets/poussiere', Math.min(3, Math.floor((1 - k) * 4)), x, y, p.t, 'centre');
+      ctx.globalAlpha = 1;
+    }
     else if (p.genre === 'ecto') { ctx.fillStyle = k > 0.5 ? BRUME : '#3a3a3a'; ctx.fillRect(x, y, 1, 1); }
     else if (p.genre === 'poussiere') imagePlanche('objets/poussiere', Math.min(3, Math.floor((1 - k) * 4)), x, y + 1, p.t, 'bas');
     else if (p.genre === 'eclair') disque(x, y, 9, '#ffffff');

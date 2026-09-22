@@ -16,6 +16,7 @@ Architecture de Dragon Rider (`github.com/FlorianZilliox/dragon-rider-2`), à re
 - **Commandes** : `npm run build`, `npm run dev` (serveur local qui reconstruit), `npm test`.
 - **Des garde-fous visibles** : une carte ou un décor manquant affiche un message en clair dans le jeu, jamais un écran noir. Une erreur d'assemblage indique le fichier et la ligne.
 - **Des aides de test** exposées sous `#essai` (`window.__essai`) : poser le personnage, ouvrir les portes, déclencher un coup, lire la posture.
+- **Des salles d'essai** (`niveaux/salles/<nom>.txt`, `#salle=<nom>`) : une idée de jeu jouée seule, sans toucher aux niveaux. L'assemblage les injecte à part (`SALLES`), et la porte relance la salle.
 
 ## PWA qui se met vraiment à jour
 
@@ -43,6 +44,7 @@ Sur mobile, ce sont les appels de dessin par image qui coûtent, pas les pixels.
 - le terrain est peint **une fois par niveau**, en bandes de 256 px, et chaque image n'en recopie que 2 ou 3. Une bande n'est repeinte que si un mur s'effondre ;
 - les formes faites de centaines de petits rectangles (pattes, ombre tramée) passent par un **pinceau hors écran** (tampon de pixels puis `putImageData`), soit un seul appel de dessin ;
 - les petits sprites répétés (cœurs, ovales) sont préparés **une fois en image** ;
+- ne dessiner que la part visible d'un effet haut : une colonne de cendre de 40 rangées tracée en entier coûtait 280 appels par image ;
 - pour le son, une seule sortie maîtresse, et chaque nœud est débranché à la fin de son son (Safari les accumulait) ;
 - pas d'allocations par image dans la boucle : on vide les ensembles, on ne les recrée pas.
 

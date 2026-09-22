@@ -1,5 +1,5 @@
 // Scénarios de test : suite d'actions « nom:arg:arg » (nav, poser, voler, souffle, tenir, tap, attendre, etat, shot, eval).
-// nav:N ouvre le niveau N (sans ennemis ; nav:N:1 avec), nav:v juste avant le Veilleur.
+// nav:N ouvre le niveau N (sans ennemis ; nav:N:1 avec), nav:v juste avant le Veilleur, nav:salle=<nom> une salle d'essai.
 import { spawn } from 'node:child_process';
 import { trouverChrome } from './chrome.mjs';
 import { adresseDuJeu } from './serveur.mjs';
@@ -25,8 +25,8 @@ for (const a of actions) {
   const [nom, ...arg] = a.split(':');
   if (nom === 'nav') {
     await cmd('Page.navigate', { url: 'about:blank' }); await sleep(300);
-    // nav:N : niveau N sans ennemis (nav:N:1 avec) ; nav:v : juste avant l'arène du Veilleur, au bout du dernier niveau
-    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + (arg[0] === 'v' ? '#veilleur' : '#niveau=' + arg[0]) }); await sleep(1400);
+    // nav:N : niveau N sans ennemis (nav:N:1 avec) ; nav:v : juste avant l'arène du Veilleur ; nav:salle=<nom> : une salle d'essai
+    await cmd('Page.navigate', { url: url + '#essai' + (arg[1] ? '' : '#calme') + (arg[0] === 'v' ? '#veilleur' : arg[0].startsWith('salle=') ? '#' + arg[0] : '#niveau=' + arg[0]) }); await sleep(1400);
     await key('keyDown', 'x'); await sleep(50); await key('keyUp', 'x'); await sleep(+(arg[2] || 4200));   // 3e argument : l'attente après le lancement (ms)
   } else if (nom === 'poser' || nom === 'voler') await ev(`window.__essai.${nom}(${arg[0]}, ${arg[1]})`);
   else if (nom === 'souffle') await ev(`window.__essai.souffle(${arg[0]})`);

@@ -1432,5 +1432,29 @@
   },
   "essai": false,
   "date": "2026-09-21T21:58:55+00:00"
+ },
+ "bucher": {
+  "fichier": "generes/bucher-4b0e1dc17671.png",
+  "empreinte": "4b0e1dc17671",
+  "modele": "gpt-image-1.5",
+  "taille": "1024x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 646,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 323
+   },
+   "output_tokens": 4463,
+   "output_tokens_details": {
+    "image_tokens": 4160,
+    "text_tokens": 303
+   },
+   "total_tokens": 5109
+  },
+  "essai": false,
+  "date": "2026-09-22T09:31:59+00:00"
  }
 }

@@ -5,6 +5,8 @@ description: "Concevoir ce que le joueur FAIT dans un jeu 2D d'action et d'explo
 
 # Scénariste de jeu 2D : ce que le joueur fait
 
+> **Règle absolue (retour de l'utilisateur, 2026-09-22).** Ne jamais montrer à l'utilisateur un document de game design : ni fiche, ni page d'idées, ni énigmes décrites en prose. Il a jugé ça « un vomi de mots sans aucune prise en compte de la jouabilité ». Une idée ne lui parvient que **jouable** : une salle d'essai dans le vrai jeu, à l'échelle du vrai personnage, essayée d'abord (robot et vraie partie), une idée à la fois. Les notes de ce skill restent des notes internes.
+
 Les autres skills du harnais fabriquent le jeu : les images (jeu-assets-pixel-art), l'animation (jeu-animation-marionnette), les cartes (jeu-level-design), le moteur (jeu-moteur-2d-pwa). Celui-ci passe avant eux. Il décide ce que le joueur fait dans chaque niveau, pourquoi ce n'est pas la même chose qu'au niveau d'avant, et ce qu'il y trouve.
 
 Exemple travaillé : Dragon Rider, dossier `design/` du dépôt `github.com/FlorianZilliox/dragon-rider-2`.
@@ -38,7 +40,7 @@ Exemple travaillé : Dragon Rider, dossier `design/` du dépôt `github.com/Flor
    - elle ne crée aucun doublon dans la matrice.
 
    On peut confier chaque famille à un agent, puis faire juger à l'aveugle.
-6. **La fiche d'intention**, une par niveau (modèle dans `modeles.md`). Elle bloque la suite, comme dans le pipeline Sillage : **aucune carte n'est dessinée avant que l'utilisateur l'ait validée**. On lui montre les fiches et la matrice ensemble, sur une page lisible, pas dans le terminal.
+6. **La salle d'essai jouable**, une idée à la fois : c'est elle, et jamais une fiche, que l'utilisateur juge, en jouant. Dans Dragon Rider : `niveaux/salles/<nom>.txt`, jouée avec `#salle=<nom>` (exemple : `bucher`). Avant de la montrer, la jouer au robot (`outils/tests/scenario.mjs nav:salle=<nom>`) **sans** la trouvaille, pour prouver qu'on ne passe pas, puis **avec**, pour prouver qu'on passe, sans perdre de cœur par un piège injuste. Mesurer aussi les appels de dessin.
 7. **La matrice anti-répétition** (`design/README.md`). Deux niveaux ne partagent jamais l'idée, le geste mis en avant, la matière nouvelle ni la pression dominante.
 8. **Passer la main.** jeu-level-design dessine la carte d'après la fiche validée. Le moteur de mécanismes câble ce qu'elle demande, et le vérificateur de niveaux prouve le graphe des énigmes quand ces outils existeront. Si le jeu contredit la fiche, on met la fiche à jour.
 

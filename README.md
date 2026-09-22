@@ -38,7 +38,7 @@ Le jeu compte plusieurs **niveaux**, chacun une carte dessinée à la main, à e
 - **Secrets** : murs fissurés à briser, cœurs cachés.
 - **Difficulté** : elle ne change pas d'un niveau à l'autre, seulement d'un acte à l'autre : à partir de l'acte II, plus d'ennemis, plus vifs, et une part d'entre eux plus résistants (un coup de plus), sans que rien ne les distingue.
 
-Raccourcis d'entraînement, à ajouter à la fin de l'adresse : `#calme` (sans ennemis), `#niveau=2`, `#niveau=3`…, `#veilleur`, `#acte=2` (les niveaux de l'acte II). `#essai` expose des aides de test (`window.__essai`) pour les robots de vérification.
+Raccourcis d'entraînement, à ajouter à la fin de l'adresse : `#salle=bucher` (une salle d'essai, voir plus bas), `#calme` (sans ennemis), `#niveau=2`, `#niveau=3`…, `#veilleur`, `#acte=2` (les niveaux de l'acte II). `#essai` expose des aides de test (`window.__essai`) pour les robots de vérification.
 
 ## Construire le jeu
 
@@ -104,6 +104,10 @@ Chaque niveau est un fichier texte, `niveaux/<cle>.txt`, dont la clé est décla
 | `\|` | tour peinte (bloque comme le roc) | `G` `g` `B` `I` | gargouille tournée vers la droite, vers la gauche ; étendard en lambeaux ; clocheton (décor) |
 
 Tours peintes : chaque groupe de cases `|` qui se touchent se dessine avec les pièces de `TERRAIN[…].pieces` pour sa largeur (dans les Tours : 4 cases, une tour à flèche ; 5, une terrasse à échauguettes ; 6, un donjon), sommet sur sa première rangée, fût répété en hauteur, pied de brume en bas. Des `^` posés sur une tour sont sa flèche : c'est la pointe peinte qui les montre, et ils blessent. Les corniches `=` se dessinent avec la galerie du niveau (`TERRAIN[…].galerie`). Une largeur sans pièces se dessine en roc.
+
+Bûcher (`w`) : le feu l'embrase pour de bon, et sa fumée monte en colonne de cendre (elle porte le dragon et lui rend le souffle) sur 3 cases de large, jusqu'à la première pierre.
+
+Salles d'essai : `niveaux/salles/<nom>.txt`, jouées seules avec `#salle=<nom>`, pour essayer une idée de jeu avant de la mettre dans un niveau. Une ligne `; decor: <cle>` choisit le décor ; la porte relance la salle.
 
 Herses et leviers (raccourcis à la Castlevania) : `H` est une case de herse, qui bloque tant qu'elle est fermée ; `l` est un levier. Un tir de feu ou une ruée l'actionne, et il lève d'un bloc la herse la plus proche (le groupe de cases `H` qui se touchent).
 

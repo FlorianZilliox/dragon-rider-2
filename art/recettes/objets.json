@@ -222,6 +222,18 @@
    "ancre": "bas",
    "joindre": 0.006,
    "aire_min": 0.01
+  },
+  "bucher": {
+   "source": "bucher",
+   "largeur": 48,
+   "alpha": true,
+   "tons": [
+    1,
+    11
+   ],
+   "tramage": 0.3,
+   "rogner": true,
+   "contour": true
   }
  }
 }

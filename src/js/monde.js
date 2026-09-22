@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { FEU, OS, PV_MAX } from './config.js';
 import { auSol, blesser } from './dragon.js';
 import { TYPES, apparitions, majEnnemi, noterRecord, tuer } from './ennemis.js';
-import { FRAGILE, TP, bloque, briser, caseA, majHerses, porteOuverte, tirerLevier, toucheLevier } from './niveau.js';
+import { FRAGILE, TP, allumerBucher, bloque, briser, caseA, majHerses, porteOuverte, tirerLevier, toucheBucher, toucheLevier } from './niveau.js';
 import { rand } from './outils.js';
 import { explosion, particule, popup } from './partie.js';
 import { sfx } from './son.js';
@@ -12,6 +12,11 @@ import { blesserVeilleur, majVeilleur } from './veilleur.js';
 export function majMonde(dt) {
   apparitions();
   majHerses();
+  // la fumée des bûchers allumés : elle montre la colonne qui porte (seulement près de l'écran)
+  for (const o of J.NIV.objets) {
+    if (o.genre !== 'bucher' || !o.allume || Math.abs(o.x - (J.cam + J.W / 2)) > J.W || Math.random() > dt * 11) continue;
+    particule({ x: o.x + rand(-12, 12), y: o.y - 22, vx: rand(-8, 8), vy: -rand(95, 125), vie: rand(4, 5.5), max: 5.5, t: Math.random() < 0.5 ? -1 : 1, genre: 'fumee' });
+  }
   for (const e of J.ennemis) majEnnemi(e, dt);
   J.ennemis = J.ennemis.filter((e) => {
     const loin = Math.abs(e.x - (J.cam + J.W / 2)) > J.W + 220 || Math.abs(e.y - (J.camY + J.H / 2)) > J.H + 160;
@@ -41,6 +46,7 @@ export function majMonde(dt) {
     }
     for (const o of J.orbes) if (b.vie > 0 && Math.hypot(o.x - b.x, o.y - b.y) < 10) { o.vie = 0; b.vie = 0; explosionSol(o.x, o.y); }
     for (const o of J.NIV.objets) if (b.vie > 0 && o.genre === 'levier' && !o.tire && toucheLevier(o, b.x, b.y)) { tirerLevier(o); b.vie = 0; explosionSol(b.x, b.y); }
+    for (const o of J.NIV.objets) if (b.vie > 0 && o.genre === 'bucher' && !o.allume && toucheBucher(o, b.x, b.y)) { allumerBucher(o); b.vie = 0; explosionSol(b.x, b.y); }
     // le feu touche tout le crâne et la mâchoire
     if (J.veilleur && b.vie > 0 && ((J.veilleur.x - b.x) / 34) ** 2 + ((J.veilleur.y + 8 - b.y) / 44) ** 2 < 1) { b.vie = 0; blesserVeilleur(J.veilleur, 1); explosionSol(b.x, b.y); }
   }
@@ -72,6 +78,7 @@ export function majMonde(dt) {
     p.vie -= dt; p.x += p.vx * dt; p.y += p.vy * dt;
     if (p.genre === 'plume' || p.genre === 'os' || p.genre === 'gravat') { p.vy += 200 * dt; p.vx *= 0.97; p.rot += dt * 7; }
     else if (p.genre === 'poussiere') { p.vx *= 0.9; p.vy = 0; }
+    else if (p.genre === 'fumee') p.vx = p.vx * 0.98 + Math.sin(J.temps * 1.7 + p.y * 0.02) * 6 * dt;   // elle monte à vitesse constante, en ondulant
     else { p.vx *= 0.93; p.vy *= 0.93; }
   }
   J.particules = J.particules.filter((p) => p.vie > 0);

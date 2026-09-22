@@ -288,6 +288,19 @@
     0,
     0
    ]
+  },
+  "bucher": {
+   "image": "objets/bucher.png",
+   "taille": [
+    44,
+    32
+   ],
+   "decalage": [
+    2,
+    10
+   ],
+   "hauteurAvantRognage": 48,
+   "raccord": false
   }
  }
 }
