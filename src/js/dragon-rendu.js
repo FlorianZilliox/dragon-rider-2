@@ -28,18 +28,17 @@ export function posture() {
     // les pattes (dessinerPattes) gardent leurs pieds plantés au sol ; à l'arrêt, une respiration
     const freine = clamp(J.P.derape / 0.3, 0, 1), g = J.P.allure, amp = clamp(Math.abs(J.P.vx) / V.MARCHE, 0, 1) * (o.fige ? 0 : 1) * (1 - freine), vif = clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1);
     const souffle = o.repos || o.mort ? 0 : Math.sin(J.temps * 2.2) * (1 - amp), bas = o.bas || 0;
-    // le galop (vif → 1) : la colonne s'étire à la poussée des pattes arrière, se ramasse à la réception des avant ;
-    // le corps vole deux fois par foulée et se balance comme un cheval à bascule, la tête compense
-    const pasG = amp * (1 - vif), galop = amp * vif, c = Math.cos(2 * Math.PI * (g - 0.45));
-    const bascule = -0.13 * galop * Math.sin(2 * Math.PI * (g - 0.05));
-    const rythmeDos = pasG * 1.1 * Math.sin(4 * Math.PI * g - 0.4) + galop * 4.2 * c;
-    const rythmeOnde = pasG * 0.7 * Math.sin(2 * Math.PI * g) + galop * 2.2 * Math.sin(2 * Math.PI * (g - 0.2));
-    return { type: 'rig', pose: 'sol', x: J.P.x, y: o.y !== undefined ? o.y : J.P.sol - G + SOL_Y, fs: J.P.fs, pieds: o.pieds, pitch: -0.04 * vif + 0.025 * pasG * Math.sin(4 * Math.PI * g - 0.6) + bascule - 0.2 * freine + (o.pitch || 0),
-             etire: 0.1 * galop * c + (o.etire || 0), freine, agite: o.agite,
-             corps: { dx: 0.8 * pasG * Math.sin(4 * Math.PI * g) + (o.avance || 0), dy: pasG * 1.2 * Math.cos(4 * Math.PI * g) - galop * 2.8 * Math.cos(4 * Math.PI * (g - 0.45)) + 0.6 * souffle + bas },
+    // au pas comme en course, un mouvement coulé : le corps ondule doucement deux fois par foulée, le dos reste presque
+    // horizontal (il porte le dragonnier), la tête est stable, et c'est la queue qui porte le rythme
+    const pasG = amp;
+    const rythmeDos = amp * (0.55 - 0.2 * vif) * Math.sin(4 * Math.PI * g - 0.4);
+    const rythmeOnde = amp * 0.35 * Math.sin(2 * Math.PI * g);
+    return { type: 'rig', pose: 'sol', x: J.P.x, y: o.y !== undefined ? o.y : J.P.sol - G + SOL_Y, fs: J.P.fs, pieds: o.pieds, pitch: -0.03 * vif + 0.018 * pasG * Math.sin(4 * Math.PI * g - 0.6) - 0.2 * freine + (o.pitch || 0),
+             etire: o.etire || 0, freine, agite: o.agite,
+             corps: { dx: 0.6 * pasG * Math.sin(4 * Math.PI * g) + (o.avance || 0), dy: pasG * (1 - 0.35 * vif) * Math.cos(4 * Math.PI * g) + 0.6 * souffle + bas },
              aile: { s: (1 - 0.04 * (souffle + 1) - 0.03 * amp * Math.sin(4 * Math.PI * g)) * (o.aile || 1), sx: 1, rot: -0.02 * amp * Math.sin(4 * Math.PI * g) + (o.aileRot || 0) },
              queue: J.P.queue + 0.14 * amp * Math.sin(2 * Math.PI * g - 1) + 0.05 * souffle + (o.queue || 0), allure: g, amp, vif,
-             tete: { dx: -2 * J.P.recul + (o.teteAvance || 0), dy: pasG * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle + (o.tete || 0) + J.P.teteY, rot: -0.06 * J.P.recul + (o.teteRot || 0) - 0.04 * J.P.teteY - 0.7 * bascule },
+             tete: { dx: -2 * J.P.recul + (o.teteAvance || 0), dy: pasG * 0.8 * Math.cos(4 * Math.PI * g - 0.9) + 0.4 * souffle + (o.tete || 0) + J.P.teteY, rot: -0.06 * J.P.recul + (o.teteRot || 0) - 0.04 * J.P.teteY },
              teteVariante: J.P.atk >= 0 ? unique('attack', J.P.atk, FPS.attack) : -1,
              cavalier: { dy: amp * 0.7 * Math.cos(4 * Math.PI * g - 0.5) + 0.4 * souffle + (o.cavalier || 0) + J.P.cavY, rot: J.P.penche + (o.cavalierRot || 0) },
              queues: { 'queue-2': J.P.q2 + (o.queue || 0) * 0.6, 'queue-3': J.P.q3 + (o.queue || 0) * 0.4 }, cligne: o.mort ? true : J.P.cligne < 0, ecrase: J.P.ecrase,
@@ -103,19 +102,19 @@ export function vieAuRepos() {                  // ce que le repos ajoute à la 
   return o;
 }
 export const SOL_Y = -1.5;                      // la marionnette au sol, un peu haut sur pattes : de son repère au sol
-export const foulee = () => mix(24, 46, clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));   // au galop, de grandes foulées
+export const foulee = () => mix(24, 40, clamp((Math.abs(J.P.vx) - V.MARCHE) / (V.COURSE - V.MARCHE), 0, 1));   // en courant, des foulées plus longues
 // les quatre pattes, dans le repère de la pose au sol : hanche (ou épaule), côté (près / loin), place dans le pas.
 // Au pas, une marche latérale à quatre temps, comme un grand félin : arrière près, avant près, arrière loin,
 // avant loin ; chaque pied reste posé les trois quarts du temps, une seule patte en l'air à la fois.
-// En courant, un galop de fauve (Simba, Le Roi Lion) : les deux pattes arrière poussent presque ensemble, puis les
-// deux avant se reçoivent presque ensemble ; appuis courts, et le corps vole entre les deux (voir posture : il s'étire
-// à la poussée, se ramasse à la réception).
+// En courant, le même pas à quatre temps, plus vif (l'allure d'un cheval de selle rapide) : jamais deux pattes qui
+// se posent ensemble — un galop par paires, sur ces pattes courtes et ce corps massif, faisait « rhinocéros ».
+// Le dos reste presque horizontal : il porte le dragonnier.
 // Les pattes du fond sont presque derrière celles de devant (profil), un peu rentrées par la perspective.
 export const PATTES = [
-  { h: [-15.5, 16.5], loin: true, pas: 0.5, galop: 0.1 }, { h: [19.5, 17], loin: true, pas: 0.75, galop: 0.65, avant: true },
-  { h: [-19, 15.5], loin: false, pas: 0, galop: 0 }, { h: [23.5, 17], loin: false, pas: 0.25, galop: 0.55, avant: true },
+  { h: [-15.5, 16.5], loin: true, pas: 0.5 }, { h: [19.5, 17], loin: true, pas: 0.75, avant: true },
+  { h: [-19, 15.5], loin: false, pas: 0 }, { h: [23.5, 17], loin: false, pas: 0.25, avant: true },
 ];
-export const JAMBE = { cuisse: 6.5, tibia: 6.5, appuiPas: 0.75, appuiGalop: 0.4 };
+export const JAMBE = { cuisse: 6.5, tibia: 6.5, appuiPas: 0.75, appuiCourse: 0.62 };
 export function membre(p, x0, y0, r0, x1, y1, r1, grossir) {   // un segment de membre effilé, en gros pixels (disques le long du segment)
   const n = Math.max(2, Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.5));
   for (let i = 0; i <= n; i++) {
@@ -142,8 +141,8 @@ export function dessinerPattes(d, loin, jeu) {
     const [px0, py0] = d.porte ? d.porte(pt.h[0], pt.h[1] - 2) : [pt.h[0], pt.h[1] - 2];
     const hx = px0 + cdx, hy = py0 + Math.round(cdy);   // la hanche (ou l'épaule), un peu dans le corps, portée par la croupe (ou le poitrail)
     // le pied : planté pendant l'appui (il recule à la vitesse du sol), puis levé en arc pour se reposer devant
-    const appui = mix(JAMBE.appuiPas, JAMBE.appuiGalop, d.vif);
-    const p = frac(d.allure - mix(pt.pas, pt.galop, d.vif)), a = d.amp;   // (au pas, l'arrière lève puis l'avant du même côté)
+    const appui = mix(JAMBE.appuiPas, JAMBE.appuiCourse, d.vif);
+    const p = frac(d.allure - pt.pas), a = d.amp;   // l'arrière lève, puis l'avant du même côté, à toutes les allures
     let fx, fy = sol - 1;
     const agite = d.agite === true || (d.agite === 'avant' && pt.avant) || (d.agite === 'arriere' && !pt.avant);
     const impose = d.pieds && pt.avant && d.pieds.avant ? versLocal(d, d.pieds.avant) : null;
@@ -153,7 +152,7 @@ export function dessinerPattes(d, loin, jeu) {
     else if (p < appui) fx = pt.h[0] + S * appui * (0.5 - p / appui) * a;
     else {                                                                 // le pied se lève en arc, file vers l'avant, se repose en douceur
       const u = (p - appui) / (1 - appui), e = u * u * (3 - 2 * u);
-      fx = pt.h[0] + S * appui * (-0.5 + e) * a; fy = sol - 1 - (3.5 + 3.5 * d.vif) * Math.sin(Math.PI * Math.pow(u, 0.8)) * a;   // au galop, la patte se replie haut
+      fx = pt.h[0] + S * appui * (-0.5 + e) * a; fy = sol - 1 - (3.5 + 1.2 * d.vif) * Math.sin(Math.PI * Math.pow(u, 0.8)) * a;   // la patte rase le sol : pas de trot sautillant
     }
     const dessous = caseA(Math.floor((d.x + Math.sign(d.fs || 1) * fx) / TP), Math.floor(J.P.sol / TP));
     if (!agite && !impose && !bloque(dessous) && dessous !== CORNICHE) { fx = pt.h[0] + 1.5; fy = hy + JAMBE.cuisse + JAMBE.tibia - 2; }   // rien sous la patte : elle pend
@@ -240,7 +239,7 @@ export function dessinerPosture(d, jeu) {
   if (e) { ctx.translate(0, G); ctx.scale(1 + 0.16 * e, 1 - 0.2 * e); ctx.translate(0, -G); }   // écrasé par l'impact, pattes au sol
   ctx.scale(largeurDemiTour(d.fs), 1 + (auSolPose ? 0.04 : 0.08) * tour);
   if (d.pitch || tour) ctx.rotate((d.pitch || 0) - (auSolPose ? 0.2 : 0.3) * tour);
-  if (d.etire) ctx.scale(1 + d.etire, 1 - 0.5 * d.etire);           // au galop : tout le corps s'allonge, puis se ramasse
+  if (d.etire) ctx.scale(1 + d.etire, 1 - 0.5 * d.etire);           // l'arrachement du saut : tout le corps s'allonge
   ctx.translate(Math.round(d.corps.dx), Math.round(d.corps.dy));
   for (const q of L) if (q.double) {                  // l'aile opposée, plus sombre, derrière tout (écartée pendant la volte-face)
     const k = d.ecart || 1;
