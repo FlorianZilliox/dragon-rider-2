@@ -1,6 +1,6 @@
 {
  "nom": "tours-pieces",
- "_doc": "Premier plan des Tours : trois tours noires découpées en sommet / fût raccordable en hauteur / pied, et la galerie en encorbellement ; le dessous des îles : un cône de roche renversé (source tours-dessous).",
+ "_doc": "Premier plan des Tours : trois tours noires découpées en sommet / fût raccordable en hauteur / pied, et la galerie en encorbellement ; le dessous des îles : un cône de roche renversé (source tours-iles).",
  "palette": {
   "rampe": [
    "#060606",
@@ -278,7 +278,7 @@
    "rogner": true
   },
   "a-dessous": {
-   "source": "tours-dessous",
+   "source": "tours-iles",
    "alpha": true,
    "ilot_min": 12,
    "tons": [
@@ -301,7 +301,7 @@
    "largeur": 84
   },
   "b-dessous": {
-   "source": "tours-dessous",
+   "source": "tours-iles",
    "alpha": true,
    "ilot_min": 12,
    "tons": [
@@ -324,7 +324,7 @@
    "largeur": 110
   },
   "c-dessous": {
-   "source": "tours-dessous",
+   "source": "tours-iles",
    "alpha": true,
    "ilot_min": 12,
    "tons": [

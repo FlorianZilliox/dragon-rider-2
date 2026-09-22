@@ -1184,28 +1184,17 @@
   "repris": true
  },
  "tours-dessous": {
-  "fichier": "generes/tours-dessous-d83366c60053.png",
-  "empreinte": "d83366c60053",
+  "fichier": "generes/tours-dessous-b92a6c7d7299.png",
+  "empreinte": "b92a6c7d7299",
   "modele": "gpt-image-1.5",
   "taille": "1536x1024",
   "qualite": "high",
   "fond": "transparent",
   "reference": "references/ambiance.png",
-  "usage": {
-   "input_tokens": 735,
-   "input_tokens_details": {
-    "image_tokens": 323,
-    "text_tokens": 412
-   },
-   "output_tokens": 6521,
-   "output_tokens_details": {
-    "image_tokens": 6208,
-    "text_tokens": 313
-   },
-   "total_tokens": 7256
-  },
+  "usage": null,
   "essai": false,
-  "date": "2026-09-22T12:19:31+00:00"
+  "date": "2026-09-21T20:14:51+00:00",
+  "repris": true
  },
  "tours-lointain": {
   "fichier": "generes/tours-lointain-2ab56de3d0a8.png",
@@ -1467,5 +1456,29 @@
   },
   "essai": false,
   "date": "2026-09-22T09:31:59+00:00"
+ },
+ "tours-iles": {
+  "fichier": "generes/tours-iles-99ac7d13dbe0.png",
+  "empreinte": "99ac7d13dbe0",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": "references/ambiance.png",
+  "usage": {
+   "input_tokens": 735,
+   "input_tokens_details": {
+    "image_tokens": 323,
+    "text_tokens": 412
+   },
+   "output_tokens": 6521,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 313
+   },
+   "total_tokens": 7256
+  },
+  "essai": false,
+  "date": "2026-09-22T12:19:31+00:00"
  }
 }

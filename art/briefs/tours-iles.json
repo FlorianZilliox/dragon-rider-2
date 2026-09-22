@@ -1,0 +1,9 @@
+{
+ "nom": "tours-iles",
+ "_doc": "Le dessous des fragments de tour qui flottent (îles des Tours) : des cônes de roche renversés, comme les îles flottantes de l'image d'ambiance. Découpés par pixeliser.py (recette tours-pieces).",
+ "reference": "references/ambiance.png",
+ "taille": "1536x1024",
+ "qualite": "high",
+ "fond": "transparent",
+ "sujet": "Trois blocs de roche arrachés qui flottent dans le vide, vus de face, côte à côte, bien séparés par de larges espaces vides, à la même échelle. Chacun est le dessous d'un fragment de château arraché du sol : une masse de roche brute très aplatie, trois fois plus large que haute, comme une assiette renversée ou un large coin : le haut est plat, parfaitement horizontal et coupé net sur toute la largeur ; les flancs descendent en pente douce vers une pointe basse, courte et irrégulière au milieu. Arêtes, failles, quelques racines mortes qui pendent, une ou deux petites pierres qui se détachent sous la pointe. Aucune pierre taillée, aucune assise, aucun rebord : seulement de la roche. Presque noirs, un fin liseré gris clair de lune sur le bord droit. Rien d'autre, fond transparent."
+}
