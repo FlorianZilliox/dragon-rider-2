@@ -201,6 +201,18 @@ def dist_segment(xs, ys, a, b):
     return np.hypot(xs - ax - t * dx, ys - ay - t * dy)
 
 
+def sans_ilots(pixels, mini):
+    """Retire d'une pièce découpée ses îlots détachés de moins de « mini » pixels : des restes de la découpe
+    (quelques pixels d'une pièce voisine rognés par un contour), qui flotteraient dans le vide une fois la pièce animée."""
+    plein = pixels >= 0
+    lab, n = ndi.label(plein, np.ones((3, 3), bool))
+    if n <= 1:
+        return pixels
+    tailles = ndi.sum(plein, lab, range(1, n + 1))
+    garder = 1 + np.flatnonzero(tailles >= mini)
+    return pixels if not len(garder) else np.where(plein & ~np.isin(lab, garder), -1, pixels)
+
+
 def decouper(idx, pose, rec, planche):
     f = rec['echelle']
     vers = lambda p: ((planche.ax + p[0]) * f + 1, (planche.ay + p[1]) * f + 1)
@@ -235,6 +247,9 @@ def decouper(idx, pose, rec, planche):
                                 pixels=np.where(appart == k, 1, -1)))
     calques.insert(0, dict(nom='corps', role='corps', z=0, parent=None, double=False, phase=None,
                            pivot=None, axe=None, pixels=corps))
+    for c in calques:                                  # aucun reste de découpe détaché d'une pièce
+        if c['role'] != 'gueule':
+            c['pixels'] = sans_ilots(c['pixels'], rec.get('ilot_piece', 6))
     return calques, appart, idx
 
 
@@ -260,7 +275,7 @@ def variantes(piece, calque, pose, rec, planche, centres, protege):
         ys, xs = np.mgrid[0:H, 0:W] + 0.5
         pix = np.where(dans_polygone(xs, ys, [vers(p) for p in v['poly']]), idx, -1)
         dy, dx = recaler(base, sombre(np.where(dans_polygone(xs, ys, [vers(p) for p in piece['poly']]), pix, -1)))
-        sortie.append({'pixels': pix, 'decalage': (int(dx), int(dy))})
+        sortie.append({'pixels': sans_ilots(pix, rec.get('ilot_piece', 6)), 'decalage': (int(dx), int(dy))})
     return sortie
 
 
