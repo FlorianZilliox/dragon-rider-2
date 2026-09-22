@@ -1,6 +1,6 @@
 {
  "nom": "tours-pieces",
- "_doc": "Premier plan des Tours : trois tours noires découpées en sommet / fût raccordable en hauteur / pied, et la galerie en encorbellement.",
+ "_doc": "Premier plan des Tours : trois tours noires découpées en sommet / fût raccordable en hauteur / pied, et la galerie en encorbellement ; le dessous des îles : un cône de roche renversé (source tours-dessous).",
  "palette": {
   "rampe": [
    "#060606",
@@ -276,6 +276,75 @@
     "dy": -1
    },
    "rogner": true
+  },
+  "a-dessous": {
+   "source": "tours-dessous",
+   "alpha": true,
+   "ilot_min": 12,
+   "tons": [
+    0,
+    4
+   ],
+   "tramage": 0.35,
+   "lumiere": {
+    "ton": 10,
+    "dx": 1,
+    "dy": -1
+   },
+   "rogner": true,
+   "recadrer": [
+    0.6979,
+    0.4375,
+    0.9577,
+    0.6279
+   ],
+   "largeur": 84
+  },
+  "b-dessous": {
+   "source": "tours-dessous",
+   "alpha": true,
+   "ilot_min": 12,
+   "tons": [
+    0,
+    4
+   ],
+   "tramage": 0.35,
+   "lumiere": {
+    "ton": 10,
+    "dx": 1,
+    "dy": -1
+   },
+   "rogner": true,
+   "recadrer": [
+    0.0495,
+    0.4395,
+    0.304,
+    0.6602
+   ],
+   "largeur": 110
+  },
+  "c-dessous": {
+   "source": "tours-dessous",
+   "alpha": true,
+   "ilot_min": 12,
+   "tons": [
+    0,
+    4
+   ],
+   "tramage": 0.35,
+   "lumiere": {
+    "ton": 10,
+    "dx": 1,
+    "dy": -1
+   },
+   "rogner": true,
+   "recadrer": [
+    0.3711,
+    0.4395,
+    0.6283,
+    0.6562
+   ],
+   "largeur": 116
   }
  }
 }

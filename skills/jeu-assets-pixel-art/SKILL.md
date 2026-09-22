@@ -32,7 +32,10 @@ Méthode éprouvée sur Dragon Rider (jeu gothique en noir et blanc) : chaque im
 
 ## Structures de premier plan (tours, piliers, arbres géants)
 
-Quand le décor lui-même sert de plateformes (des tours où l'on se pose), peindre les éléments et les découper **en trois tranches** : sommet (terrasse ou toit en flèche), fût qui se répète en hauteur, pied qui se fond dans la brume. Prévoir une largeur de pièce par largeur de structure sur la carte. Le moteur les assemble à la hauteur voulue, et les collisions restent celles des cases. C'est la découpe « 3 tranches » du pipeline Sillage : tuiler, jamais étirer.
+Quand le décor lui-même sert de plateformes (des tours où l'on se pose), peindre les éléments et les découper **en tranches** : sommet (terrasse ou toit en flèche), fût qui se répète en hauteur, et ce qui est sous la base.
+- **Rien de plus large que la collision sous l'endroit où l'on se pose.** Un « pied qui se perd dans la brume », peint pour des tours hautes, est arrivé à hauteur d'yeux quand les tours sont devenues basses : une tache deux fois plus large que le mur (« vraiment moche, mal intégré, pas logique »), et sous une île, une masse qu'on prenait pour un sol (« on s'attend à se poser dessus, mais non »).
+- **Une tour posée s'arrête net sur sa base.** **Un fragment qui flotte porte dessous un coin de roche renversé** (comme les îles de l'image d'ambiance), plus étroit vers le bas : on ne se pose pas sur une pointe. Le coin se génère plat (deux fois plus large que haut), sinon il bouche le couloir de vol, et sa collision se calcule d'après ses pixels (Dragon Rider : cases `u`).
+- **Un décor pointu ne blesse pas.** Des flèches de tour qui blessaient : « le joueur ne va jamais comprendre ». Prévoir une largeur de pièce par largeur de structure sur la carte. Le moteur les assemble à la hauteur voulue, et les collisions restent celles des cases. C'est la découpe « 3 tranches » du pipeline Sillage : tuiler, jamais étirer.
 
 ## La validation : une seule fois, au bon niveau
 

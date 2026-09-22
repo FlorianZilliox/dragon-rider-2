@@ -147,6 +147,45 @@
    ],
    "hauteurAvantRognage": 108,
    "raccord": true
+  },
+  "a-dessous": {
+   "image": "tours-pieces/a-dessous.png",
+   "taille": [
+    78,
+    38
+   ],
+   "decalage": [
+    3,
+    0
+   ],
+   "hauteurAvantRognage": 41,
+   "raccord": false
+  },
+  "b-dessous": {
+   "image": "tours-pieces/b-dessous.png",
+   "taille": [
+    103,
+    52
+   ],
+   "decalage": [
+    4,
+    0
+   ],
+   "hauteurAvantRognage": 64,
+   "raccord": false
+  },
+  "c-dessous": {
+   "image": "tours-pieces/c-dessous.png",
+   "taille": [
+    107,
+    54
+   ],
+   "decalage": [
+    7,
+    0
+   ],
+   "hauteurAvantRognage": 65,
+   "raccord": false
   }
  }
 }

@@ -9,9 +9,10 @@ import { retoucherTerrain } from './terrain.js';
 // ================= Niveaux : cases, collisions, objets (fichiers niveaux/acteN.txt) =================
 
 export const TP = 16;                                           // une case = 16 × 16 pixels
-export const VIDE = 0, ROC = 1, CORNICHE = 2, PICS = 3, FRAGILE = 4, COURANT = 5, HERSE = 6, TOUR = 7;
+export const VIDE = 0, ROC = 1, CORNICHE = 2, PICS = 3, FRAGILE = 4, COURANT = 5, HERSE = 6, TOUR = 7, ILE = 8;
 // | : maçonnerie de tour, qui bloque comme la roche mais se dessine avec les pièces peintes du niveau (TERRAIN[…].pieces)
-export const CASES = { '#': ROC, '=': CORNICHE, '^': PICS, 'x': FRAGILE, '~': COURANT, 'H': HERSE, '|': TOUR };
+// u : la roche sous une île (un fragment de tour qui flotte) ; elle bloque, et c'est le cône peint de l'île qui la montre
+export const CASES = { '#': ROC, '=': CORNICHE, '^': PICS, 'x': FRAGILE, '~': COURANT, 'H': HERSE, '|': TOUR, 'u': ILE };
 export const ENNEMIS_CARTE = { c: 'charognard', a: 'ame', b: 'chauve', s: 'spectre', k: 'crane' };
 // objets de décor, posés sur le sol, sans collision (images : construireAccessoires dans terrain.js) :
 // arbre mort, tombe, croix, gargouille tournée vers la droite (G) ou vers la gauche (g), étendard en lambeaux (B), clocheton (I)
@@ -117,7 +118,7 @@ export function lireNiveau(n) {
 // la porte de sortie n'apparaît qu'une fois toutes les reliques de l'acte ramassées
 export const porteOuverte = () => J.NIV.prises >= J.NIV.reliques;
 export const caseA = (tx, ty) => (tx < 0 || tx >= J.NIV.l || ty < 0 ? ROC : ty >= J.NIV.h ? VIDE : J.NIV.cases[ty * J.NIV.l + tx]);
-export const bloque = (t) => t === ROC || t === FRAGILE || t === HERSE || t === TOUR;
+export const bloque = (t) => t === ROC || t === FRAGILE || t === HERSE || t === TOUR || t === ILE;
 export function briser(tx, ty) {               // un mur fissuré s'effondre d'un bloc : toutes les cases fragiles qui se touchent
   const pile = [[tx, ty]];
   let gauche = tx, droite = tx;
