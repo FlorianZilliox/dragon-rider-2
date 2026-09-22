@@ -7,6 +7,8 @@ description: "Concevoir les niveaux d'un jeu 2D d'action et d'exploration (plate
 
 Tiré de Dragon Rider : 4 niveaux (Terres, Cimetière, Tours, Cryptes), puis le boss (le Veilleur). Les jouer tous forme un **acte**, et l'acte suivant rejoue les mêmes niveaux, plus durs.
 
+**Avant la carte, la fiche.** Ce que le joueur fait dans le niveau (son idée, ses énigmes, ses secrets, ses reliques) se décide avec le skill `jeu-scenariste`, dans une fiche d'intention que l'utilisateur valide. La carte se dessine d'après elle ; pour Dragon Rider, les fiches sont dans `design/niveaux/`.
+
 ## Les cartes sont du texte
 
 - **Un fichier par niveau**, `niveaux/<cle>.txt` : une lettre par case de 16 × 16 px. Les lignes qui commencent par `;` sont des commentaires, et l'en-tête décrit les sections avec leurs colonnes, les reliques, les autels et les cœurs.

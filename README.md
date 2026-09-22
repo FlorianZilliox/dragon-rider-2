@@ -130,7 +130,8 @@ Voir `pixel_artist/README.md` pour le détail du pipeline. Les icônes de l'appl
 
 ## Le savoir-faire, en skills
 
-Les techniques et les exigences du projet sont écrites sous forme de skills Claude Code, dans `skills/` : les recopier dans `~/.claude/skills/` pour qu'elles servent à d'autres jeux.
+Les techniques et les exigences du projet sont écrites sous forme de skills Claude Code, dans `skills/` : les recopier dans `~/.claude/skills/` pour qu'elles servent à d'autres jeux. `skills/README.md` présente l'ensemble (le harnais) et l'ordre à suivre pour un nouveau jeu.
+- `jeu-scenariste` : ce que le joueur fait — grammaire du jeu (gestes × matières), une idée par niveau en quatre temps, énigmes, secrets et leurs indices, artefacts, récit par les lieux, matrice anti-répétition, catalogue de trouvailles. Appliqué à Dragon Rider dans `design/`.
 - `jeu-assets-pixel-art` : génération des images d'après une référence d'ambiance, Pixel Artist, direction artistique, validations.
 - `jeu-animation-marionnette` : animation par pièces sans couture, tronc articulé, ressorts, allures, principes Disney, outils de vérification.
 - `jeu-moteur-2d-pwa` : architecture modulaire, PWA qui se met à jour, contrôles mobiles, performance, robots de test, publication.
