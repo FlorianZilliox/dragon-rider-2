@@ -17,10 +17,12 @@ import { flamme } from './titre.js';
 // qui pend sous une île (dessous) ;
 //   coeur : où commence la maçonnerie dans l'image (px) ; sol : la ligne du sommet de la tour dans l'image du sommet ;
 //   un ^ posé sur une tour est sa flèche : la pointe peinte le remplace.
+// solCrete : la ligne où se posent les pieds dans l'image de la crête (sinon : sa première ligne presque pleine) ;
+//   au milieu des dalles d'un chemin de ronde, les pieds s'y posent au lieu de marcher sur son bord.
 export const TERRAIN = {
   terres: { roc: 'terrain/roc-terres', crete: 'terrain/crete-terres', dessous: 'terrain/dessous' },
   cimetiere: { roc: 'terrain/roc-cimetiere', crete: 'terrain/crete-cimetiere', dessous: 'terrain/dessous' },
-  tours: { roc: 'terrain/roc-tours', crete: 'terrain/crete-tours', dessous: 'terrain/dessous-tours', sousLeCiel: true,
+  tours: { roc: 'terrain/roc-tours', crete: 'terrain/crete-tours', solCrete: 32, dessous: 'terrain/dessous-tours', sousLeCiel: true,
            galerie: { image: 'tours-pieces/balcon', sol: 25 },
            pieces: {
              4: { sommet: 'tours-pieces/a-sommet', fut: 'tours-pieces/a-fut', dessous: 'tours-pieces/a-dessous', coeur: 26, sol: 138 },   // à flèche
@@ -35,6 +37,15 @@ export const mod = (a, n) => ((a % n) + n) % n;
 export const auPixel = (x, c) => Math.round(x - c) + Math.round(c);
 // profondeur d'une roche ou d'une arche qui pend, à « bord » pixels de l'extrémité : épaules arrondies, bord irrégulier
 export const effile = (bord, mini, maxi, x) => Math.min(maxi, Math.round(mini + (maxi - mini) * Math.min(1, bord / 44) ** 0.55 + (hash(x * 1.7) - 0.5) * 5));
+// les colonnes peintes de la dernière ligne d'une image (le bas d'un fût) : [première, dernière]
+function bornesBas(img) {
+  const c = toile(img.width, img.height), g = c.getContext('2d');
+  g.drawImage(img, 0, 0);
+  const d = g.getImageData(0, img.height - 1, img.width, 1).data;
+  let a = img.width, b = -1;
+  for (let x = 0; x < img.width; x++) if (d[x * 4 + 3] > 0) { a = Math.min(a, x); b = x; }
+  return [a, b];
+}
 export function ligneOpaque(img) {             // première ligne presque pleine : là où la crête rejoint le sol
   const c = toile(img.width, img.height), g = c.getContext('2d');
   g.drawImage(img, 0, 0);
@@ -55,10 +66,10 @@ export function construireTuiles() {
   return Object.fromEntries(Object.entries(TERRAIN).map(([cle, t]) => {
     const passerelle = IMAGES_ART[t.galerie ? t.galerie.image : 'terrain/passerelle'];
     const pieces = t.pieces && Object.fromEntries(Object.entries(t.pieces).map(([larg, p]) =>
-      [larg, { ...p, sommet: IMAGES_ART[p.sommet], fut: IMAGES_ART[p.fut], dessous: p.dessous && IMAGES_ART[p.dessous] }]));
+      [larg, { ...p, sommet: IMAGES_ART[p.sommet], fut: IMAGES_ART[p.fut], dessous: p.dessous && IMAGES_ART[p.dessous], bas: bornesBas(IMAGES_ART[p.fut]) }]));
     return [cle, {
       roc: IMAGES_ART[t.roc], dessous: t.dessous && IMAGES_ART[t.dessous],
-      crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? ligneOpaque(IMAGES_ART[t.crete]) : 0, sousLeCiel: !!t.sousLeCiel,
+      crete: t.crete && IMAGES_ART[t.crete], sol: t.crete ? t.solCrete ?? ligneOpaque(IMAGES_ART[t.crete]) : 0, sousLeCiel: !!t.sousLeCiel,
       passerelle, tablier: t.galerie ? t.galerie.sol : ligneOpaque(passerelle), pointes: IMAGES_ART['terrain/pointes'], fissures,
       pieces,
     }];
@@ -108,7 +119,7 @@ function trouverTours(T) {
 // Posée, elle se tient sur le rempart ; une île (un fragment qui flotte) porte dessous son cône de roche renversé,
 // qui recouvre ses cases u : ce qu'on voit est ce qui arrête le dragon
 function peindreTour(g, T, t) {
-  const p = t.pieces, X = t.x0 * TP - p.coeur, haut = t.y0 * TP - p.sol, base = (t.y1 + 1) * TP;
+  const p = t.pieces, X = t.x0 * TP - p.coeur, haut = t.y0 * TP - p.sol, base = (t.y1 + 1) * TP + (t.flotte ? 0 : 2);
   const s = p.sommet, f = p.fut, basSommet = Math.min(base, haut + s.height);
   if (t.flotte && p.dessous) { const d = p.dessous; g.drawImage(d, Math.round((t.x0 + t.x1 + 1) * TP / 2 - d.width / 2), base - 2); }
   for (let y = basSommet; y < base; y += f.height) {
@@ -174,7 +185,7 @@ function peindreTerrain(g, x0, x1) {
   // sousLeCiel : un sol est abrité (galerie, citerne, alcôve) s'il a de la pierre au-dessus de lui, si haut soit-elle :
   // la crête ne se pose que sous le ciel ; un plafond couvre une salle s'il y a un sol sous lui, si bas soit-il :
   // la roche ne pend en entier qu'au-dessus du vide (le bas de la carte est le vide)
-  const abrite = (tx, ty) => { for (let y = ty - 2; y >= 0; y--) if (plein(tx, y)) return true; return false; };
+  const abrite = (tx, ty) => { for (let y = ty - 2; y >= 0; y--) if (roche(tx, y)) return true; return false; };
   const salle = (tx, ty) => { for (let y = ty + 4; y < H; y++) if (plein(tx, y)) return true; return false; };
   // 1. la roche qui pend sous les îles (derrière la roche elle-même) : pleine profondeur au milieu,
   //    elle s'effile vers les bords de chaque île au lieu d'être coupée net
@@ -219,11 +230,30 @@ function peindreTerrain(g, x0, x1) {
   // 4. la crête posée sur chaque sol à l'air libre (herbe morte, gravats, dalles, créneaux)
   if (T.crete) {
     const c = T.crete;
+    // les tours posées sur ce sol : sous leur silhouette, le parapet s'interrompt, et seul le dessus du chemin (à partir
+    // de 4 lignes au-dessus des pieds) passe dessous : la tour se dresse sur le chemin, elle ne mord pas sur les créneaux
+    const posees = cache.tours.filter((t) => t.pieces && !t.flotte)
+      .map((t) => ({ ty: t.y1 + 1, x0: t.x0 * TP - t.pieces.coeur + t.pieces.bas[0], x1: t.x0 * TP - t.pieces.coeur + t.pieces.bas[1] + 1 }));
+    const chemin = Math.max(0, T.sol - 4);
+    const tranche = (x, fin, sy, y) => {                 // [x, fin[ de la crête, de la ligne sy de l'image jusqu'en bas
+      for (; x < fin;) { const sx = mod(x, c.width), n = Math.min(fin - x, c.width - sx); g.drawImage(c, sx, sy, n, c.height - sy, x, y + sy, n, c.height - sy); x += n; }
+    };
     for (let ty = 1; ty < H; ty++) for (let tx = tx0; tx <= tx1; tx++) {
-      if (!roche(tx, ty) || plein(tx, ty - 1)) continue;
+      if (!roche(tx, ty)) continue;
+      const X = tx * TP, Y = ty * TP - T.sol, ici = posees.filter((p) => p.ty === ty && p.x0 < X + TP && p.x1 > X);
+      if (plein(tx, ty - 1) && !ici.length) continue;
       if (T.sousLeCiel && abrite(tx, ty)) {            // le sol d'une salle : l'arête claire d'une dalle, pas de créneaux
-        g.fillStyle = '#9a9a96'; g.fillRect(tx * TP, ty * TP, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(tx * TP, ty * TP + 1, TP, 1);
-      } else g.drawImage(c, mod(tx * TP, c.width), 0, TP, c.height, tx * TP, ty * TP - T.sol, TP, c.height);
+        g.fillStyle = '#9a9a96'; g.fillRect(X, ty * TP, TP, 1); g.fillStyle = '#5e5e5b'; g.fillRect(X, ty * TP + 1, TP, 1);
+        continue;
+      }
+      for (let x = X; x < X + TP;) {
+        const dans = ici.find((p) => x >= p.x0 && x < p.x1);
+        let fin = X + TP;
+        if (dans) fin = Math.min(fin, dans.x1);
+        else for (const p of ici) if (p.x0 > x && p.x0 < fin) fin = p.x0;
+        tranche(x, fin, dans || plein(tx, ty - 1) ? chemin : 0, Y);
+        x = fin;
+      }
     }
   }
   // 5. les tours peintes, par-dessus tout le reste du terrain (leurs saillies couvrent le bout des galeries qui s'y accrochent)

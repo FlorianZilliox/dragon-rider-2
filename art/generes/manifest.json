@@ -1480,5 +1480,32 @@
   },
   "essai": false,
   "date": "2026-09-22T12:19:31+00:00"
+ },
+ "tours-rempart": {
+  "fichier": "generes/tours-rempart-a9cdf0930f32.png",
+  "empreinte": "a9cdf0930f32",
+  "modele": "gpt-image-1.5",
+  "taille": "1536x1024",
+  "qualite": "high",
+  "fond": "transparent",
+  "reference": [
+   "references/ambiance.png",
+   "generes/tours-noires-83267befaf83.png"
+  ],
+  "usage": {
+   "input_tokens": 1053,
+   "input_tokens_details": {
+    "image_tokens": 646,
+    "text_tokens": 407
+   },
+   "output_tokens": 6522,
+   "output_tokens_details": {
+    "image_tokens": 6208,
+    "text_tokens": 314
+   },
+   "total_tokens": 7575
+  },
+  "essai": false,
+  "date": "2026-09-22T12:34:12+00:00"
  }
 }

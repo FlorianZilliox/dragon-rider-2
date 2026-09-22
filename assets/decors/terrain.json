@@ -138,14 +138,14 @@
   "crete-tours": {
    "image": "terrain/crete-tours.png",
    "taille": [
-    160,
-    46
+    128,
+    42
    ],
    "decalage": [
     0,
-    39
+    0
    ],
-   "hauteurAvantRognage": 85,
+   "hauteurAvantRognage": 42,
    "raccord": false
   },
   "dessous-tours": {

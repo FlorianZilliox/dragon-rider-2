@@ -75,7 +75,7 @@
    "raccord_v": 0.12,
    "tons": [
     0,
-    6
+    4
    ],
    "tramage": 0.5
   },
@@ -104,22 +104,27 @@
    "rogner": true
   },
   "crete-tours": {
-   "_doc": "six merlons exactement (d'un créneau au même créneau six périodes plus loin) : le motif boucle sans fondu",
-   "source": "tours-crete",
-   "largeur": 160,
+   "_doc": "le chemin de ronde des Tours, de la même pierre noire que les tours : quatre merlons exactement (du bord gauche d'un merlon au même bord quatre périodes plus loin), le motif boucle sans fondu ; les pieds se posent au milieu des dalles (solCrete dans TERRAIN)",
+   "source": "tours-rempart",
+   "largeur": 128,
    "alpha": true,
    "recadrer": [
-    0.1038,
-    0,
-    0.9082,
-    0.64
+    0.1491,
+    0.4004,
+    0.627,
+    0.6348
    ],
    "tons": [
-    2,
-    10
+    0,
+    6
    ],
-   "tramage": 0.4,
-   "rogner": true
+   "tramage": 0.35,
+   "lumiere": {
+    "ton": 10,
+    "dx": 1,
+    "dy": -1
+   },
+   "ilot_min": 12
   },
   "dessous": {
    "source": "terres-dessous",
