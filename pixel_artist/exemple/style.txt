@@ -1,4 +1,0 @@
-Pixel art 16 bits de l'âge d'or des consoles, gros pixels nets, aucun flou ni anticrénelage.
-Palette réduite du crépuscule : indigo profond dans les ombres, crème chaud dans les lumières, dégradés en tramage ordonné.
-Profondeur par la valeur : les plans lointains sont clairs et peu contrastés, les plans proches sombres et nets.
-Interdits : aucun texte, aucune interface, aucun personnage.

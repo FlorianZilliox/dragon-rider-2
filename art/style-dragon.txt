@@ -1,5 +1,0 @@
-Pixel art 16 bits de l'âge d'or de la Super Nintendo, exactement de la même main que l'image de référence :
-NOIR ET BLANC, niveaux de gris neutres uniquement (aucune couleur), gros pixels nets, aucun flou, aucun anticrénelage.
-Le personnage est EXACTEMENT celui de l'image de référence : le même dragon noir à la tête ronde et aux grands yeux clairs,
-la même aile, la même queue terminée par une nageoire, le même jeune cavalier aux cheveux sombres assis sur son dos,
-avec les mêmes proportions. Aucun texte, aucun décor, aucun sol dessiné, aucune poussière, aucune ombre portée.

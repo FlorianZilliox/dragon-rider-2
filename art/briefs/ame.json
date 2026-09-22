@@ -1,9 +1,0 @@
-{
- "nom": "ame",
- "reference": "references/ambiance.png",
- "style": "style-creature.txt",
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent",
- "sujet": "Une dame blanche hurlante, spectre fait pour être reconnu au premier coup d'œil même tout petit : grande tête au visage de crâne blafard, TRÈS clair, avec deux immenses orbites NOIRES et une bouche béante NOIRE qui hurle ; longs cheveux blancs emmêlés qui fouettent vers l'arrière ; un linceul SOMBRE en lambeaux qui s'effiloche en fumée vers le bas ; deux mains osseuses pâles tendues vers l'avant. Contrastes très forts : visage et cheveux blancs, orbites et bouche noires, linceul gris foncé. La tête occupe un tiers de la hauteur. Planche d'animation de sprite : 6 images de la même créature, vue de profil tournée vers la droite, alignées sur UNE seule rangée horizontale, même échelle, séparées par un LARGE espace vide, sans aucun chevauchement : les cheveux et le linceul ondulent, les bras se tendent puis se replient, la bouche s'ouvre plus grand. Rien d'autre, fond transparent."
-}

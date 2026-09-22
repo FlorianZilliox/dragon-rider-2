@@ -1,8 +1,0 @@
-Pixel art 16 bits de l'âge d'or de la Super Nintendo, exactement de la même main que l'image de référence :
-NOIR ET BLANC, niveaux de gris neutres uniquement (aucune couleur), gros pixels nets, aucun flou ni anticrénelage,
-dégradés, brume et nuages en tramage ordonné bien visible.
-Profondeur atmosphérique par la valeur : plus un plan est lointain, plus il est clair, brumeux et peu contrasté ;
-les plans proches sont sombres, presque noirs, et nets.
-Ambiance crépusculaire, gothique, nihiliste : ruines, flèches brisées, arches, arbres morts, lune pâle, brume.
-Interdits : aucun texte, aucune interface (ni cœurs ni score), aucun personnage, aucun dragon, aucun ennemi,
-aucun vaisseau, aucune couleur.

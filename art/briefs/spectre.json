@@ -1,9 +1,0 @@
-{
- "nom": "spectre",
- "sujet": "Un spectre de moine en robe de bure noire en haillons, capuchon profond d'où luisent deux yeux blancs, un vrai corps sous la robe : épaules, torse voûté, bras squelettiques qui tiennent une lanterne à une chaîne, la robe qui descend jusqu'à des lambeaux flottants. Les images : il flotte, la robe ondule, les bras se lèvent puis se baissent, la lanterne se balance d'un côté puis de l'autre, le capuchon s'incline. Planche d'animation de sprite pour un jeu : 6 images de la même créature, vue de profil tournée vers la droite, alignées sur UNE seule rangée horizontale, même échelle, bien séparées par du vide, sans aucun chevauchement. Chaque image doit être une pose NETTEMENT différente. Rien d'autre, fond transparent.",
- "reference": "references/ambiance.png",
- "style": "style-creature.txt",
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent"
-}

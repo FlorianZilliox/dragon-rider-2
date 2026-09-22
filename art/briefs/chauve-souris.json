@@ -1,9 +1,0 @@
-{
- "nom": "chauve-souris",
- "reference": "references/ambiance.png",
- "style": "style-creature.txt",
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent",
- "sujet": "Une chauve-souris géante de crypte, ailes de membrane lacérée tendues sur de longs doigts osseux, grandes oreilles pointues, gueule ouverte hérissée de crocs, vue de profil tournée vers la droite. Planche d'animation de sprite : 7 images alignées sur UNE seule rangée horizontale, même échelle, séparées par un LARGE espace vide, sans chevauchement. Les 6 premières images décomposent un battement d'ailes complet, avec des positions d'ailes TRÈS DIFFÉRENTES d'une image à l'autre : 1) ailes dressées tout en haut au-dessus du dos, 2) ailes à mi-hauteur qui descendent, 3) ailes étendues à l'horizontale, 4) ailes rabattues tout en bas sous le corps, 5) ailes repliées contre le corps qui remontent, 6) ailes à demi ouvertes qui remontent. La 7e image : pendue la tête en bas, ailes repliées autour du corps. Rien d'autre, fond transparent."
-}

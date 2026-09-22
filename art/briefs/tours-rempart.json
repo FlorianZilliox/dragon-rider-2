@@ -1,9 +1,0 @@
-{
- "nom": "tours-rempart",
- "_doc": "Le chemin de ronde des Tours, de la même pierre noire que les tours (leur image sert de référence de forme) : parapet de créneaux, dessus du chemin, haut du mur. Découpé par pixeliser.py (recette terrain : crete-tours).",
- "reference": ["references/ambiance.png", "generes/tours-noires-83267befaf83.png"],
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent",
- "sujet": "Le couronnement du rempart du même château que ces tours noires, vu strictement de face, à la même échelle qu'elles : un parapet de créneaux et de merlons simples, épais et carrés, en grosses pierres de la même pierre presque noire que les tours, un peu ébréchés, avec un fin liseré gris clair de lune sur leurs arêtes du haut ; sous le parapet, le dessus du chemin de ronde, une assise de dalles plates vue un tout petit peu en plongée, puis le haut du mur en grand appareil de pierre noire. Une seule bande horizontale continue sur toute la largeur de l'image, rien au-dessus ni au-dessous, fond transparent. Aucune tour, aucun pinacle, aucune flèche."
-}

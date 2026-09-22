@@ -1,9 +1,0 @@
-{
- "nom": "curseur",
- "reference": "references/ambiance.png",
- "style": "style-creature.txt",
- "taille": "1024x1024",
- "qualite": "high",
- "fond": "transparent",
- "sujet": "Un petit ornement gothique de curseur de menu, en fer forgé et argent vieilli, noir et blanc : un fer de lance fleurdelisé qui pointe vers la droite, avec une petite volute derrière. Un seul objet, centré, qui occupe la moitié de l'image. Rien d'autre, fond transparent."
-}

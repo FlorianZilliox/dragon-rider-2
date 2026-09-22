@@ -1,8 +1,0 @@
-{
- "nom": "collines",
- "_doc": "Plan de décor qui défile en boucle derrière le jeu. Tant que l'API n'est pas appelée, sources/collines.png en tient lieu.",
- "sujet": "Une rangée de collines douces vue de côté, avec une tour en ruine et un arbre mort, éclairées par la lune d'en haut. Bande de décor faite pour défiler en boucle : les bords gauche et droit se raccordent. Rien dans le ciel, fond transparent.",
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent"
-}

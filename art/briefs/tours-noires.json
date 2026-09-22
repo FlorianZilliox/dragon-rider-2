@@ -1,9 +1,0 @@
-{
- "nom": "tours-noires",
- "_doc": "Pièces du premier plan des Tours : sommets, flèches, fûts et pieds, découpés par pixeliser.py (recette tours-pieces). Références : l'ambiance (la main du jeu) puis les deux châteaux de Florian (formes), locaux et non versionnés.",
- "reference": ["references/ambiance.png", "references/externes/chateau-1.jpeg", "references/externes/chateau-2.jpeg"],
- "taille": "1536x1024",
- "qualite": "high",
- "fond": "transparent",
- "sujet": "Trois tours gothiques de château, isolées, côte à côte, bien séparées par de larges espaces vides, à la même échelle, vues de face, qui montent du bas de l'image presque jusqu'en haut. Toutes presque noires, en silhouettes découpées sur un ciel clair, éclairées par la lune par derrière : un fin liseré gris clair souligne leurs contours et leurs saillies. Jamais un flanc droit : contreforts, tourelles et échauguettes en encorbellement, balcons et petites galeries de bois sur des corbeaux de pierre, fenêtres gothiques étroites, cordons de pierre. Leurs fûts sont faits d'étages semblables qui se répètent de bas en haut. À gauche, une tour fine coiffée d'un toit en flèche conique très haut et très pointu, entouré de petites flèches. Au milieu, une tour un peu plus large, couronnée d'une terrasse plate à créneaux, avec deux échauguettes d'angle en encorbellement coiffées de petites flèches pointues. À droite, la plus large, un donjon couronné d'une terrasse plate à créneaux sur mâchicoulis, avec une tourelle en flèche sur un angle. Le pied des trois tours se perd dans une brume grise en bas de l'image. Rien d'autre, fond transparent."
-}
