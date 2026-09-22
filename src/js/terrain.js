@@ -273,7 +273,7 @@ function dessinerLevier(o) {
 export function dessinerCourants() {           // colonnes de cendre qui montent : on voit où le vent porte
   ctx.fillStyle = '#c8c7c2';
   for (const c of J.NIV.courants) {
-    if (c.x + TP < J.cam || c.x > J.cam + J.W || c.y1 < J.camY || c.y0 > J.camY + J.H) continue;
+    if (c.fumee || c.x + TP < J.cam || c.x > J.cam + J.W || c.y1 < J.camY || c.y0 > J.camY + J.H) continue;
     const bas = J.camY + J.H + 6, haut = Math.max(c.y0, J.camY - 8);   // seulement la part visible d'une colonne haute
     for (let i = 0; i < 3; i++) {
       const x = c.x + 3 + i * 5, dec = (J.temps * (70 + i * 14) + hash(c.x + i) * 30) % 22;
@@ -300,6 +300,9 @@ export function dessinerObjets() {
     } else if (o.genre === 'bucher') {
       const img = IMAGES_ART['objets/bucher'], x = Math.round(o.x), y = o.y;
       au(img, x, y + 1);
+      if (!o.allume && Math.sin(J.temps * 3 + x) > -0.3) {   // éteint, des braises couvent sous le bois
+        ctx.fillStyle = FEU[3]; ctx.fillRect(x - 3, y - 7, 1, 1); ctx.fillRect(x + 4, y - 6, 1, 1); ctx.fillStyle = FEU[2]; ctx.fillRect(x, y - 8, 1, 1);
+      }
       if (o.allume) {                   // trois flammes sur le bois, et la lueur du feu
         const f = Math.sin(J.temps * 12 + x) > 0, h = y - img.height + 12;
         ctx.drawImage(J.HALOS[f ? 1 : 0], x - (J.HALOS[0].width >> 1), h - 8 - (J.HALOS[0].height >> 1));

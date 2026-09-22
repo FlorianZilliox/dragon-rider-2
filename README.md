@@ -111,7 +111,7 @@ Salles d'essai : `niveaux/salles/<nom>.txt`, jouées seules avec `#salle=<nom>`,
 
 Herses et leviers (raccourcis à la Castlevania) : `H` est une case de herse, qui bloque tant qu'elle est fermée ; `l` est un levier. Un tir de feu ou une ruée l'actionne, et il lève d'un bloc la herse la plus proche (le groupe de cases `H` qui se touchent).
 
-Pénombre : un niveau peut s'assombrir en profondeur, avec `obscurite: { debut, plein, max }` dans son entrée de `NIVEAUX` (rangées de la carte, opacité maximale de 0 à 1). La lumière vient du dragon, de son feu, des autels allumés, des explosions, des crânes ardents, et de la lueur des âmes, des spectres et des reliques.
+Pénombre : un niveau peut s'assombrir en profondeur, avec `obscurite: { debut, plein, max }` dans son entrée de `NIVEAUX` (rangées de la carte, opacité maximale de 0 à 1). La lumière vient du dragon, de son feu, des autels et des bûchers allumés (un bûcher éteint couve et se voit un peu), des explosions, des crânes ardents, et de la lueur des âmes, des spectres et des reliques.
 
 Ennemis : `c` charognard, `a` âme errante, `b` chauve-souris (seulement sous un vrai plafond), `s` spectre, `k` crâne ardent, `v` volée de corbeaux (trois corbeaux, quatre dès l'acte II, qui surgissent du bord de l'écran devant le dragon quand la case arrive à l'écran). Chacun a son propre schéma de comportement ; ils se réveillent quand ils entrent dans le champ, et un ennemi vaincu le reste.
 

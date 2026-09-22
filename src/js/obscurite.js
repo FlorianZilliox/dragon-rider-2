@@ -48,7 +48,7 @@ function lumieres() {
   }
   for (const o of J.NIV.objets) {
     if (o.genre === 'autel' && o.allume) L.push([o.x, o.y - 18, vacille(70, o.x)]);
-    else if (o.genre === 'bucher' && o.allume) L.push([o.x, o.y - 20, vacille(80, o.x)]);
+    else if (o.genre === 'bucher') L.push(o.allume ? [o.x, o.y - 20, vacille(112, o.x)] : [o.x, o.y - 8, vacille(20, o.x)]);   // éteint, il couve : on le voit dans le noir
     else if (o.genre === 'relique' && !o.pris) L.push([o.x, o.y, 14]);
   }
   if (J.veilleur) L.push([J.veilleur.x, J.veilleur.y, 60]);

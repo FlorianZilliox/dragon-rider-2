@@ -70,7 +70,7 @@ export function allumerBucher(o) {
       if (niv.cases[ty * niv.l + tx] === VIDE) niv.cases[ty * niv.l + tx] = COURANT;
       haut = ty;
     }
-    niv.courants.push({ x: tx * TP, y0: haut * TP, y1: (o.ty + 1) * TP });
+    niv.courants.push({ x: tx * TP, y0: haut * TP, y1: (o.ty + 1) * TP, fumee: true });   // sa fumée la montre : pas de traînées
   }
   for (let i = 0; i < 16; i++) particule({ x: o.x + rand(-16, 16), y: o.y - rand(6, 22), vx: rand(-40, 40), vy: rand(-160, -60), vie: rand(0.4, 0.9), max: 0.9, t: 1 });
   sfx('feu'); sfx('envol', 0.05);

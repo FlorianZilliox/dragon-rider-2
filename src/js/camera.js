@@ -8,6 +8,11 @@ export function suivreCamera(dt) {
   let cible;
   if (J.etat === 'titre') cible = J.NIV.depart[1] - J.SOL;
   else if (J.P.mode === 'ground' || J.P.mode === 'land' || J.P.mode === 'dead') cible = J.P.sol - J.SOL;   // au sol : le sol à sa place habituelle
-  else cible = clamp(J.camY, J.P.y - J.H * 0.74, J.P.y - J.H * 0.3);
+  else {                                   // en vol : elle regarde un peu au-dessus quand il monte vite (une colonne),
+    J.regard = approche(J.regard || 0, clamp(J.P.vy * 0.4, -64, 0), dt * 1.5);   // en montée seulement ; ce regard glisse, sans à-coup
+    const y = J.P.y + J.regard;
+    cible = clamp(J.camY, y - J.H * 0.74, y - J.H * 0.3);
+  }
+  if (J.P.mode !== 'air' && J.P.mode !== 'fall') J.regard = approche(J.regard || 0, 0, dt * 1.5);
   J.camY = clamp(approche(J.camY, cible, dt * 4), 0, Math.max(0, J.NIV.hauteur - J.H));
 }
