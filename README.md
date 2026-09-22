@@ -128,6 +128,14 @@ Mesures utiles pour dessiner une carte (le dragon est grand) :
 
 Voir `pixel_artist/README.md` pour le détail du pipeline. Les icônes de l'application (`src/icones/`) sont composées à partir des sprites du jeu par `python3 outils/icones.py`.
 
+## Le savoir-faire, en skills
+
+Les techniques et les exigences du projet sont écrites sous forme de skills Claude Code, dans `skills/` : les recopier dans `~/.claude/skills/` pour qu'elles servent à d'autres jeux.
+- `jeu-assets-pixel-art` : génération des images d'après une référence d'ambiance, Pixel Artist, direction artistique, validations.
+- `jeu-animation-marionnette` : animation par pièces sans couture, tronc articulé, ressorts, allures, principes Disney, outils de vérification.
+- `jeu-moteur-2d-pwa` : architecture modulaire, PWA qui se met à jour, contrôles mobiles, performance, robots de test, publication.
+- `jeu-level-design` : cartes en texte, exploration à la Castlevania, pénombre, difficulté par actes.
+
 ## Vérifier
 
 Les robots de `outils/tests/` pilotent Chrome sans fenêtre (Chrome est trouvé automatiquement ; sinon `CHROME=/chemin/vers/chrome`). Ils servent eux-mêmes `dist/` (lancer `npm run build` avant) ; le premier argument est `-`, des raccourcis (`#essai`…) ou une adresse http :
