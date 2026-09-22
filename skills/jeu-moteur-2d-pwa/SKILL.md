@@ -62,6 +62,7 @@ Tous vivent dans `outils/tests/`. `chrome.mjs` trouve Chrome sur la machine, `se
 | `fentes.mjs` | Fentes aux jointures d'une marionnette. |
 | `rendu.mjs` | Postures figées en PNG ; `--comparer` deux versions au pixel près. |
 | `cycle.mjs` | Les images exactes d'une foulée ou d'un battement, et le diagramme des appuis. |
+| `survol.mjs` | Traverse un niveau en vol à altitude de croisière : blocages, souffle épuisé. |
 
 - **Lancer les robots l'un après l'autre** quand ils mesurent du temps : une page cachée se met en pause.
 - **Vérifier après la toute dernière retouche** : un écran noir a été livré après une modification de dernière minute.

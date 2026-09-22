@@ -109,7 +109,7 @@ Herses et leviers (raccourcis à la Castlevania) : `H` est une case de herse, qu
 
 Pénombre : un niveau peut s'assombrir en profondeur, avec `obscurite: { debut, plein, max }` dans son entrée de `NIVEAUX` (rangées de la carte, opacité maximale de 0 à 1). La lumière vient du dragon, de son feu, des autels allumés, des explosions, des crânes ardents, et de la lueur des âmes, des spectres et des reliques.
 
-Ennemis : `c` charognard, `a` âme errante, `b` chauve-souris (seulement sous un vrai plafond), `s` spectre, `k` crâne ardent. Chacun a son propre schéma de comportement ; ils se réveillent quand ils entrent dans le champ, et un ennemi vaincu le reste.
+Ennemis : `c` charognard, `a` âme errante, `b` chauve-souris (seulement sous un vrai plafond), `s` spectre, `k` crâne ardent, `v` volée de corbeaux (trois corbeaux, quatre dès l'acte II, qui surgissent du bord de l'écran devant le dragon quand la case arrive à l'écran). Chacun a son propre schéma de comportement ; ils se réveillent quand ils entrent dans le champ, et un ennemi vaincu le reste.
 
 Mesures utiles pour dessiner une carte (le dragon est grand) :
 

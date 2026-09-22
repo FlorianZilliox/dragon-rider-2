@@ -2,7 +2,7 @@ import { J } from './etat.js';
 import { FEU, OS, PV_MAX } from './config.js';
 import { auSol, blesser } from './dragon.js';
 import { TYPES, apparitions, majEnnemi, noterRecord, tuer } from './ennemis.js';
-import { FRAGILE, TP, bloque, briser, caseA, majHerses, porteOuverte, tirerLevier } from './niveau.js';
+import { FRAGILE, TP, bloque, briser, caseA, majHerses, porteOuverte, tirerLevier, toucheLevier } from './niveau.js';
 import { rand } from './outils.js';
 import { explosion, particule, popup } from './partie.js';
 import { sfx } from './son.js';
@@ -40,7 +40,7 @@ export function majMonde(dt) {
       break;
     }
     for (const o of J.orbes) if (b.vie > 0 && Math.hypot(o.x - b.x, o.y - b.y) < 10) { o.vie = 0; b.vie = 0; explosionSol(o.x, o.y); }
-    for (const o of J.NIV.objets) if (b.vie > 0 && o.genre === 'levier' && !o.tire && Math.hypot(o.x - b.x, o.y - 9 - b.y) < 12) { tirerLevier(o); b.vie = 0; explosionSol(b.x, b.y); }
+    for (const o of J.NIV.objets) if (b.vie > 0 && o.genre === 'levier' && !o.tire && toucheLevier(o, b.x, b.y)) { tirerLevier(o); b.vie = 0; explosionSol(b.x, b.y); }
     // le feu touche tout le crâne et la mâchoire
     if (J.veilleur && b.vie > 0 && ((J.veilleur.x - b.x) / 34) ** 2 + ((J.veilleur.y + 8 - b.y) / 44) ** 2 < 1) { b.vie = 0; blesserVeilleur(J.veilleur, 1); explosionSol(b.x, b.y); }
   }

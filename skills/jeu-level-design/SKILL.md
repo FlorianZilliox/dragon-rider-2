@@ -13,6 +13,7 @@ Tiré de Dragon Rider : 4 niveaux (Terres, Cimetière, Tours, Cryptes), puis le 
 - **La légende** vit dans le README : roc, corniche, pics, mur fissuré, colonne de cendre, départ, porte, autel, cœur, relique, ennemis, décors, et `H` pour une herse, `l` pour un levier, `|` pour une tour peinte.
 - **Mesurer le personnage d'abord**, puis concevoir avec ces mesures. Pour le dragon : 3 cases de haut au sol, il enjambe seul une marche d'une case, son souffle permet environ 7 s de vol à plat ou 3,5 s de montée, et son feu part à hauteur de gueule (un mur fissuré doit se toucher de face).
 - **Contrôler la carte automatiquement** : tout est atteignable, les murs fissurés se touchent de face, aucun objet n'est pris dans la pierre.
+- **Une carte construite par un petit générateur** (des fonctions « tour », « courant », « salle ») garde des écarts exacts. Attention à l'ordre : une salle creusée après coup efface ce qu'on avait posé (un levier a disparu ainsi).
 
 ## Ce qu'on ne fait plus (retours de l'utilisateur)
 
@@ -20,12 +21,23 @@ Tiré de Dragon Rider : 4 niveaux (Terres, Cimetière, Tours, Cryptes), puis le 
 - **Construire l'architecture en empilant des blocs** (salles creuses à parois fines, cadres, piliers de 2 cases). La géométrie reste faite de masses épaisses : sols, îles, sommets larges, corniches. L'architecture passe par le décor peint (voir le skill jeu-assets-pixel-art).
 - **Faire doublon.** Chaque niveau garde son caractère. Si un nouveau thème est aérien, les autres ne le deviennent pas.
 
+## Un niveau de vol (d'après Owlboy, Demon's Crest, ActRaiser 2, Castlevania)
+
+Les premières Tours de Dragon Rider ont été jugées « très laborieuses » : vingt-quatre tours plus hautes que l'écran, 5 cases d'écart entre elles pour un dragon de 110 px, et des corbeaux figés contre les murs. La refonte suit ces règles :
+- **L'espace se mesure au personnage.** Le héros d'Owlboy fait 1/12 de l'écran et vole dans des salles grandes comme l'écran. Un grand personnage demande des passages d'au moins une dizaine de cases, jamais moins d'une fois et demie sa longueur.
+- **Le ciel reste ouvert.** Le décor reste en bas : une ligne d'horizon (brume, remparts) d'où sortent des sommets bas, espacés d'environ un écran, qui servent de perchoirs. On vole au-dessus sans remonter chaque obstacle. Des îles (des fragments de tour qui flottent) meublent le haut, toujours contournables.
+- **La hauteur se gagne dans des puits larges ou par des courants ascendants**, avec des rebords réguliers. Aucune montée de plus de 40 % du souffle sans un endroit où se poser.
+- **Une seule grande tour, comme but.** On la grimpe par ses balcons alternés, avec un courant à côté ; la relique est au sommet. Un tel géant bloque le chemin : pas plus d'un par niveau.
+- **Les ennemis viennent au joueur.** En plein ciel, un ennemi posé qui attend ne menace personne. Des volées surgissent du bord de l'écran, devant le personnage (comme les têtes de Méduse de Castlevania), et un ennemi ne doit jamais rester figé contre un mur : il le contourne par-dessus.
+- **Le vérifier au robot** : `outils/tests/survol.mjs` traverse le niveau en vol à altitude de croisière et dit s'il se bloque. Sur les anciennes Tours, le robot restait coincé à 60 % du niveau ; sur les nouvelles, il traverse en 26 s.
+
 ## Exploration à la Castlevania
 
 - **Deux étages qui se croisent.** Un chemin haut, de sommet en sommet, et un chemin bas, à pied, dans les fondations, reliés par des puits avec leur colonne de cendre pour remonter.
 - **Les reliques ouvrent la sortie.** La porte n'apparaît qu'une fois toutes les reliques ramassées : si on arrive sans elles, un message « IL MANQUE 2 RELIQUES » ; à la dernière, un glas sonne et la porte monte de la brume. Disperser les reliques pour forcer l'exploration et les retours.
 - **Herses et leviers comme raccourcis.** Placer le levier du côté du retour : on passe la première fois par le détour, et on ouvre en revenant.
   - Le levier s'actionne au feu ou à la ruée ; à bout portant, le feu doit l'atteindre avant de naître au-delà.
+  - Le feu touche le levier sur toute la hauteur de son manche : au sol, la gueule est plus haute que la tête du levier (un cercle de tolérance le ratait).
   - Éviter qu'on le tire par accident depuis le chemin normal.
 - **Les secrets** se cachent derrière des murs fissurés : de petites alcôves dans des masses épaisses, avec un cœur ou une relique.
 - **Des autels** (points de reprise) aux carrefours et avant les passages durs.

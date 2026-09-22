@@ -39,6 +39,9 @@ function herses(niv) {
   return groupes;
 }
 export const MONTEE_HERSE = 0.9;                     // secondes pour qu'une herse remonte dans la voûte
+// le feu touche un levier sur toute la hauteur de son manche (du pied à 26 px), à 12 px de part et d'autre :
+// au sol, la gueule du dragon est à 20 px du sol, et le levier doit se tirer de près comme de loin
+export const toucheLevier = (o, x, y) => Math.abs(o.x - x) < 12 && y > o.y - 26 && y < o.y + 2;
 // un levier actionné (feu ou ruée) lève la herse la plus proche de lui
 export function tirerLevier(o) {
   if (o.tire) return;
@@ -73,6 +76,7 @@ export function lireNiveau(n) {
     else if (ch === 'f') niv.objets.push({ genre: 'autel', x, y: sol });
     else if (ch === 'l') niv.objets.push({ genre: 'levier', x, y: sol, tire: false });
     else if (DECOR.includes(ch)) niv.objets.push({ genre: 'decor', type: ch, x, y: sol });
+    else if (ch === 'v') niv.objets.push({ genre: 'volee', x, y });   // une volée de corbeaux, lâchée quand on arrive
     else if (ch === 'P') niv.depart = [x, sol];
     else if (ch === 'E') niv.sortie = { x, y: sol };
     else if (ch === 'V') niv.veilleur = { x, y };

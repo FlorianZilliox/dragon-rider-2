@@ -164,6 +164,11 @@ export function majEnnemi(e, dt) {
   if (!TRAVERSE[e.type] && pierre(e.x, e.y)) {
     if (e.type === 'crane') { e.mort = true; explosion(e.x, e.y, true); if (e.source) e.source.mort = true; }   // le crâne se brise sur la pierre
     else if (e.type === 'charognard' && e.etat === 'pique') { e.x = ax; e.y = ay; changer(e, 'remonte'); }
+    else if (e.type === 'charognard') {              // un mur, une tour : il passe par-dessus au lieu de s'y figer
+      const plafond = pierre(ax, ay - 14);
+      e.x = ax; e.y = plafond ? ay : ay - 70 * dt;
+      if (plafond) e.face = -e.face;
+    }
     else { e.x = ax; e.y = ay; e.vx = -e.vx; e.zig = -(e.zig || 1); }
   }
   e.y = clamp(e.y, 10, J.NIV.hauteur - 10);
@@ -191,8 +196,9 @@ export function apparitions() {
   if (J.arene || CALME || J.P.pv <= 0 || (J.carte && J.carte.fondu)) return;
   const diff = DIFFICULTE.vivacite(rang());
   for (const o of J.NIV.objets) {
-    if (o.genre !== 'ennemi' || o.mort) continue;
+    if ((o.genre !== 'ennemi' && o.genre !== 'volee') || o.mort) continue;
     const champ = o.x > J.cam - 24 && o.x < J.cam + J.W + 48 && o.y > J.camY - 40 && o.y < J.camY + J.H + 40;
+    if (o.genre === 'volee') { if (champ && o.x > J.cam + 8 && o.x < J.cam + J.W - 8) { o.mort = true; lacherVolee(diff); } continue; }
     if (o.actif === 'parti') { if (!champ) o.actif = false; continue; }   // reviendra quand on repassera
     if (o.actif || !champ) continue;
     o.actif = true;
@@ -200,6 +206,21 @@ export function apparitions() {
     if (o.coriace) e.pv++;
     e.source = o; J.ennemis.push(e);
   }
+}
+// une volée de corbeaux (case v) : ils surgissent du bord de l'écran, devant le dragon, et fondent sur lui l'un après
+// l'autre (en plein ciel, comme les têtes de Méduse de Castlevania : c'est l'ennemi qui vient au joueur)
+export function lacherVolee(diff) {
+  const n = 3 + (rang() > 0 ? 1 : 0), cote = J.P.face || 1;
+  for (let k = 0; k < n; k++) {
+    const x = cote > 0 ? J.cam + J.W + 18 + k * 34 : J.cam - 18 - k * 34;
+    let y = clamp(J.P.y - 46 + k * 26, J.camY + 24, J.camY + J.H - 48);
+    while (pierre(x, y) && y > J.camY + 16) y -= 12;
+    const e = creerEnnemi('charognard', x, y, -cote, diff);
+    Object.assign(e, { perche: false, hy: y, y, face: -cote, vy: -40 });
+    changer(e, 'envol');
+    J.ennemis.push(e);
+  }
+  sfx('touche');
 }
 export function tuer(e) {
   if (e.source) e.source.mort = true;

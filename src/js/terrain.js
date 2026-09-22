@@ -103,8 +103,11 @@ function trouverTours(T) {
 // une tour peinte : le sommet sur sa première rangée, le fût répété jusqu'au pied, le pied qui déborde dans la brume
 function peindreTour(g, T, t) {
   const p = t.pieces, X = t.x0 * TP - p.coeur, haut = t.y0 * TP - p.sol, base = (t.y1 + 1) * TP + T.piedSous;
-  const s = p.sommet, f = p.fut, pd = p.pied, basSommet = Math.min(base, haut + s.height);
-  const place = base - basSommet, hPied = Math.min(pd.height, place);          // une tour courte : le pied, rogné par le haut
+  // une tour courte (une île qui flotte) : le sommet s'arrête sous sa terrasse, et le bas du pied (sa brume) le prolonge,
+  // au lieu d'un sommet coupé net
+  const s = p.sommet, f = p.fut, pd = p.pied, reserve = Math.min(pd.height, Math.max(0, base - (haut + p.sol) - 16));
+  const basSommet = Math.min(base - reserve, haut + s.height);
+  const place = base - basSommet, hPied = Math.min(pd.height, place);          // le pied, rogné par le haut
   let y = basSommet;
   for (const fin = base - hPied; y < fin; y += f.height) {
     const h = Math.min(f.height, fin - y);
